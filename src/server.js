@@ -2,6 +2,7 @@ const express = require('express');
 const sequelize = require('./config/db');
 const watchlistRoutes = require('./routes/watchlist');
 const productRoutes = require('./routes/product');
+const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -14,6 +15,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/watchlist', watchlistRoutes);
 app.use('/api/products', productRoutes);
 
+// Basic route
+app.get('/', (req, res) => {
+  res.json({ message: 'Auction API is running' });
+});
+
+// Global error handler (must be last)
+app.use(errorHandler);
+
 // Test database connection
 sequelize.authenticate()
   .then(() => {
@@ -25,11 +34,6 @@ sequelize.authenticate()
 
 // Sync models (optional - use with caution in production)
 // sequelize.sync({ alter: true });
-
-// Basic route
-app.get('/', (req, res) => {
-  res.json({ message: 'Auction API is running' });
-});
 
 // Start server
 app.listen(PORT, () => {
