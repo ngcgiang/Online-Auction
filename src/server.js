@@ -1,6 +1,7 @@
 const express = require('express');
 const sequelize = require('./config/db');
 const watchlistRoutes = require('./routes/watchlist');
+const productRoutes = require('./routes/product');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -11,6 +12,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use('/api/watchlist', watchlistRoutes);
+app.use('/api/products', productRoutes);
 
 // Test database connection
 sequelize.authenticate()
