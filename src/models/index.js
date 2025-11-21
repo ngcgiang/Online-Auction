@@ -53,6 +53,27 @@ Product.belongsToMany(User, {
   as: 'watchers'
 });
 
+// Direct associations for Watchlist (needed for eager loading)
+Watchlist.belongsTo(Product, {
+  foreignKey: 'product_id',
+  as: 'product'
+});
+
+Watchlist.belongsTo(User, {
+  foreignKey: 'user_id',
+  as: 'user'
+});
+
+Product.hasMany(Watchlist, {
+  foreignKey: 'product_id',
+  as: 'watchlistEntries'
+});
+
+User.hasMany(Watchlist, {
+  foreignKey: 'user_id',
+  as: 'watchlistEntries'
+});
+
 module.exports = {
   sequelize,
   User,
