@@ -1,0 +1,100 @@
+# Visual Studio / .NET
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build outputs
+bin/
+obj/
+[Bb]uild/
+artifacts/
+*.dll
+*.exe
+*.pdb
+*.ilk
+*.meta
+
+# NuGet
+*.nupkg
+packages/
+.project.lock.json
+project.lock.json
+*.snupkg
+.nuget/
+
+# Rider / JetBrains
+.idea/
+*.sln.iml
+*.idea/
+
+# ASP.NET / .NET Core
+appsettings.*.json
+appsettings.Development.json
+secrets.json
+secrets.*.json
+local.settings.json
+wwwroot/dist/
+*.db
+
+# Entity Framework / Migrations (adjust if you want migrations tracked)
+# /Migrations/*
+
+# Visual Studio Code
+.vscode/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+dist/
+build/
+.env
+.env.local
+.env.*.local
+
+# Test results / coverage
+TestResults/
+coverage/
+*.coverage
+*.coveragexml
+*.trx
+
+# Docker
+docker-compose.override.yml
+.docker/
+
+# Rider / ReSharper
+_ReSharper*/
+*__ReSharper__*/
+*.DotSettings.user
+
+# User-specific files
+*.log
+*.cache
+*.bak
+*.swp
+
+# OS generated
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Certificates & secrets
+*.pfx
+*.key
+*.pem
+
+# Archives / packages
+*.zip
+*.tar.gz
+*.7z
+
+# OneDrive / temp
+~$*
+~*.tmp
