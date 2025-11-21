@@ -1,3 +1,5 @@
+const { Sequelize } = require('sequelize');
+
 // Helper function to remove Vietnamese accents
 const removeVietnameseAccents = (str) => {
   if (!str) return '';
@@ -14,6 +16,29 @@ const removeVietnameseAccents = (str) => {
   return str;
 };
 
+const generateUnaccentSQL = (colName) => {
+  const accents = [
+    ['a', 'àáạảãâầấậẩẫăằắặẳẵ'],
+    ['e', 'èéẹẻẽêềếệểễ'],
+    ['i', 'ìíịỉĩ'],
+    ['o', 'òóọỏõôồốộổỗơờớợởỡ'],
+    ['u', 'ùúụủũưừứựửữ'],
+    ['y', 'ỳýỵỷỹ'],
+    ['d', 'đ']
+  ];
+
+  let logic = Sequelize.col(colName);
+
+  accents.forEach(([char, list]) => {
+    [...list].forEach(accentChar => {
+      logic = Sequelize.fn('REPLACE', logic, accentChar, char);
+    });
+  });
+
+  return logic;
+};
+
 module.exports = {
-  removeVietnameseAccents
+  removeVietnameseAccents,
+  generateUnaccentSQL
 };

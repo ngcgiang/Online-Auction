@@ -1,7 +1,7 @@
 const { Product, Category, User } = require('../models');
 const { Op } = require('sequelize');
 const sequelize = require('../config/db');
-const { removeVietnameseAccents } = require('../utils/textHelpers');
+const { removeVietnameseAccents, generateUnaccentSQL} = require('../utils/textHelpers');
 
 class ProductService {
   
@@ -61,33 +61,10 @@ class ProductService {
     if (keyword) {
       const normalizedKeyword = removeVietnameseAccents(keyword);
       
-      // Build nested REPLACE functions for accent removal in SQL
       whereConditions[Op.and] = sequelize.where(
-        sequelize.fn('LOWER', 
-          sequelize.fn('REPLACE',
-            sequelize.fn('REPLACE',
-              sequelize.fn('REPLACE',
-                sequelize.fn('REPLACE',
-                  sequelize.fn('REPLACE',
-                    sequelize.fn('REPLACE',
-                      sequelize.fn('REPLACE',
-                        sequelize.fn('REPLACE',
-                          sequelize.fn('REPLACE',
-                            sequelize.fn('REPLACE',
-                              sequelize.fn('REPLACE',
-                                sequelize.fn('REPLACE',
-                                  sequelize.fn('REPLACE',
-                                    sequelize.fn('REPLACE',
-                                      sequelize.fn('REPLACE',
-                                        sequelize.fn('REPLACE',
-                                          sequelize.fn('REPLACE',
-                                            sequelize.col('product_name'),
-                                            'à', 'a'), 'á', 'a'), 'ạ', 'a'), 'ả', 'a'), 'ã', 'a'),
-                                        'â', 'a'), 'ầ', 'a'), 'ấ', 'a'), 'ậ', 'a'), 'ẩ', 'a'), 'ẫ', 'a'),
-                                    'ă', 'a'), 'ằ', 'a'), 'ắ', 'a'), 'ặ', 'a'), 'ẳ', 'a'), 'ẵ', 'a')
-        ),
+        sequelize.fn('LOWER', generateUnaccentSQL('product_name')),
         {
-          [Op.like]: `%${normalizedKeyword}%`
+        [Op.like]: `%${normalizedKeyword.toLowerCase()}%`
         }
       );
     }
