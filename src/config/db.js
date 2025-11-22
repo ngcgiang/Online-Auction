@@ -5,7 +5,7 @@ const { Sequelize } = require('sequelize');
 const sequelize = new Sequelize(
   'auction_db',   // tên database
   'root',       // user
-  'ngcjang1803',       // mật khẩu
+  '051104',       // mật khẩu
   {
     host: '127.0.0.1',
     port: 3306,
