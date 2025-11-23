@@ -3,6 +3,7 @@ const User = require('./User');
 const Category = require('./Category');
 const Product = require('./Product');
 const Watchlist = require('./WatchList');
+const Bid = require('./Bid');
 
 // Define associations
 
@@ -74,10 +75,21 @@ User.hasMany(Watchlist, {
   as: 'watchlistEntries'
 });
 
+Product.hasMany(Bid,{
+  foreignKey: 'product_id',
+  as: 'bids'
+});
+
+Bid.belongsTo(Product, {
+  foreignKey: 'product_id',
+  as: 'product'
+});
+
 module.exports = {
   sequelize,
   User,
   Category,
   Product,
-  Watchlist
+  Watchlist,
+  Bid
 };

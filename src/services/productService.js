@@ -1,4 +1,4 @@
-const { Product, Category, User } = require('../models');
+const { Product, Category, User, Bid } = require('../models');
 const { Op } = require('sequelize');
 const sequelize = require('../config/db');
 const { removeVietnameseAccents, generateUnaccentSQL} = require('../utils/textHelpers');
@@ -275,6 +275,59 @@ class ProductService {
 
     return product;
   }
+
+  async getTopValueProducts(limit = 5) {
+    try{
+      const products = await Product.findAll({
+        order: [['current_price', 'DESC']],
+        limit,
+    });
+      return products;
+    } catch (error){
+      throw new Error('Error fetching top valued products: ' + error.message);
+    }
+  }
+
+  async getTopLeastTimeLeftProducts(limit = 5) {
+    try{
+      const products = await Product.findAll({
+        order: [['end_time', 'ASC']],
+        limit,
+    });
+      return products;
+    } catch (error){
+      throw new Error('Error fetching top least time left products: ' + error.message);
+    }
+  }
+
+  async getTopMostBiddedProducts(limit = 5) {
+    try {
+        const products = await Product.findAll({
+            attributes:[
+                'product_id', 
+                'product_name', 
+                'current_price', 
+                'end_time',
+                [sequelize.fn('COUNT', sequelize.col('bids.bid_id')), 'bidCount']
+            ],
+            include: [{
+                model: Bid,
+                as: 'bids',  
+                attributes: [],
+                duplicating: false  
+            }],
+            group: ['Product.product_id', 'Product.product_name', 'Product.current_price', 'Product.end_time'],  // Include all selected attributes
+            order: [[sequelize.literal('bidCount'), 'DESC']],
+            limit: 5,
+            subQuery: false  // Add this for better performance with grouping
+        });
+        return products;
+    } catch (error) {
+        console.error('Error fetching top most bidded products:', error);
+        throw error;
+    }
+  }
+
 }
 
 module.exports = new ProductService();

@@ -2,6 +2,7 @@ const express = require('express');
 const sequelize = require('./config/db');
 const watchlistRoutes = require('./routes/watchlist');
 const productRoutes = require('./routes/product');
+const categoryRoutes = require('./routes/category');
 const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
@@ -14,6 +15,7 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use('/api/watchlist', watchlistRoutes);
 app.use('/api/products', productRoutes);
+app.use('/api/categories', categoryRoutes);
 
 // Basic route
 app.get('/', (req, res) => {

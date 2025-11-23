@@ -75,6 +75,12 @@ const validateGetProductById = [
     .toInt()
 ];
 
+const validateGetTopProducts = [
+  
+]
+
+
+
 module.exports = {
   validateSearchProducts,
   validateGetProducts,

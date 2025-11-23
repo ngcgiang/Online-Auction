@@ -2,8 +2,13 @@
   "dependencies": {
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "express-validator": "^7.3.1",
     "mysql2": "^3.15.3",
+    "nodemon": "^3.1.11",
     "sequelize": "^6.37.7",
     "sql2": "^0.0.1"
+  },
+  "scripts": {
+    "dev": "nodemon server.js"
   }
 }

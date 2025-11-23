@@ -24,6 +24,23 @@ router.get(
   productController.getProductsByCategory
 );
 
+router.get(
+  '/top-value',
+  productController.fetchTopValueProducts
+);
+
+router.get(
+  '/top-least-time-left',
+  productController.fetchTopLeastTimeLeftProducts
+);
+
+router.get(
+  '/top-most-bidded',
+  productController.fetchTopMostBiddedProducts
+);
+
+
+
 // GET /api/products/:product_id - Get product by ID
 router.get(
   '/:product_id', 
@@ -31,5 +48,7 @@ router.get(
   handleValidationErrors, 
   productController.getProductById
 );
+
+
 
 module.exports = router;
