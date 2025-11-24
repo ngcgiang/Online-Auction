@@ -4,6 +4,7 @@ const Category = require('./Category');
 const Product = require('./Product');
 const Watchlist = require('./WatchList');
 const Bid = require('./Bid');
+const ProductImage = require('./ProductImage');
 
 // Define associations
 
@@ -85,11 +86,33 @@ Bid.belongsTo(Product, {
   as: 'product'
 });
 
+Bid.belongsTo(User, {
+  foreignKey: 'bidder_id',
+  as: 'bidder'
+});
+
+User.hasMany(Bid, {
+  foreignKey: 'bidder_id',
+  as: 'bids'
+});
+
+// Product - ProductImage relationship
+Product.hasMany(ProductImage, {
+  foreignKey: 'product_id',
+  as: 'images'
+});
+
+ProductImage.belongsTo(Product, {
+  foreignKey: 'product_id',
+  as: 'product'
+});
+
 module.exports = {
   sequelize,
   User,
   Category,
   Product,
   Watchlist,
-  Bid
+  Bid,
+  ProductImage
 };

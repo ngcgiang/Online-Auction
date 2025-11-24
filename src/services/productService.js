@@ -1,4 +1,4 @@
-const { Product, Category, User, Bid } = require('../models');
+const { Product, Category, User, Bid, ProductImage } = require('../models');
 const { Op } = require('sequelize');
 const sequelize = require('../config/db');
 const { removeVietnameseAccents, generateUnaccentSQL} = require('../utils/textHelpers');
@@ -25,8 +25,44 @@ class ProductService {
 
     // Build WHERE conditions
     const whereConditions = {};
+    const categoryWhere = {};
 
-    // Handle category search (Vietnamese accent-insensitive)
+    // Handle keyword search (Vietnamese accent-insensitive)
+    // Search in both product name AND category name using FULLTEXT search
+    if (keyword) {
+      const normalizedKeyword = removeVietnameseAccents(keyword);
+      
+      // Get all categories that match the keyword
+      const categories = await Category.findAll({
+        attributes: ['category_id', 'category_name']
+      });
+      
+      const matchingCategoryIds = categories
+        .filter(cat => removeVietnameseAccents(cat.category_name).includes(normalizedKeyword))
+        .map(cat => cat.category_id);
+      
+      // Build OR condition: match product name (FULLTEXT) OR category
+      const searchConditions = [];
+      
+      // Add FULLTEXT search for product name
+      searchConditions.push(
+        sequelize.literal(`MATCH (product_name) AGAINST (:searchTerm IN NATURAL LANGUAGE MODE)`)
+      );
+      
+      // Add category condition if any categories match
+      if (matchingCategoryIds.length > 0) {
+        searchConditions.push({
+          category_id: {
+            [Op.in]: matchingCategoryIds
+          }
+        });
+      }
+      
+      // Combine with OR
+      whereConditions[Op.or] = searchConditions;
+    }
+
+    // Handle category filter (explicit category parameter)
     if (category) {
       const normalizedCategory = removeVietnameseAccents(category);
       
@@ -52,21 +88,10 @@ class ProductService {
         };
       }
 
+      // If both keyword and category, use AND condition
       whereConditions.category_id = {
         [Op.in]: matchingCategoryIds
       };
-    }
-
-    // Handle keyword search (Vietnamese accent-insensitive)
-    if (keyword) {
-      const normalizedKeyword = removeVietnameseAccents(keyword);
-      
-      whereConditions[Op.and] = sequelize.where(
-        sequelize.fn('LOWER', generateUnaccentSQL('product_name')),
-        {
-        [Op.like]: `%${normalizedKeyword.toLowerCase()}%`
-        }
-      );
     }
 
     // Determine sort order
@@ -80,6 +105,7 @@ class ProductService {
     // Query products
     const { count, rows: products } = await Product.findAndCountAll({
       where: whereConditions,
+      replacements: { searchTerm: keyword || '' },
       include: [
         {
           model: Category,
@@ -90,6 +116,27 @@ class ProductService {
           model: User,
           as: 'seller',
           attributes: ['user_id', 'username', 'full_name', 'rating_score']
+        },
+        {
+          model: ProductImage,
+          as: 'images',
+          attributes: ['image_id', 'img_url'],
+          limit: 1,
+          separate: true,
+          order: [['image_id', 'ASC']]
+        },
+        {
+          model: Bid,
+          as: 'bids',
+          attributes: ['bid_id', 'bidder_id', 'amount'],
+          where: { status: 1 },
+          required: false,
+          separate: true,
+          include: [{
+            model: User,
+            as: 'bidder',
+            attributes: ['user_id', 'username', 'full_name']
+          }]
         }
       ],
       limit,
@@ -98,12 +145,36 @@ class ProductService {
       distinct: true
     });
 
-    // Mark new products
+    // Mark new products and enrich with bid data
     const newProductThreshold = new Date(Date.now() - newMinutes * 60 * 1000);
     const enrichedProducts = products.map(product => {
       const productData = product.toJSON();
       const createdAt = new Date(productData.start_time);
       productData.isNew = createdAt > newProductThreshold;
+      
+      // Get avatar (first image)
+      productData.avatar = productData.images && productData.images.length > 0 
+        ? productData.images[0].img_url 
+        : null;
+      
+      // Get bid count and highest bidder
+      const validBids = productData.bids || [];
+      productData.bidCount = validBids.length;
+      
+      if (validBids.length > 0) {
+        // Find highest bid
+        const highestBid = validBids.reduce((max, bid) => 
+          parseFloat(bid.amount) > parseFloat(max.amount) ? bid : max
+        );
+        productData.highestBidder = highestBid.bidder;
+      } else {
+        productData.highestBidder = null;
+      }
+      
+      // Remove bids and images arrays from response
+      delete productData.bids;
+      delete productData.images;
+      
       return productData;
     });
 
@@ -168,6 +239,27 @@ class ProductService {
           model: User,
           as: 'seller',
           attributes: ['user_id', 'username', 'full_name', 'rating_score']
+        },
+        {
+          model: ProductImage,
+          as: 'images',
+          attributes: ['image_id', 'img_url'],
+          limit: 1,
+          separate: true,
+          order: [['image_id', 'ASC']]
+        },
+        {
+          model: Bid,
+          as: 'bids',
+          attributes: ['bid_id', 'bidder_id', 'amount'],
+          where: { status: 1 },
+          required: false,
+          separate: true,
+          include: [{
+            model: User,
+            as: 'bidder',
+            attributes: ['user_id', 'username', 'full_name']
+          }]
         }
       ],
       limit,
@@ -176,10 +268,40 @@ class ProductService {
       distinct: true
     });
 
+    // Enrich products with avatar, bid count, and highest bidder
+    const enrichedProducts = products.map(product => {
+      const productData = product.toJSON();
+      
+      // Get avatar (first image)
+      productData.avatar = productData.images && productData.images.length > 0 
+        ? productData.images[0].img_url 
+        : null;
+      
+      // Get bid count and highest bidder
+      const validBids = productData.bids || [];
+      productData.bidCount = validBids.length;
+      
+      if (validBids.length > 0) {
+        // Find highest bid
+        const highestBid = validBids.reduce((max, bid) => 
+          parseFloat(bid.amount) > parseFloat(max.amount) ? bid : max
+        );
+        productData.highestBidder = highestBid.bidder;
+      } else {
+        productData.highestBidder = null;
+      }
+      
+      // Remove bids and images arrays from response
+      delete productData.bids;
+      delete productData.images;
+      
+      return productData;
+    });
+
     const totalPages = Math.ceil(count / pageSize);
 
     return {
-      products,
+      products: enrichedProducts,
       pagination: {
         currentPage: page,
         pageSize,
