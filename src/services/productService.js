@@ -1,7 +1,7 @@
 const { Product, Category, User, Bid, ProductImage } = require('../models');
 const { Op } = require('sequelize');
 const sequelize = require('../config/db');
-const { removeVietnameseAccents, generateUnaccentSQL} = require('../utils/textHelpers');
+const { removeVietnameseAccents, generateUnaccentSQL, formatRelativeTime } = require('../utils/textHelpers');
 
 class ProductService {
   
@@ -396,6 +396,159 @@ class ProductService {
     }
 
     return product;
+  }
+
+  /**
+   * Get detailed product information with all related data
+   * @param {Number} productId
+   * @returns {Object} - Complete product details
+   */
+  async getProductDetails(productId) {
+    const { ProductDescription, QuestionAnswer } = require('../models');
+    
+    // Get main product with relations
+    const product = await Product.findByPk(productId, {
+      include: [
+        {
+          model: Category,
+          as: 'category',
+          attributes: ['category_id', 'category_name', 'parent_id']
+        },
+        {
+          model: User,
+          as: 'seller',
+          attributes: ['user_id', 'username', 'full_name', 'rating_score', 'email', 'address']
+        },
+        {
+          model: User,
+          as: 'winner',
+          attributes: ['user_id', 'username', 'full_name', 'rating_score']
+        },
+        {
+          model: ProductImage,
+          as: 'images',
+          attributes: ['image_id', 'img_url'],
+          order: [['image_id', 'ASC']]
+        },
+        {
+          model: ProductDescription,
+          as: 'descriptions',
+          attributes: ['des_id', 'description', 'created_at'],
+          order: [['created_at', 'DESC']]
+        },
+        {
+          model: QuestionAnswer,
+          as: 'questions',
+          where: { parent_comment_id: null },
+          required: false,
+          include: [
+            {
+              model: User,
+              as: 'user',
+              attributes: ['user_id', 'username', 'full_name', 'role']
+            },
+            {
+              model: QuestionAnswer,
+              as: 'replies',
+              include: [{
+                model: User,
+                as: 'user',
+                attributes: ['user_id', 'username', 'full_name', 'role']
+              }],
+              order: [['created_at', 'ASC']]
+            }
+          ],
+          order: [['created_at', 'DESC']]
+        }
+      ]
+    });
+
+    if (!product) {
+      throw new Error('Product not found');
+    }
+
+    // Get highest bidder information
+    const highestBid = await Bid.findOne({
+      where: { 
+        product_id: productId,
+        status: 1
+      },
+      order: [['amount', 'DESC']],
+      include: [{
+        model: User,
+        as: 'bidder',
+        attributes: ['user_id', 'username', 'full_name', 'rating_score']
+      }]
+    });
+
+    // Get 5 related products in same category
+    let relatedProducts = [];
+    if (product.category_id) {
+      relatedProducts = await Product.findAll({
+        where: {
+          category_id: product.category_id,
+          product_id: { [Op.ne]: productId },
+          status: 'active'
+        },
+        include: [
+          {
+            model: ProductImage,
+            as: 'images',
+            attributes: ['image_id', 'img_url'],
+            limit: 1,
+            separate: true,
+            order: [['image_id', 'ASC']]
+          },
+          {
+            model: User,
+            as: 'seller',
+            attributes: ['user_id', 'username', 'full_name', 'rating_score']
+          }
+        ],
+        limit: 5,
+        order: [['product_id', 'DESC']]
+      });
+    }
+
+    // Format the response
+    const productData = product.toJSON();
+    
+    // Separate images
+    const images = productData.images || [];
+    productData.mainImage = images.length > 0 ? images[0].img_url : null;
+    productData.subImages = images.slice(1, 4).map(img => img.img_url); // Get 3 sub-images
+    productData.allImages = images.map(img => img.img_url);
+    delete productData.images;
+
+    // Add highest bidder
+    productData.highestBidder = highestBid ? highestBid.bidder : null;
+    productData.highestBidAmount = highestBid ? highestBid.amount : null;
+
+    // Calculate relative time for end_time if less than 3 days
+    const now = new Date();
+    const endTime = new Date(productData.end_time);
+    const diffMs = endTime - now;
+    const diffDays = diffMs / (1000 * 60 * 60 * 24);
+    
+    if (diffDays < 3 && diffDays > 0) {
+      productData.timeRemaining = formatRelativeTime(diffMs);
+      productData.showRelativeTime = true;
+    } else {
+      productData.timeRemaining = null;
+      productData.showRelativeTime = false;
+    }
+
+    // Format related products
+    productData.relatedProducts = relatedProducts.map(rp => {
+      const rpData = rp.toJSON();
+      rpData.avatar = rpData.images && rpData.images.length > 0 
+        ? rpData.images[0].img_url 
+        : null;
+      delete rpData.images;
+      return rpData;
+    });
+
+    return productData;
   }
 
   async getTopValueProducts(limit = 5) {

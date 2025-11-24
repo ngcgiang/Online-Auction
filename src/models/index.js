@@ -5,6 +5,8 @@ const Product = require('./Product');
 const Watchlist = require('./WatchList');
 const Bid = require('./Bid');
 const ProductImage = require('./ProductImage');
+const ProductDescription = require('./ProductDescription');
+const QuestionAnswer = require('./QuestionAnswer');
 
 // Define associations
 
@@ -107,6 +109,50 @@ ProductImage.belongsTo(Product, {
   as: 'product'
 });
 
+// Product - ProductDescription relationship
+Product.hasMany(ProductDescription, {
+  foreignKey: 'product_id',
+  as: 'descriptions'
+});
+
+ProductDescription.belongsTo(Product, {
+  foreignKey: 'product_id',
+  as: 'product'
+});
+
+// QuestionAnswer - Product relationship
+Product.hasMany(QuestionAnswer, {
+  foreignKey: 'product_id',
+  as: 'questions'
+});
+
+QuestionAnswer.belongsTo(Product, {
+  foreignKey: 'product_id',
+  as: 'product'
+});
+
+// QuestionAnswer - User relationship
+User.hasMany(QuestionAnswer, {
+  foreignKey: 'user_id',
+  as: 'comments'
+});
+
+QuestionAnswer.belongsTo(User, {
+  foreignKey: 'user_id',
+  as: 'user'
+});
+
+// QuestionAnswer - Self-referencing (parent-child for questions and answers)
+QuestionAnswer.belongsTo(QuestionAnswer, {
+  foreignKey: 'parent_comment_id',
+  as: 'parentComment'
+});
+
+QuestionAnswer.hasMany(QuestionAnswer, {
+  foreignKey: 'parent_comment_id',
+  as: 'replies'
+});
+
 module.exports = {
   sequelize,
   User,
@@ -114,5 +160,7 @@ module.exports = {
   Product,
   Watchlist,
   Bid,
-  ProductImage
+  ProductImage,
+  ProductDescription,
+  QuestionAnswer
 };

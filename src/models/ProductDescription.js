@@ -1,0 +1,31 @@
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/db');
+
+const ProductDescription = sequelize.define('ProductDescription', {
+  des_id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  product_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: 'Products',
+      key: 'product_id'
+    }
+  },
+  description: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  created_at: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW
+  }
+}, {
+  tableName: 'ProductDescriptions',
+  timestamps: false
+});
+
+module.exports = ProductDescription;

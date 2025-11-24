@@ -39,7 +39,13 @@ router.get(
   productController.fetchTopMostBiddedProducts
 );
 
-
+// GET /api/products/:product_id/details - Get detailed product information
+router.get(
+  '/:product_id/details',
+  validateGetProductById,
+  handleValidationErrors,
+  productController.getProductDetails
+);
 
 // GET /api/products/:product_id - Get product by ID
 router.get(
