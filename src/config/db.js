@@ -2,14 +2,14 @@
 const { Sequelize } = require('sequelize');
 
 const dotenv = require('dotenv');
-dotenv.config();
+dotenv.config({ path: './src/config/.env' });
 const dbPassword = process.env.db_password;
 
 // Tạo instance Sequelize
 const sequelize = new Sequelize(
   'auction_db',   // tên database
   'root',       // user
-  dbPassword,       // mật khẩu
+  '051104',       // mật khẩu
   {
     host: '127.0.0.1',
     port: 3306,
