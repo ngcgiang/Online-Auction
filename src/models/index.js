@@ -4,6 +4,10 @@ const Category = require('./Category');
 const Product = require('./Product');
 const Watchlist = require('./WatchList');
 const Bid = require('./Bid');
+const ProductImage = require('./ProductImage');
+const ProductDescription = require('./ProductDescription');
+const QuestionAnswer = require('./QuestionAnswer');
+const Rating = require('./Rating');
 
 // Define associations
 
@@ -85,11 +89,112 @@ Bid.belongsTo(Product, {
   as: 'product'
 });
 
+Bid.belongsTo(User, {
+  foreignKey: 'bidder_id',
+  as: 'bidder'
+});
+
+User.hasMany(Bid, {
+  foreignKey: 'bidder_id',
+  as: 'bids'
+});
+
+// Product - ProductImage relationship
+Product.hasMany(ProductImage, {
+  foreignKey: 'product_id',
+  as: 'images'
+});
+
+ProductImage.belongsTo(Product, {
+  foreignKey: 'product_id',
+  as: 'product'
+});
+
+// Product - ProductDescription relationship
+Product.hasMany(ProductDescription, {
+  foreignKey: 'product_id',
+  as: 'descriptions'
+});
+
+ProductDescription.belongsTo(Product, {
+  foreignKey: 'product_id',
+  as: 'product'
+});
+
+// QuestionAnswer - Product relationship
+Product.hasMany(QuestionAnswer, {
+  foreignKey: 'product_id',
+  as: 'questions'
+});
+
+QuestionAnswer.belongsTo(Product, {
+  foreignKey: 'product_id',
+  as: 'product'
+});
+
+// QuestionAnswer - User relationship
+User.hasMany(QuestionAnswer, {
+  foreignKey: 'user_id',
+  as: 'comments'
+});
+
+QuestionAnswer.belongsTo(User, {
+  foreignKey: 'user_id',
+  as: 'user'
+});
+
+// QuestionAnswer - Self-referencing (parent-child for questions and answers)
+QuestionAnswer.belongsTo(QuestionAnswer, {
+  foreignKey: 'parent_comment_id',
+  as: 'parentComment'
+});
+
+QuestionAnswer.hasMany(QuestionAnswer, {
+  foreignKey: 'parent_comment_id',
+  as: 'replies'
+});
+
+// Rating - User relationships
+User.hasMany(Rating, {
+  foreignKey: 'user_id',
+  as: 'ratingsReceived'
+});
+
+User.hasMany(Rating, {
+  foreignKey: 'reviewer_id',
+  as: 'ratingsGiven'
+});
+
+Rating.belongsTo(User, {
+  foreignKey: 'user_id',
+  as: 'user'
+});
+
+Rating.belongsTo(User, {
+  foreignKey: 'reviewer_id',
+  as: 'reviewer'
+});
+
+// Rating - Product relationship
+Product.hasMany(Rating, {
+  foreignKey: 'product_id',
+  as: 'ratings'
+});
+
+Rating.belongsTo(Product, {
+  foreignKey: 'product_id',
+  as: 'product'
+});
+
 module.exports = {
   sequelize,
   User,
   Category,
   Product,
   Watchlist,
-  Bid
+  Bid,
+  ProductImage,
+  ProductDescription,
+  QuestionAnswer,
+  Rating
 };

@@ -9,7 +9,7 @@ const dbPassword = process.env.db_password;
 const sequelize = new Sequelize(
   'auction_db',   // tên database
   'root',       // user
-  '051104',       // mật khẩu
+  dbPassword,       // mật khẩu
   {
     host: '127.0.0.1',
     port: 3306,

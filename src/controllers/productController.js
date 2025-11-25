@@ -118,6 +118,32 @@ const getProductById = async (req, res, next) => {
   }
 };
 
+/**
+ * Get detailed product information
+ * GET /api/products/:product_id/details
+ */
+const getProductDetails = async (req, res, next) => {
+  try {
+    const { product_id } = req.params;
+
+    const productDetails = await productService.getProductDetails(parseInt(product_id));
+
+    return res.status(200).json({
+      success: true,
+      message: 'Product details retrieved successfully',
+      data: productDetails
+    });
+  } catch (error) {
+    if (error.message === 'Product not found') {
+      return res.status(404).json({
+        success: false,
+        message: error.message
+      });
+    }
+    next(error);
+  }
+};
+
 const fetchTopValueProducts = async (req, res) => {
     try {
         const products = await productService.getTopValueProducts();   
@@ -153,6 +179,7 @@ module.exports = {
   getProductsByCategory,
   getAllProducts,
   getProductById,
+  getProductDetails,
   fetchTopValueProducts,
   fetchTopLeastTimeLeftProducts,
   fetchTopMostBiddedProducts

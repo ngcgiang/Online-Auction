@@ -4,6 +4,7 @@ const watchlistRoutes = require('./routes/watchlist');
 const productRoutes = require('./routes/product');
 const userRoutes = require('./routes/user');
 const categoryRoutes = require('./routes/category');
+const bidRoutes = require('./routes/bid');
 const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
@@ -17,8 +18,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/watchlist', watchlistRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
+<<<<<<< HEAD
 app.use('/api/users', userRoutes);
 
+=======
+app.use('/api/bids', bidRoutes);
+>>>>>>> a5ed3e73e517f2408df8c7da0dc297a5473839ac
 
 // Basic route
 app.get('/', (req, res) => {
