@@ -2,7 +2,7 @@
 const { Sequelize } = require('sequelize');
 
 const dotenv = require('dotenv');
-dotenv.config({ path: './src/config/.env' });
+dotenv.config();
 const dbPassword = process.env.db_password;
 
 // Tạo instance Sequelize
