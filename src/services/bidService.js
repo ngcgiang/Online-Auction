@@ -265,6 +265,7 @@ class BidService {
         transaction
       });
 
+      let newEndTime;
       let newCurrentPrice;
       let winnerId;
       let bidResult;
@@ -274,6 +275,9 @@ class BidService {
         // Case 1: No bids yet - First bidder wins
         newCurrentPrice = product.start_value;
         winnerId = userId;
+        if (product.end_time - currentTime <= 10 * 60 * 1000) {
+          newEndTime = new Date(currentTime.getTime() + 10 * 60 * 1000);
+        }
         bidResult = {
           isWinning: true,
           message: 'You are now the highest bidder',
@@ -291,6 +295,10 @@ class BidService {
           // But cannot exceed new bidder's max
           newCurrentPrice = Math.min(leaderAmount + priceStep, newBidAmount);
           
+          if (product.end_time - currentTime <= 10 * 60 * 1000) {
+            newEndTime = new Date(currentTime.getTime() + 10 * 60 * 1000);
+          }
+
           bidResult = {
             isWinning: true,
             message: 'You are now the highest bidder',
@@ -332,8 +340,9 @@ class BidService {
         status: 1
       }, { transaction });
 
-      // Step 7: Update product current_price and winner_id
+      // Step 7: Update product current_price, winner_id, and end_time
       await product.update({
+        end_time: newEndTime || product.end_time,
         current_price: newCurrentPrice,
         winner_id: winnerId
       }, { transaction });

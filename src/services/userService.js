@@ -19,7 +19,7 @@ class UserService {
                 address: userData.address
                 //role: 'bidder'    
             });
-            newUser.is_vẻrified = false;
+            newUser.is_verified = false;
             return newUser;
         } else{
             throw new Error('Email already in use');
