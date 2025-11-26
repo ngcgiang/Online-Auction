@@ -350,9 +350,19 @@ class BidService {
       // Commit transaction
       await transaction.commit();
 
+      // Get bid count for realtime update
+      const bidCount = await Bid.count({
+        where: { 
+          product_id: productId,
+          status: 1
+        }
+      });
+
       return {
         success: true,
         bid: newBid,
+        bidCount: bidCount,
+        endTime: newEndTime || product.end_time,
         ...bidResult
       };
 

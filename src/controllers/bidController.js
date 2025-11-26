@@ -1,4 +1,5 @@
 const bidService = require('../services/bidService');
+const realtimeBidService = require('../services/realtimeBidService');
 
 /**
  * Place a bid on a product
@@ -24,6 +25,12 @@ const placeBid = async (req, res, next) => {
     if (!result.success) {
       return res.status(400).json(result);
     }
+
+    // ✅ Emit realtime updates to Socket.io rooms (non-blocking)
+    // This runs in the background and doesn't affect the response
+    realtimeBidService.emitBidUpdate(productId, result).catch(error => {
+      console.error('⚠️ Failed to emit realtime bid update:', error);
+    });
 
     res.status(201).json({
       success: true,

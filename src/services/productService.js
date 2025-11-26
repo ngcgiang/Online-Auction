@@ -524,6 +524,15 @@ class ProductService {
     productData.highestBidder = highestBid ? highestBid.bidder : null;
     productData.highestBidAmount = highestBid ? highestBid.amount : null;
 
+    // Count total bids for this product
+    const bidCount = await Bid.count({
+      where: { 
+        product_id: productId,
+        status: 1
+      }
+    });
+    productData.bidCount = bidCount;
+
     // Calculate relative time for end_time if less than 3 days
     const now = new Date();
     const endTime = new Date(productData.end_time);
