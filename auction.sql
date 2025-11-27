@@ -15,6 +15,7 @@ CREATE TABLE Users (
     rating_score FLOAT DEFAULT 0, -- Điểm đánh giá tích luỹ
     otp_code VARCHAR(10), -- Mã OTP xác thực
     otp_expiry DATETIME, -- Thời gian hết hạn OTP
+    is_verified BOOLEAN DEFAULT FALSE, -- Đã xác thực email chưa
     upgrade_request BOOLEAN DEFAULT FALSE, -- Có đang xin nâng cấp không
     upgrade_at DATETIME, -- Thời điểm xin nâng cấp
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -52,7 +53,7 @@ CREATE TABLE Products (
     FOREIGN KEY (seller_id) REFERENCES Users(user_id),
     FOREIGN KEY (winner_id) REFERENCES Users(user_id),
     FULLTEXT (product_name)
-);
+);  
 
 -- 4. Bảng Product Descriptions (Mô tả bổ sung - Yêu cầu 3.2)
 CREATE TABLE ProductDescriptions (

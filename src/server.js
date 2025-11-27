@@ -10,6 +10,7 @@ const productRoutes = require('./routes/product');
 const userRoutes = require('./routes/user');
 const categoryRoutes = require('./routes/category');
 const bidRoutes = require('./routes/bid');
+const emailRoutes = require('./routes/email');
 const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
@@ -39,6 +40,7 @@ app.use('/api/watchlist', watchlistRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/emails', emailRoutes);
   
 app.use('/api/bids', bidRoutes);
 
