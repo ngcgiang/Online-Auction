@@ -14,6 +14,7 @@ const sequelize = new Sequelize(
     host: '127.0.0.1',
     port: 3306,
     dialect: 'mysql',    // bạn có thể đổi thành 'postgres', 'sqlite', 'mssql'
+    timezone: '+00:00', // thiết lập múi giờ
     logging: false,      // set true nếu muốn log câu SQL
     pool: {
       max: 5,            // số connection tối đa

@@ -1,4 +1,5 @@
 const { User } = require('../models');
+const { maskUsername } = require('../utils/textHelpers');
 
 /**
  * Service to handle realtime bid notifications via Socket.io
@@ -14,22 +15,6 @@ class RealtimeBidService {
    */
   setSocketIO(socketIo) {
     this.io = socketIo;
-  }
-
-  /**
-   * Mask username for privacy (hide first half of characters)
-   * Example: "john_doe" -> "****_doe"
-   * @param {string} username - Original username
-   * @returns {string} - Masked username
-   */
-  maskUsername(username) {
-    if (!username || username.length === 0) return '****';
-    
-    const halfLength = Math.ceil(username.length / 2);
-    const visiblePart = username.slice(halfLength);
-    const maskedPart = '*'.repeat(halfLength);
-    
-    return maskedPart + visiblePart;
   }
 
   /**
@@ -68,7 +53,7 @@ class RealtimeBidService {
         if (winner) {
           winnerData = {
             userId: winner.user_id,
-            username: this.maskUsername(winner.username),
+            username: maskUsername(winner.username),
             ratingScore: winner.rating_score
           };
         }
@@ -117,7 +102,7 @@ class RealtimeBidService {
         });
 
         if (winner) {
-          maskedWinner = this.maskUsername(winner.username);
+          maskedWinner = maskUsername(winner.username);
         }
       }
 

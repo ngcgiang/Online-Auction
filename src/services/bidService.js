@@ -1,5 +1,7 @@
 const { Op } = require('sequelize');
 const { sequelize, Product, Bid, User, Rating } = require('../models');
+const { getAuctionConfig} = require('../utils/configHelper');
+const { maskUsername } = require('../utils/textHelpers');
 
 class BidService {
   /**
@@ -269,14 +271,15 @@ class BidService {
       let newCurrentPrice;
       let winnerId;
       let bidResult;
+      const { triggerTime, extendTime } = await getAuctionConfig();
 
       // Step 5: Proxy Bidding Logic
       if (!currentLeaderBid) {
         // Case 1: No bids yet - First bidder wins
         newCurrentPrice = product.start_value;
         winnerId = userId;
-        if (product.end_time - currentTime <= 10 * 60 * 1000) {
-          newEndTime = new Date(currentTime.getTime() + 10 * 60 * 1000);
+        if (product.end_time - currentTime <= triggerTime * 60 * 1000) {
+          newEndTime = new Date(currentTime.getTime() + extendTime * 60 * 1000);
         }
         bidResult = {
           isWinning: true,
@@ -295,8 +298,8 @@ class BidService {
           // But cannot exceed new bidder's max
           newCurrentPrice = Math.min(leaderAmount + priceStep, newBidAmount);
           
-          if (product.end_time - currentTime <= 10 * 60 * 1000) {
-            newEndTime = new Date(currentTime.getTime() + 10 * 60 * 1000);
+          if (product.end_time - currentTime <= triggerTime * 60 * 1000) {
+            newEndTime = new Date(currentTime.getTime() + extendTime * 60 * 1000);
           }
 
           bidResult = {
@@ -398,7 +401,16 @@ class BidService {
         order: [['bid_time', 'DESC']]
       });
 
-      return bids;
+      // Mask usernames for privacy
+      const maskedBids = bids.map(bid => {
+        const bidData = bid.toJSON();
+        if (bidData.bidder && bidData.bidder.username) {
+          bidData.bidder.username = maskUsername(bidData.bidder.username);
+        }
+        return bidData;
+      });
+
+      return maskedBids;
     } catch (error) {
       throw error;
     }

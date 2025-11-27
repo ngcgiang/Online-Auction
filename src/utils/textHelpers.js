@@ -60,8 +60,31 @@ const formatRelativeTime = (ms) => {
   }
 };
 
+  /**
+   * Mask username for privacy (hide first half of characters)
+   * Example: "john_doe" -> "****_doe"
+   * @param {string} username - Original username
+   * @returns {string} - Masked username
+   */
+const maskUsername = (username) => {
+    if (!username || username.length === 0) return '****';
+
+    // Xử lý trường hợp tên quá ngắn (1-2 ký tự) thì che hết cho an toàn
+    if (username.length <= 2) {
+        return '*'.repeat(username.length);
+    }
+
+    const halfLength = Math.ceil(username.length / 2);
+    const visiblePart = username.slice(halfLength);
+    const maskedPart = '*'.repeat(halfLength);
+
+    return maskedPart + visiblePart;
+};
+
+
 module.exports = {
   removeVietnameseAccents,
   generateUnaccentSQL,
-  formatRelativeTime
+  formatRelativeTime,
+  maskUsername
 };

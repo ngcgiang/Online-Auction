@@ -1,7 +1,7 @@
 const { Product, Category, User, Bid, ProductImage } = require('../models');
 const { Op } = require('sequelize');
 const sequelize = require('../config/db');
-const { removeVietnameseAccents, generateUnaccentSQL, formatRelativeTime } = require('../utils/textHelpers');
+const { removeVietnameseAccents, generateUnaccentSQL, formatRelativeTime, maskUsername } = require('../utils/textHelpers');
 
 class ProductService {
   
@@ -521,8 +521,16 @@ class ProductService {
     delete productData.images;
 
     // Add highest bidder
-    productData.highestBidder = highestBid ? highestBid.bidder : null;
+    productData.highestBidder = highestBid ? {
+      ...highestBid.bidder.toJSON(),
+      username: maskUsername(highestBid.bidder.username)
+    } : null;
     productData.highestBidAmount = highestBid ? highestBid.amount : null;
+
+    // Mask winner username if exists
+    if (productData.winner) {
+      productData.winner.username = maskUsername(productData.winner.username);
+    }
 
     // Count total bids for this product
     const bidCount = await Bid.count({
