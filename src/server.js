@@ -7,7 +7,7 @@ const { initializeSocket } = require('./config/socket');
 const realtimeBidService = require('./services/realtimeBidService');
 const watchlistRoutes = require('./routes/watchlist');
 const productRoutes = require('./routes/product');
-const userRoutes = require('./routes/user');
+const authRoutes = require('./routes/authorization');
 const categoryRoutes = require('./routes/category');
 const bidRoutes = require('./routes/bid');
 const emailRoutes = require('./routes/email');
@@ -36,10 +36,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
 // Routes
+app.use('/api/auth', authRoutes);
 app.use('/api/watchlist', watchlistRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
-app.use('/api/users', userRoutes);
 app.use('/api/emails', emailRoutes);
   
 app.use('/api/bids', bidRoutes);
