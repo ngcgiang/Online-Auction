@@ -98,3 +98,4 @@ $RECYCLE.BIN/
 # OneDrive / temp
 ~$*
 ~*.tmp
+src/.env.example

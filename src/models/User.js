@@ -59,6 +59,10 @@ const User = sequelize.define('User', {
   is_verified: {
     type: DataTypes.BOOLEAN,
     defaultValue: false
+  },
+  refresh_token: {
+    type: DataTypes.TEXT,
+    allowNull: true
   }
 }, {
   tableName: 'Users',
