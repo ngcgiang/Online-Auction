@@ -5,7 +5,6 @@ USE auction_db;
 -- 1. Bảng Users
 CREATE TABLE Users (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(50) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL, -- Lưu hash bcrypt
     full_name VARCHAR(100) NOT NULL,
@@ -179,12 +178,12 @@ INSERT INTO Categories (category_name, parent_id) VALUES
 
 -- Insert Users
 -- Pass: '123456' (Giả sử đã hash)
-INSERT INTO Users (username, email, password, full_name, address, role, rating_score) VALUES 
-('admin', 'admin@auction.com', '$2b$10$xxxxx', 'Quản Trị Viên', 'Hà Nội', 'admin', 0),
-('seller1', 'seller1@auction.com', '$2b$10$xxxxx', 'Nguyễn Văn Bán', 'TP.HCM', 'seller', 0.9),
-('bidder1', 'bidder1@auction.com', '$2b$10$xxxxx', 'Trần Mua', 'Đà Nẵng', 'bidder', 1.0),
-('bidder2', 'bidder2@auction.com', '$2b$10$xxxxx', 'Lê Săn Hàng', 'Cần Thơ', 'bidder', 0.8),
-('bidder3', 'bidder3@auction.com', '$2b$10$xxxxx', 'Phạm Đấu Giá', 'Hải Phòng', 'bidder', 0.5);
+INSERT INTO Users (email, password, full_name, address, role, rating_score) VALUES 
+('admin@auction.com', '$2b$10$xxxxx', 'Quản Trị Viên', 'Hà Nội', 'admin', 0),
+('seller1@auction.com', '$2b$10$xxxxx', 'Nguyễn Văn Bán', 'TP.HCM', 'seller', 0.9),
+('bidder1@auction.com', '$2b$10$xxxxx', 'Trần Mua', 'Đà Nẵng', 'bidder', 1.0),
+('bidder2@auction.com', '$2b$10$xxxxx', 'Lê Săn Hàng', 'Cần Thơ', 'bidder', 0.8),
+('bidder3@auction.com', '$2b$10$xxxxx', 'Phạm Đấu Giá', 'Hải Phòng', 'bidder', 0.5);
 
 -- 1. Tạo sản phẩm
 INSERT INTO Products (product_name, category_id, seller_id, start_value, current_price, price_step, start_time, end_time) 

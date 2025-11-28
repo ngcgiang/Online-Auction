@@ -183,7 +183,7 @@
      * {
      *   productId: 123,
      *   currentPrice: 5500000,
-     *   winnerUsername: '****_doe',
+     *   winnerFullName: '****_doe',
      *   timestamp: '2025-11-26T09:50:00Z'
      * }
      */
@@ -214,7 +214,7 @@
 
       // Cập nhật dữ liệu trong memory
       currentProducts[data.productId].currentPrice = data.currentPrice;
-      currentProducts[data.productId].winnerUsername = data.winnerUsername;
+      currentProducts[data.productId].winnerFullName = data.winnerFullName;
 
       // Thêm hiệu ứng nhấp nháy (highlight)
       productCard.classList.add('price-updated');
@@ -238,7 +238,7 @@
       // Cập nhật người thắng
       const winnerElement = productCard.querySelector('.product-winner');
       if (winnerElement) {
-        winnerElement.textContent = `Người thắng: ${data.winnerUsername || 'N/A'}`;
+        winnerElement.textContent = `Người thắng: ${data.winnerFullName || 'N/A'}`;
       }
     }
 
@@ -265,7 +265,7 @@
           ${imageHtml}
           <div class="product-name">${product.name}</div>
           <div class="product-price">${formatCurrency(product.currentPrice)}</div>
-          <div class="product-winner">Người thắng: ${product.winnerUsername || 'Chưa có'}</div>
+          <div class="product-winner">Người thắng: ${product.winnerFullName || 'Chưa có'}</div>
           <button onclick="viewDetail(${product.productId})">Xem chi tiết</button>
         `;
         
@@ -347,7 +347,7 @@
             productId: product.product_id,
             name: product.product_name,
             currentPrice: parseFloat(product.current_price),
-            winnerUsername: product.highestBidder ? product.highestBidder.username : null,
+            winnerFullName: product.highestBidder ? product.highestBidder.full_name : null,
             avatar: product.avatar
           }));
           

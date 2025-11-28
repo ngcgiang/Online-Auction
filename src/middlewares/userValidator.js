@@ -1,11 +1,6 @@
 const {body} = require('express-validator');
 
 const validateResgisterUser = [
-    body('username')
-        .isString()
-        .trim().notEmpty().withMessage('Username is required')
-        .isLength({ max: 50 })
-        .withMessage('Username must be less than 50 characters'),
     body('full_name')
         .isString()
         .trim()

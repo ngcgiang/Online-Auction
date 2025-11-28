@@ -1,5 +1,5 @@
 const { User } = require('../models');
-const { maskUsername } = require('../utils/textHelpers');
+const { maskFullname } = require('../utils/textHelpers');
 
 /**
  * Service to handle realtime bid notifications via Socket.io
@@ -47,13 +47,13 @@ class RealtimeBidService {
       if (bidData.winnerId) {
         const winner = await User.findOne({
           where: { user_id: bidData.winnerId },
-          attributes: ['user_id', 'username', 'rating_score']
+          attributes: ['user_id', 'full_name', 'rating_score']
         });
 
         if (winner) {
           winnerData = {
             userId: winner.user_id,
-            username: maskUsername(winner.username),
+            full_name: maskFullname(winner.full_name),
             ratingScore: winner.rating_score
           };
         }
@@ -93,16 +93,16 @@ class RealtimeBidService {
     try {
       const roomName = 'homepage_feed';
 
-      // Fetch winner username for masking
+      // Fetch winner full_name for masking
       let maskedWinner = null;
       if (bidData.winnerId) {
         const winner = await User.findOne({
           where: { user_id: bidData.winnerId },
-          attributes: ['username']
+          attributes: ['full_name']
         });
 
         if (winner) {
-          maskedWinner = maskUsername(winner.username);
+          maskedWinner = maskFullname(winner.full_name);
         }
       }
 
@@ -110,7 +110,7 @@ class RealtimeBidService {
       const minimalData = {
         productId: productId,
         currentPrice: bidData.currentPrice,
-        winnerUsername: maskedWinner,
+        winnerFullName: maskedWinner,
         timestamp: new Date().toISOString()
       };
 

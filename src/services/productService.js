@@ -1,7 +1,7 @@
 const { Product, Category, User, Bid, ProductImage } = require('../models');
 const { Op } = require('sequelize');
 const sequelize = require('../config/db');
-const { removeVietnameseAccents, generateUnaccentSQL, formatRelativeTime, maskUsername } = require('../utils/textHelpers');
+const { removeVietnameseAccents, generateUnaccentSQL, formatRelativeTime, maskFullname } = require('../utils/textHelpers');
 
 class ProductService {
   
@@ -115,7 +115,7 @@ class ProductService {
         {
           model: User,
           as: 'seller',
-          attributes: ['user_id', 'username', 'full_name', 'rating_score']
+          attributes: ['user_id', 'full_name', 'rating_score']
         },
         {
           model: ProductImage,
@@ -135,7 +135,7 @@ class ProductService {
           include: [{
             model: User,
             as: 'bidder',
-            attributes: ['user_id', 'username', 'full_name']
+            attributes: ['user_id', 'full_name', 'rating_score']
           }]
         }
       ],
@@ -238,7 +238,7 @@ class ProductService {
         {
           model: User,
           as: 'seller',
-          attributes: ['user_id', 'username', 'full_name', 'rating_score']
+          attributes: ['user_id', 'full_name', 'rating_score']
         },
         {
           model: ProductImage,
@@ -258,7 +258,7 @@ class ProductService {
           include: [{
             model: User,
             as: 'bidder',
-            attributes: ['user_id', 'username', 'full_name']
+            attributes: ['user_id', 'full_name', 'rating_score']
           }]
         }
       ],
@@ -341,7 +341,7 @@ class ProductService {
         {
           model: User,
           as: 'seller',
-          attributes: ['user_id', 'username', 'full_name', 'rating_score']
+          attributes: ['user_id', 'full_name', 'rating_score']
         }
       ],
       limit,
@@ -381,12 +381,12 @@ class ProductService {
         {
           model: User,
           as: 'seller',
-          attributes: ['user_id', 'username', 'full_name', 'rating_score', 'email']
+          attributes: ['user_id', 'full_name', 'rating_score', 'email']
         },
         {
           model: User,
           as: 'winner',
-          attributes: ['user_id', 'username', 'full_name']
+          attributes: ['user_id', 'full_name', 'rating_score']
         }
       ]
     });
@@ -417,12 +417,12 @@ class ProductService {
         {
           model: User,
           as: 'seller',
-          attributes: ['user_id', 'username', 'full_name', 'rating_score', 'email', 'address']
+          attributes: ['user_id', 'full_name', 'rating_score', 'email', 'address']
         },
         {
           model: User,
           as: 'winner',
-          attributes: ['user_id', 'username', 'full_name', 'rating_score']
+          attributes: ['user_id', 'full_name', 'rating_score']
         },
         {
           model: ProductImage,
@@ -445,7 +445,7 @@ class ProductService {
             {
               model: User,
               as: 'user',
-              attributes: ['user_id', 'username', 'full_name', 'role']
+              attributes: ['user_id', 'full_name', 'role']
             },
             {
               model: QuestionAnswer,
@@ -453,7 +453,7 @@ class ProductService {
               include: [{
                 model: User,
                 as: 'user',
-                attributes: ['user_id', 'username', 'full_name', 'role']
+                attributes: ['user_id', 'full_name', 'role']
               }],
               order: [['created_at', 'ASC']]
             }
@@ -477,7 +477,7 @@ class ProductService {
       include: [{
         model: User,
         as: 'bidder',
-        attributes: ['user_id', 'username', 'full_name', 'rating_score']
+        attributes: ['user_id', 'full_name', 'rating_score']
       }]
     });
 
@@ -502,7 +502,7 @@ class ProductService {
           {
             model: User,
             as: 'seller',
-            attributes: ['user_id', 'username', 'full_name', 'rating_score']
+            attributes: ['user_id', 'full_name', 'rating_score']
           }
         ],
         limit: 5,
@@ -523,13 +523,13 @@ class ProductService {
     // Add highest bidder
     productData.highestBidder = highestBid ? {
       ...highestBid.bidder.toJSON(),
-      username: maskUsername(highestBid.bidder.username)
+      full_name: maskFullname(highestBid.bidder.full_name)
     } : null;
     productData.highestBidAmount = highestBid ? highestBid.amount : null;
 
-    // Mask winner username if exists
+    // Mask winner full_name if exists
     if (productData.winner) {
-      productData.winner.username = maskUsername(productData.winner.username);
+      productData.winner.full_name = maskFullname(productData.winner.full_name);
     }
 
     // Count total bids for this product

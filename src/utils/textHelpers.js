@@ -61,21 +61,21 @@ const formatRelativeTime = (ms) => {
 };
 
   /**
-   * Mask username for privacy (hide first half of characters)
+   * Mask full_name for privacy (hide first half of characters)
    * Example: "john_doe" -> "****_doe"
-   * @param {string} username - Original username
-   * @returns {string} - Masked username
+   * @param {string} full_name - Original full_name
+   * @returns {string} - Masked full_name
    */
-const maskUsername = (username) => {
-    if (!username || username.length === 0) return '****';
+const maskFullname = (full_name) => {
+    if (!full_name || full_name.length === 0) return '****';
 
     // Xử lý trường hợp tên quá ngắn (1-2 ký tự) thì che hết cho an toàn
-    if (username.length <= 2) {
-        return '*'.repeat(username.length);
+    if (full_name.length <= 2) {
+        return '*'.repeat(full_name.length);
     }
 
-    const halfLength = Math.ceil(username.length / 2);
-    const visiblePart = username.slice(halfLength);
+    const halfLength = Math.ceil(full_name.length / 2);
+    const visiblePart = full_name.slice(halfLength);
     const maskedPart = '*'.repeat(halfLength);
 
     return maskedPart + visiblePart;
@@ -86,5 +86,5 @@ module.exports = {
   removeVietnameseAccents,
   generateUnaccentSQL,
   formatRelativeTime,
-  maskUsername
+  maskFullname
 };

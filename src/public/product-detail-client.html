@@ -92,7 +92,7 @@
       <!-- Winner Info -->
       <div class="winner-info" id="winnerInfo">
         <strong>Người đang thắng:</strong> 
-        <span id="winnerUsername">****_user</span> 
+        <span id="winnerFullName">****_user</span> 
         (Điểm: <span id="winnerRating">4.5</span>⭐)
       </div>
       
@@ -127,7 +127,7 @@
     // ========================================
     // Get product ID from URL
     const urlParts = window.location.pathname.split('/');
-    const PRODUCT_ID = parseInt(urlParts[urlParts.length - 1]) || 7;
+    const PRODUCT_ID = parseInt(urlParts[urlParts.length - 1]) || 10;
     const SOCKET_SERVER = 'http://localhost:3000'; // TODO: Thay đổi theo môi trường
 
     // Kết nối Socket.io
@@ -172,7 +172,7 @@
      * {
      *   productId: 123,
      *   currentPrice: 5500000,
-     *   winner: { userId: 45, username: '****_doe', ratingScore: 4.5 },
+     *   winner: { userId: 45, full_name: '****_doe', ratingScore: 4.5 },
      *   bidCount: 15,
      *   remainingTime: 600000 (ms),
      *   endTime: '2025-11-26T10:00:00Z',
@@ -212,10 +212,10 @@
 
       // Cập nhật thông tin người thắng
       if (data.winner) {
-        document.getElementById('winnerUsername').textContent = data.winner.username;
+        document.getElementById('winnerFullName').textContent = data.winner.full_name;
         document.getElementById('winnerRating').textContent = data.winner.ratingScore.toFixed(1);
       } else {
-        document.getElementById('winnerUsername').textContent = 'Chưa có';
+        document.getElementById('winnerFullName').textContent = 'Chưa có';
         document.getElementById('winnerRating').textContent = 'N/A';
       }
 
@@ -338,7 +338,7 @@
             currentPrice: parseFloat(product.current_price),
             winner: product.highestBidder ? {
               userId: product.highestBidder.user_id,
-              username: product.highestBidder.username,
+              full_name: product.highestBidder.full_name,
               ratingScore: product.highestBidder.rating_score || 0
             } : null,
             bidCount: product.bidCount || 0,
@@ -401,7 +401,7 @@
           
           historyContainer.innerHTML = result.data.map(bid => `
             <div class="bid-item">
-              <strong>${bid.bidder.username}</strong> đã đặt giá 
+              <strong>${bid.bidder.full_name}</strong> đã đặt giá 
               <strong style="color: #e74c3c;">${formatCurrency(bid.amount)}</strong>
               <br>
               <small style="color: #999;">${new Date(bid.bid_time).toLocaleString('vi-VN')}</small>

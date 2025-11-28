@@ -1,7 +1,7 @@
 const { Op } = require('sequelize');
 const { sequelize, Product, Bid, User, Rating } = require('../models');
 const { getAuctionConfig} = require('../utils/configHelper');
-const { maskUsername } = require('../utils/textHelpers');
+const { maskFullname } = require('../utils/textHelpers');
 
 class BidService {
   /**
@@ -396,16 +396,16 @@ class BidService {
         include: [{
           model: User,
           as: 'bidder',
-          attributes: ['user_id', 'username', 'full_name', 'rating_score']
+          attributes: ['user_id', 'full_name', 'rating_score']
         }],
         order: [['bid_time', 'DESC']]
       });
 
-      // Mask usernames for privacy
+      // Mask full names for privacy
       const maskedBids = bids.map(bid => {
         const bidData = bid.toJSON();
-        if (bidData.bidder && bidData.bidder.username) {
-          bidData.bidder.username = maskUsername(bidData.bidder.username);
+        if (bidData.bidder && bidData.bidder.full_name) {
+          bidData.bidder.full_name = maskFullname(bidData.bidder.full_name);
         }
         return bidData;
       });

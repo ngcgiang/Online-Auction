@@ -11,7 +11,6 @@
                 message: 'User registered successfully',
                 data: {
                     user_id: newUser.user_id,
-                    username: newUser.username,
                     email: newUser.email,
                     address: newUser.address,
                     otpCode: newUser.otp_code
@@ -58,7 +57,6 @@
                 message: 'User verified successfully',
                 data: {
                     user_id: user.user_id,
-                    username: user.username,
                     email: user.email,
                     address: user.address
                 }

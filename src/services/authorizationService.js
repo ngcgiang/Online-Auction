@@ -14,7 +14,6 @@ class AuthorizationService {
         const otp_expiry = new Date(Date.now() + 10 * 60 * 1000); // OTP valid for 10 minutes
         if(!await this.checkEmailExists(userData.email)){
             const newUser = await User.create({
-                username: userData.username,
                 email: userData.email,
                 full_name: userData.full_name,
                 password: hasedPassword,
