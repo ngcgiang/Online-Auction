@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const bidController = require('../controllers/bidController');
 const { validatePlaceBid, validateGetBidHistory, validateGetUserBid, validateCheckBidAvailability } = require('../middlewares/bidValidator');
+const { verifyAccessToken, checkRole } = require('../middlewares/authMiddleware');
 const validationHandler = require('../middlewares/validationHandler');
 
 /**
@@ -11,6 +12,7 @@ const validationHandler = require('../middlewares/validationHandler');
  */
 router.post(
   '/',
+  verifyAccessToken,
   validatePlaceBid,
   validationHandler,
   bidController.placeBid
@@ -35,6 +37,7 @@ router.get(
  */
 router.get(
   '/user/:userId/product/:productId',
+  verifyAccessToken,
   validateGetUserBid,
   validationHandler,
   bidController.getUserBid

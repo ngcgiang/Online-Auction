@@ -10,7 +10,7 @@ const placeBid = async (req, res, next) => {
     const { productId, amount } = req.body;
     // TODO: Get userId from authenticated session/token
     // For now, assuming userId is passed in body or can be extracted from auth middleware
-    const userId = req.body.userId || req.user?.user_id;
+    const userId = req.user?.user_id;
 
     if (!userId) {
       return res.status(401).json({
@@ -73,9 +73,10 @@ const getBidHistory = async (req, res, next) => {
  */
 const getUserBid = async (req, res, next) => {
   try {
-    const { userId, productId } = req.params;
+    const { productId } = req.params;
+    const user_id = req.user?.user_id;
 
-    const bid = await bidService.getUserBid(userId, productId);
+    const bid = await bidService.getUserBid(user_id, productId);
 
     res.status(200).json({
       success: true,

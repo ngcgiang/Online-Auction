@@ -3,7 +3,8 @@ const { Watchlist, Product, User } = require('../models');
 // Add product to watchlist
 const addToWatchlist = async (req, res) => {
   try {
-    const { user_id, product_id } = req.body;
+    const { product_id } = req.body;
+    const user_id = req.user?.user_id;
 
     // Validate required fields
     if (!user_id || !product_id) {
@@ -68,7 +69,8 @@ const addToWatchlist = async (req, res) => {
 // Remove product from watchlist
 const removeFromWatchlist = async (req, res) => {
   try {
-    const { user_id, product_id } = req.body;
+    const {product_id } = req.body;
+    const user_id = req.user?.user_id;
 
     // Validate required fields
     if (!user_id || !product_id) {
@@ -111,7 +113,7 @@ const removeFromWatchlist = async (req, res) => {
 // Get user's watchlist
 const getUserWatchlist = async (req, res) => {
   try {
-    const { user_id } = req.params;
+    const user_id = req.user?.user_id;
 
     if (!user_id) {
       return res.status(400).json({
