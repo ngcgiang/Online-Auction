@@ -13,7 +13,7 @@
                     user_id: newUser.user_id,
                     email: newUser.email,
                     address: newUser.address,
-                    otpCode: newUser.otp_code
+                    otp_expiry: newUser.otp_expiry
                 }
             });
         } catch (error) {
