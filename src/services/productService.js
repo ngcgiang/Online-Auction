@@ -434,7 +434,7 @@ class ProductService {
           model: ProductDescription,
           as: 'descriptions',
           attributes: ['des_id', 'description', 'created_at'],
-          order: [['created_at', 'DESC']]
+          order: [['created_at', 'ASC']] // Sort oldest to newest for timeline
         },
         {
           model: QuestionAnswer,

@@ -4,9 +4,16 @@ const productController = require('../controllers/productController');
 const { 
   validateSearchProducts, 
   validateGetProducts, 
-  validateGetProductById 
+  validateGetProductById,
+  validateCreateProduct,
+  validateAppendDescription
 } = require('../middlewares/productValidator');
 const handleValidationErrors = require('../middlewares/validationHandler');
+const { verifyAccessToken} = require('../middlewares/authMiddleware');
+const {
+    checkPermission
+} = require('../controllers/sellerController');
+
 
 // GET /api/products/search - Advanced search with full-text and filters
 router.get(
@@ -14,6 +21,16 @@ router.get(
   validateSearchProducts, 
   handleValidationErrors, 
   productController.searchProducts
+);
+
+// POST /api/products - Create new auction product
+router.post(
+  '/',
+  verifyAccessToken,
+  checkPermission,
+  validateCreateProduct,
+  handleValidationErrors,
+  productController.createProduct
 );
 
 // GET /api/products - Get all products or filter by category with pagination
@@ -37,6 +54,15 @@ router.get(
 router.get(
   '/top-most-bidded',
   productController.fetchTopMostBiddedProducts
+);
+
+// POST /api/products/:product_id/updates - Append new description update
+router.post(
+  '/:product_id/updates',
+  verifyAccessToken,
+  validateAppendDescription,
+  handleValidationErrors,
+  productController.appendProductDescription
 );
 
 // GET /api/products/:product_id/details - Get detailed product information

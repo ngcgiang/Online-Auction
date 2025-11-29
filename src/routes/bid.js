@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const bidController = require('../controllers/bidController');
 const { validatePlaceBid, validateGetBidHistory, validateGetUserBid, validateCheckBidAvailability } = require('../middlewares/bidValidator');
-const { verifyAccessToken, checkRole } = require('../middlewares/authMiddleware');
+const { verifyAccessToken} = require('../middlewares/authMiddleware');
 const validationHandler = require('../middlewares/validationHandler');
 
 /**

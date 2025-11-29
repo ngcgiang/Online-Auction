@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { verifyAccessToken, checkRole } = require('../middlewares/authMiddleware');
+const { verifyAccessToken} = require('../middlewares/authMiddleware');
 const {
   addToWatchlist,
   removeFromWatchlist,
