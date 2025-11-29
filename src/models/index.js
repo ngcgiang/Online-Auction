@@ -8,6 +8,7 @@ const ProductImage = require('./ProductImage');
 const ProductDescription = require('./ProductDescription');
 const QuestionAnswer = require('./QuestionAnswer');
 const Rating = require('./Rating');
+const RefusedBidder = require('./RefusedBidder');
 
 // Define associations
 
@@ -186,6 +187,28 @@ Rating.belongsTo(Product, {
   as: 'product'
 });
 
+// RefusedBidder - Product relationship
+Product.hasMany(RefusedBidder, {
+  foreignKey: 'product_id',
+  as: 'refusedBidders'
+});
+
+RefusedBidder.belongsTo(Product, {
+  foreignKey: 'product_id',
+  as: 'product'
+});
+
+// RefusedBidder - User relationship
+User.hasMany(RefusedBidder, {
+  foreignKey: 'bidder_id',
+  as: 'refusals'
+});
+
+RefusedBidder.belongsTo(User, {
+  foreignKey: 'bidder_id',
+  as: 'bidder'
+});
+
 module.exports = {
   sequelize,
   User,
@@ -196,5 +219,6 @@ module.exports = {
   ProductImage,
   ProductDescription,
   QuestionAnswer,
-  Rating
+  Rating,
+  RefusedBidder
 };

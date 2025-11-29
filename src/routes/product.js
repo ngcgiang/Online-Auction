@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const productController = require('../controllers/productController');
+const refuseBidderController = require('../controllers/refuseBidderController');
 const { 
   validateSearchProducts, 
   validateGetProducts, 
@@ -8,6 +9,7 @@ const {
   validateCreateProduct,
   validateAppendDescription
 } = require('../middlewares/productValidator');
+const { validateRefuseBidder, validateCheckRefused } = require('../middlewares/refuseBidderValidator');
 const handleValidationErrors = require('../middlewares/validationHandler');
 const { verifyAccessToken} = require('../middlewares/authMiddleware');
 const {
@@ -63,6 +65,32 @@ router.post(
   validateAppendDescription,
   handleValidationErrors,
   productController.appendProductDescription
+);
+
+// POST /api/products/:product_id/refuse-bidder - Refuse/kick a bidder
+router.post(
+  '/:product_id/refuse-bidder',
+  verifyAccessToken,
+  validateRefuseBidder,
+  handleValidationErrors,
+  refuseBidderController.refuseBidder
+);
+
+// GET /api/products/:product_id/refused-bidders - Get list of refused bidders
+router.get(
+  '/:product_id/refused-bidders',
+  verifyAccessToken,
+  validateGetProductById,
+  handleValidationErrors,
+  refuseBidderController.getRefusedBidders
+);
+
+// GET /api/products/:product_id/is-refused/:bidder_id - Check if bidder is refused
+router.get(
+  '/:product_id/is-refused/:bidder_id',
+  validateCheckRefused,
+  handleValidationErrors,
+  refuseBidderController.checkIfRefused
 );
 
 // GET /api/products/:product_id/details - Get detailed product information

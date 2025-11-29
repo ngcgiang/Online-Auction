@@ -150,13 +150,23 @@ CREATE TABLE Ratings (
 );
 
 -- 12. Bảng RefusedBidder (Người bị từ chối - Yêu cầu 3.3)
-CREATE TABLE RefusedBidders (
-    product_id INT NOT NULL,
-    bidder_id INT NOT NULL,
-    PRIMARY KEY (product_id, bidder_id),
-    FOREIGN KEY (product_id) REFERENCES Products(product_id),
-    FOREIGN KEY (bidder_id) REFERENCES Users(user_id)
-);
+CREATE TABLE IF NOT EXISTS RefusedBidders (
+  refused_id INT PRIMARY KEY AUTO_INCREMENT,
+  product_id INT NOT NULL,
+  bidder_id INT NOT NULL,
+  refused_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  
+  FOREIGN KEY (product_id) REFERENCES Products(product_id) ON DELETE CASCADE,
+  FOREIGN KEY (bidder_id) REFERENCES Users(user_id) ON DELETE CASCADE,
+  
+  -- Prevent duplicate refusals
+  UNIQUE KEY unique_product_bidder (product_id, bidder_id),
+  
+  -- Indexes for better query performance
+  INDEX idx_product_id (product_id),
+  INDEX idx_bidder_id (bidder_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 -- 13. Bảng Messages (Chat - Yêu cầu 7)
 CREATE TABLE Messages (

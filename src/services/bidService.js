@@ -1,5 +1,5 @@
 const { Op } = require('sequelize');
-const { sequelize, Product, Bid, User, Rating } = require('../models');
+const { sequelize, Product, Bid, User, Rating, RefusedBidder } = require('../models');
 const { getAuctionConfig} = require('../utils/configHelper');
 const { maskFullname } = require('../utils/textHelpers');
 
@@ -244,6 +244,23 @@ class BidService {
         return {
           success: false,
           message: eligibilityCheck.message
+        };
+      }
+
+      // Step 2.5: Check if user is refused for this product
+      const isRefused = await RefusedBidder.findOne({
+        where: {
+          product_id: productId,
+          bidder_id: userId
+        },
+        transaction
+      });
+
+      if (isRefused) {
+        await transaction.rollback();
+        return {
+          success: false,
+          message: 'You have been blocked from bidding on this product by the seller'
         };
       }
 
