@@ -17,6 +17,7 @@ CREATE TABLE Users (
     is_verified BOOLEAN DEFAULT FALSE, -- Đã xác thực email chưa
     upgrade_request BOOLEAN DEFAULT FALSE, -- Có đang xin nâng cấp không
     upgrade_at DATETIME, -- Thời điểm xin nâng cấp
+    refresh_token text, -- Lưu refresh token cho việc đăng nhập lâu dài
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -47,6 +48,7 @@ CREATE TABLE Products (
     status ENUM('active', 'sold', 'expired') DEFAULT 'active',
     
     permission bool default false,
+    auto_renewal bool default true,
     
     FOREIGN KEY (category_id) REFERENCES Categories(category_id),
     FOREIGN KEY (seller_id) REFERENCES Users(user_id),

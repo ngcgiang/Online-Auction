@@ -247,7 +247,29 @@ class BidService {
         };
       }
 
-      // Step 3: Validate bid amount
+      // Step 3: Check if user has previous bids (prevent decreasing max bid)
+      const userPreviousBid = await Bid.findOne({
+        where: {
+          product_id: productId,
+          bidder_id: userId,
+          status: 1
+        },
+        order: [['amount', 'DESC']],
+        transaction
+      });
+
+      if (userPreviousBid) {
+        const previousMaxBid = parseFloat(userPreviousBid.amount);
+        if (bidAmount < previousMaxBid) {
+          await transaction.rollback();
+          return {
+            success: false,
+            message: `You cannot decrease your maximum bid. Your current maximum bid is ${previousMaxBid}`
+          };
+        }
+      }
+
+      // Step 4: Validate bid amount
       const nextValidPrice = this.getNextValidPrice(product);
       if (bidAmount < nextValidPrice) {
         await transaction.rollback();
@@ -257,7 +279,7 @@ class BidService {
         };
       }
 
-      // Step 4: Get current leader bid (highest amount)
+      // Step 5: Get current leader bid (highest amount)
       const currentLeaderBid = await Bid.findOne({
         where: { 
           product_id: productId,
@@ -273,12 +295,12 @@ class BidService {
       let bidResult;
       const { triggerTime, extendTime } = await getAuctionConfig();
 
-      // Step 5: Proxy Bidding Logic
+      // Step 6: Proxy Bidding Logic
       if (!currentLeaderBid) {
         // Case 1: No bids yet - First bidder wins
         newCurrentPrice = product.start_value;
         winnerId = userId;
-        if (product.end_time - currentTime <= triggerTime * 60 * 1000) {
+        if (product.end_time - currentTime <= triggerTime * 60 * 1000 && product.auto_renewal) {
           newEndTime = new Date(currentTime.getTime() + extendTime * 60 * 1000);
         }
         bidResult = {
@@ -296,9 +318,14 @@ class BidService {
           winnerId = userId;
           // New current price = old leader's max + step
           // But cannot exceed new bidder's max
-          newCurrentPrice = Math.min(leaderAmount + priceStep, newBidAmount);
-          
-          if (product.end_time - currentTime <= triggerTime * 60 * 1000) {
+          if (currentLeaderBid.bidder_id === userId) {
+            // If the current leader is bidding again, just increase their max
+            newCurrentPrice = Math.min(leaderAmount, newBidAmount);
+          } else {
+            newCurrentPrice = Math.min(leaderAmount + priceStep, newBidAmount);
+          }
+                    
+          if (product.end_time - currentTime <= triggerTime * 60 * 1000 && product.auto_renewal) {
             newEndTime = new Date(currentTime.getTime() + extendTime * 60 * 1000);
           }
 
@@ -334,7 +361,7 @@ class BidService {
         }
       }
 
-      // Step 6: Create new bid record
+      // Step 7: Create new bid record
       const newBid = await Bid.create({
         product_id: productId,
         bidder_id: userId,
@@ -343,7 +370,7 @@ class BidService {
         status: 1
       }, { transaction });
 
-      // Step 7: Update product current_price, winner_id, and end_time
+      // Step 8: Update product current_price, winner_id, and end_time
       await product.update({
         end_time: newEndTime || product.end_time,
         current_price: newCurrentPrice,

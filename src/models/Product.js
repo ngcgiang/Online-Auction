@@ -68,6 +68,10 @@ const Product = sequelize.define('Product', {
   permission: {
     type: DataTypes.BOOLEAN,
     defaultValue: false
+  },
+  auto_renewal: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true
   }
 }, {
   tableName: 'Products',
