@@ -81,10 +81,34 @@ const maskFullname = (full_name) => {
     return maskedPart + visiblePart;
 };
 
+  /**
+   * Mask max_bit for privacy (hide first half of characters)
+   * Example: 54000 -> $$$00
+   * @param {number|string} number - Original number or numeric string
+   * @returns {string} - Masked string (first half replaced with '$')
+   */
+  const maskMaxBit = (number) => {
+    if (number === null || number === undefined) return '';
+
+    const str = String(number);
+    // preserve leading sign if present
+    const sign = str[0] === '-' || str[0] === '+' ? str[0] : '';
+    const core = sign ? str.slice(1) : str;
+
+    if (core.length <= 2) {
+      return sign + '$'.repeat(core.length);
+    }
+
+    const half = Math.ceil(core.length / 2);
+    const masked = '$'.repeat(half) + core.slice(half);
+
+    return sign + masked;
+  };
 
 module.exports = {
   removeVietnameseAccents,
   generateUnaccentSQL,
   formatRelativeTime,
-  maskFullname
+  maskFullname,
+  maskMaxBit
 };

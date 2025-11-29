@@ -1,4 +1,5 @@
 const refuseBidderService = require('../services/refuseBidderService');
+const realtimeBidService = require('../services/realtimeBidService');
 const { validationResult } = require('express-validator');
 
 /**
@@ -41,6 +42,34 @@ const refuseBidder = async (req, res, next) => {
     if (!result.success) {
       return res.status(400).json(result);
     }
+
+    // ✅ Emit real-time updates after refusing bidder
+    // This notifies all connected clients about price change and bid history update
+    if (result.data.recalculated) {
+      const bidData = {
+        currentPrice: result.data.new_current_price,
+        winnerId: result.data.new_winner_id,
+        bidCount: result.data.remaining_bids,
+        endTime: null // No end time change in refuse operation
+      };
+
+      // Emit price update to all rooms
+      realtimeBidService.emitProductDetailUpdate(parseInt(product_id), {
+        ...bidData,
+        endTime: new Date() // Placeholder, will be ignored if null
+      }).catch(error => {
+        console.error('⚠️ Failed to emit price update after refuse:', error);
+      });
+
+      realtimeBidService.emitHomepageFeedUpdate(parseInt(product_id), bidData).catch(error => {
+        console.error('⚠️ Failed to emit homepage update after refuse:', error);
+      });
+    }
+
+    // ✅ CRUCIAL: Emit bid history update (shows refused bid with strikethrough)
+    realtimeBidService.emitBidHistoryUpdate(parseInt(product_id)).catch(error => {
+      console.error('⚠️ Failed to emit bid history update after refuse:', error);
+    });
 
     return res.status(200).json(result);
 

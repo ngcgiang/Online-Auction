@@ -1,7 +1,7 @@
 const { Op } = require('sequelize');
 const { sequelize, Product, Bid, User, Rating, RefusedBidder } = require('../models');
 const { getAuctionConfig} = require('../utils/configHelper');
-const { maskFullname } = require('../utils/textHelpers');
+const { maskFullname, maskMaxBit } = require('../utils/textHelpers');
 
 class BidService {
   /**
@@ -428,29 +428,58 @@ class BidService {
   /**
    * Get bid history for a product
    * @param {number} productId - ID of the product
-   * @returns {Promise<Array>} - Array of bids
+   * @param {string} mode - 'valid' (status=1) or 'all' (both valid and invalid)
+   * @param {number} limit - Maximum number of bids to return (default: 5)
+   * @returns {Promise<Array>} - Array of bids with status field
    */
-  async getBidHistory(productId) {
+  async getBidHistory(productId, mode = 'all', limit = 5) {
     try {
+      // Build where condition based on mode
+      const whereCondition = { product_id: productId };
+      
+      if (mode === 'valid') {
+        whereCondition.status = 1;
+      }
+      // mode === 'all' will fetch both status 0 and 1
+
       const bids = await Bid.findAll({
-        where: { 
-          product_id: productId,
-          status: 1
-        },
+        where: whereCondition,
         include: [{
           model: User,
           as: 'bidder',
           attributes: ['user_id', 'full_name', 'rating_score']
         }],
-        order: [['bid_time', 'DESC']]
+        order: [['bid_time', 'DESC']],
+        limit: limit
       });
 
-      // Mask full names for privacy
-      const maskedBids = bids.map(bid => {
+      // Mask full names for privacy and include status
+      // Also mask the highest bid amount for privacy
+      
+      // Find the highest bid amount to mask it
+      let highestBidIndex = -1;
+      let highestAmount = -1;
+      
+      bids.forEach((bid, index) => {
+        const amount = parseFloat(bid.amount);
+        if (amount > highestAmount) {
+          highestAmount = amount;
+          highestBidIndex = index;
+        }
+      });
+      
+      const maskedBids = bids.map((bid, index) => {
         const bidData = bid.toJSON();
         if (bidData.bidder && bidData.bidder.full_name) {
           bidData.bidder.full_name = maskFullname(bidData.bidder.full_name);
         }
+        
+        // Mask the highest bid amount
+        if (index === highestBidIndex && bidData.amount) {
+          bidData.amount = maskMaxBit(bidData.amount);
+        }
+        
+        // Ensure status field is included for frontend
         return bidData;
       });
 

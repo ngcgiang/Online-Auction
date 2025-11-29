@@ -54,6 +54,26 @@
       padding: 10px;
       border-bottom: 1px solid #eee;
     }
+    .bid-item.refused {
+      text-decoration: line-through;
+      opacity: 0.5;
+      background: #ffebee;
+    }
+    .bid-status {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 11px;
+      margin-left: 5px;
+    }
+    .bid-status.valid {
+      background: #4caf50;
+      color: white;
+    }
+    .bid-status.invalid {
+      background: #e74c3c;
+      color: white;
+    }
     .status {
       display: inline-block;
       padding: 5px 10px;
@@ -127,7 +147,7 @@
     // ========================================
     // Get product ID from URL
     const urlParts = window.location.pathname.split('/');
-    const PRODUCT_ID = parseInt(urlParts[urlParts.length - 1]) || 10;
+    const PRODUCT_ID = parseInt(urlParts[urlParts.length - 1]) ||10;
     const SOCKET_SERVER = 'http://localhost:3000'; // TODO: Thay đổi theo môi trường
 
     // Kết nối Socket.io
@@ -190,6 +210,27 @@
 
       // Cập nhật giao diện
       updateProductDetail(data);
+    });
+
+    /**
+     * 🆕 Lắng nghe sự kiện bid_history_update (BID HISTORY)
+     * Dữ liệu nhận được:
+     * {
+     *   productId: 123,
+     *   bids: [{ bid_id, amount, bidder, status, bid_time }, ...],
+     *   timestamp: '2025-11-29T10:00:00Z'
+     * }
+     */
+    socket.on('bid_history_update', (data) => {
+      console.log('📡 Received bid history update:', data);
+      
+      if (data.productId !== PRODUCT_ID) {
+        console.warn('⚠️ Received bid history for different product');
+        return;
+      }
+
+      // Update bid history UI with status field
+      updateBidHistoryUI(data.bids);
     });
 
     // ========================================
@@ -283,6 +324,43 @@
       } else if (remainingMs < 30 * 60 * 1000) {
         timerElement.style.color = '#ff9800';
       }
+    }
+
+    /**
+     * 🆕 Update bid history UI with status field support
+     * @param {Array} bids - Array of bid objects with status field
+     */
+    function updateBidHistoryUI(bids) {
+      const historyContainer = document.getElementById('bidHistoryList');
+      
+      if (!bids || bids.length === 0) {
+        historyContainer.innerHTML = '<p>Chưa có lượt đấu giá nào</p>';
+        return;
+      }
+      
+      historyContainer.innerHTML = bids.map(bid => {
+        const isRefused = bid.status === 0;
+        const itemClass = isRefused ? 'bid-item refused' : 'bid-item';
+        const statusBadge = isRefused 
+          ? '<span class="bid-status invalid">ĐÃ TỪ CHỐI</span>' 
+          : '<span class="bid-status valid">HỢP LỆ</span>';
+        
+        return `
+          <div class="${itemClass}">
+            <strong>${bid.bidder.full_name}</strong> đã đặt giá 
+            <strong style="color: ${isRefused ? '#999' : '#e74c3c'};">${formatCurrency(bid.amount)}</strong>
+            ${statusBadge}
+            <br>
+            <small style="color: #999;">${new Date(bid.bid_time).toLocaleString('vi-VN')}</small>
+          </div>
+        `;
+      }).join('');
+      
+      // Add animation effect
+      historyContainer.style.animation = 'pulse 0.3s ease-in-out';
+      setTimeout(() => {
+        historyContainer.style.animation = '';
+      }, 300);
     }
 
     /**
@@ -384,29 +462,16 @@
     }
     
     /**
-     * Load bid history from API
+     * Load bid history from API (updated to use mode parameter)
      */
     async function loadBidHistory(productId) {
       try {
-        const response = await fetch(`http://localhost:3000/api/bids/history/${productId}`);
+        // Fetch latest 5 bids with mode=all (shows both valid and refused)
+        const response = await fetch(`http://localhost:3000/api/bids/history/${productId}?mode=all`);
         const result = await response.json();
         
         if (result.success && result.data) {
-          const historyContainer = document.getElementById('bidHistoryList');
-          
-          if (result.data.length === 0) {
-            historyContainer.innerHTML = '<p>Chưa có lượt đấu giá nào</p>';
-            return;
-          }
-          
-          historyContainer.innerHTML = result.data.map(bid => `
-            <div class="bid-item">
-              <strong>${bid.bidder.full_name}</strong> đã đặt giá 
-              <strong style="color: #e74c3c;">${formatCurrency(bid.amount)}</strong>
-              <br>
-              <small style="color: #999;">${new Date(bid.bid_time).toLocaleString('vi-VN')}</small>
-            </div>
-          `).join('');
+          updateBidHistoryUI(result.data);
         }
       } catch (error) {
         console.error('Error loading bid history:', error);

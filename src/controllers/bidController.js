@@ -49,16 +49,28 @@ const placeBid = async (req, res, next) => {
 
 /**
  * Get bid history for a product
- * @route GET /api/bids/history/:productId
+ * @route GET /api/bids/history/:productId?mode=valid|all
+ * @query mode - 'valid' (only status=1) or 'all' (both valid and invalid, default)
  */
 const getBidHistory = async (req, res, next) => {
   try {
     const { productId } = req.params;
+    const { mode = 'all' } = req.query; // Default to 'all'
 
-    const bids = await bidService.getBidHistory(productId);
+    // Validate mode parameter
+    if (mode !== 'valid' && mode !== 'all') {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid mode parameter. Must be "valid" or "all"'
+      });
+    }
+
+    // Fetch latest 5 bids with mode filter
+    const bids = await bidService.getBidHistory(productId, mode, 5);
 
     res.status(200).json({
       success: true,
+      mode: mode,
       count: bids.length,
       data: bids
     });

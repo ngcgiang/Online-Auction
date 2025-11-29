@@ -1,5 +1,5 @@
 const { User } = require('../models');
-const { maskFullname } = require('../utils/textHelpers');
+const { maskFullname, maskMaxBit } = require('../utils/textHelpers');
 
 /**
  * Service to handle realtime bid notifications via Socket.io
@@ -140,11 +140,66 @@ class RealtimeBidService {
       // Emit to both rooms in parallel
       await Promise.all([
         this.emitProductDetailUpdate(productId, bidData),
-        this.emitHomepageFeedUpdate(productId, bidData)
+        this.emitHomepageFeedUpdate(productId, bidData),
+        this.emitBidHistoryUpdate(productId) // Add history update
       ]);
 
     } catch (error) {
       console.error('❌ Error emitting bid updates:', error);
+    }
+  }
+
+  /**
+   * Emit bid history update to product detail room
+   * Triggers clients to refetch the latest 5 bids
+   * @param {number} productId - Product ID
+   * @param {Array} bidHistory - Optional: Pre-fetched bid history (latest 5)
+   */
+  async emitBidHistoryUpdate(productId, bidHistory = null) {
+    if (!this.io) {
+      console.warn('⚠️ Socket.io not initialized');
+      return;
+    }
+
+    try {
+      const roomName = `product_${productId}`;
+
+      // If bid history not provided, fetch it
+      if (!bidHistory) {
+        const { Bid, User } = require('../models');
+        
+        const bids = await Bid.findAll({
+          where: { product_id: productId },
+          include: [{
+            model: User,
+            as: 'bidder',
+            attributes: ['user_id', 'full_name', 'rating_score']
+          }],
+          order: [['bid_time', 'DESC']],
+          limit: 5
+        });
+
+        bidHistory = bids.map(bid => {
+          const bidData = bid.toJSON();
+          if (bidData.bidder && bidData.bidder.full_name) {
+            bidData.bidder.full_name = maskFullname(bidData.bidder.full_name);
+          }
+          return bidData;
+        });
+      }
+
+      // Emit to product detail room
+      const payload = {
+        productId: productId,
+        bids: bidHistory,
+        timestamp: new Date().toISOString()
+      };
+
+      this.io.to(roomName).emit('bid_history_update', payload);
+      console.log(`📡 Emitted bid_history_update to ${roomName}:`, payload.bids.length, 'bids');
+
+    } catch (error) {
+      console.error('❌ Error emitting bid history update:', error);
     }
   }
 }
