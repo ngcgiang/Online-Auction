@@ -69,6 +69,85 @@ async function cancelOrder(req, res) {
   }
 }
 
+/**
+ * Process winner payment for auction product
+ * POST /api/orders/paid
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} req.user - User info from JWT (contains user_id)
+ * @param {Object} req.body - Payment details
+ * @param {number} req.body.productId - Product ID
+ * @param {number} req.body.totalAmount - Payment amount
+ * @param {string} req.body.paymentMethod - Payment method
+ * @param {string} req.body.shippingAddress - Delivery address
+ * @param {string} req.body.imgEvidence - Payment proof URL
+ * @param {Object} res - Express response object
+ */
+async function processPayment(req, res) {
+  try {
+    // Validate request
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Dữ liệu không hợp lệ',
+        errors: errors.array()
+      });
+    }
+    
+    // Extract user ID from JWT token
+    const userId = req.user.user_id;
+    
+    // Extract payment data from request body
+    const paymentData = {
+      productId: req.body.productId,
+      totalAmount: req.body.totalAmount,
+      paymentMethod: req.body.paymentMethod,
+      shippingAddress: req.body.shippingAddress,
+      imgEvidence: req.body.imgEvidence
+    };
+    
+    // Call service to process payment
+    const result = await orderService.processWinnerPayment(userId, paymentData);
+    
+    // Return success response
+    return res.status(200).json(result);
+    
+  } catch (error) {
+    console.error('Error in processPayment controller:', error);
+    
+    // Handle specific error types
+    if (error.statusCode === 403) {
+      return res.status(403).json({
+        success: false,
+        message: error.message
+      });
+    }
+    
+    if (error.statusCode === 404) {
+      return res.status(404).json({
+        success: false,
+        message: error.message
+      });
+    }
+    
+    if (error.statusCode === 400) {
+      return res.status(400).json({
+        success: false,
+        message: error.message
+      });
+    }
+    
+    // Generic server error
+    return res.status(500).json({
+      success: false,
+      message: 'Lỗi server khi xử lý thanh toán',
+      error: error.message
+    });
+  }
+}
+
 module.exports = {
-  cancelOrder
+  cancelOrder,
+  processPayment
 };

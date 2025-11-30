@@ -156,6 +156,163 @@ async function cancelTransaction(sellerId, productId) {
   }
 }
 
+/**
+ * Process winner payment for an auction product
+ * Validates winner identity, payment amount, and processes checkout
+ * 
+ * @param {number} userId - Current user ID from JWT token
+ * @param {Object} paymentData - Payment details
+ * @param {number} paymentData.productId - Product ID
+ * @param {number} paymentData.totalAmount - Payment amount
+ * @param {string} paymentData.paymentMethod - Payment method (MOMO, ZALOPAY, etc.)
+ * @param {string} paymentData.shippingAddress - Delivery address
+ * @param {string} paymentData.imgEvidence - Payment proof URL
+ * @returns {Promise<Object>} Success message and order details
+ * @throws {Error} Validation or business logic errors
+ */
+async function processWinnerPayment(userId, paymentData) {
+  // Start database transaction for ACID compliance
+  const t = await sequelize.transaction();
+  
+  try {
+    const { productId, totalAmount, paymentMethod, shippingAddress, imgEvidence } = paymentData;
+    
+    // Step 1: Fetch product with winner information
+    const product = await Product.findByPk(productId, {
+      transaction: t
+    });
+    
+    if (!product) {
+      await t.rollback();
+      const error = new Error('Sản phẩm không tồn tại');
+      error.statusCode = 404;
+      throw error;
+    }
+    
+    // Step 2: Winner Authorization Check
+    if (!product.winner_id) {
+      await t.rollback();
+      const error = new Error('Sản phẩm này chưa có người thắng cuộc');
+      error.statusCode = 400;
+      throw error;
+    }
+    
+    if (product.winner_id !== userId) {
+      await t.rollback();
+      const error = new Error('Chỉ người thắng cuộc mới có thể thanh toán');
+      error.statusCode = 403;
+      throw error;
+    }
+    
+    // Step 3: Validate auction has ended
+    const now = new Date();
+    if (new Date(product.end_time) >= now) {
+      await t.rollback();
+      const error = new Error('Không thể thanh toán khi đấu giá chưa kết thúc');
+      error.statusCode = 400;
+      throw error;
+    }
+    
+    // Step 4: Amount Integrity Check
+    const currentPrice = parseFloat(product.current_price);
+    const paymentAmount = parseFloat(totalAmount);
+    
+    if (paymentAmount !== currentPrice) {
+      await t.rollback();
+      const error = new Error(`Số tiền thanh toán không hợp lệ. Bạn phải thanh toán đúng ${currentPrice} VND`);
+      error.statusCode = 400;
+      throw error;
+    }
+    
+    // Step 5: Required Fields Validation
+    if (!paymentMethod || !shippingAddress || !imgEvidence) {
+      await t.rollback();
+      const error = new Error('Thiếu thông tin bắt buộc: paymentMethod, shippingAddress, hoặc imgEvidence');
+      error.statusCode = 400;
+      throw error;
+    }
+    
+    // Step 6: Check for existing order
+    const existingOrder = await Order.findOne({
+      where: { product_id: productId },
+      transaction: t
+    });
+    
+    let order;
+    
+    if (!existingOrder) {
+      // Scenario A: First time payment - Create new order
+      order = await Order.create({
+        product_id: productId,
+        winner_id: userId,
+        seller_id: product.seller_id,
+        total_amount: totalAmount,
+        img_evidence: imgEvidence,
+        payment_method: paymentMethod,
+        shipping_address: shippingAddress,
+        order_status: 'paid',
+        delivery_status: 'pending'
+      }, { transaction: t });
+      
+    } else {
+      // Scenario B: Order already exists - Check status
+      if (existingOrder.order_status === 'paid') {
+        await t.rollback();
+        const error = new Error('Đơn hàng này đã được thanh toán trước đó');
+        error.statusCode = 400;
+        throw error;
+      }
+      
+      // Scenario D: Order was cancelled
+      if (existingOrder.order_status === 'cancelled') {
+        await t.rollback();
+        const error = new Error('Người bán đã hủy giao dịch này. Không thể thanh toán.');
+        error.statusCode = 400;
+        throw error;
+      }
+      
+      // Update existing unpaid order to paid
+      await existingOrder.update({
+        total_amount: totalAmount,
+        img_evidence: imgEvidence,
+        payment_method: paymentMethod,
+        shipping_address: shippingAddress,
+        order_status: 'paid',
+        delivery_status: 'pending'
+      }, { transaction: t });
+      
+      order = existingOrder;
+    }
+    
+    // Commit transaction
+    await t.commit();
+    
+    return {
+      success: true,
+      message: 'Thanh toán thành công. Đơn hàng đang chờ giao hàng',
+      order: {
+        order_id: order.order_id,
+        product_id: order.product_id,
+        winner_id: order.winner_id,
+        seller_id: order.seller_id,
+        total_amount: order.total_amount,
+        payment_method: order.payment_method,
+        shipping_address: order.shipping_address,
+        img_evidence: order.img_evidence,
+        order_status: order.order_status,
+        delivery_status: order.delivery_status,
+        created_at: order.created_at
+      }
+    };
+    
+  } catch (error) {
+    // Rollback on any error
+    await t.rollback();
+    throw error;
+  }
+}
+
 module.exports = {
-  cancelTransaction
+  cancelTransaction,
+  processWinnerPayment
 };

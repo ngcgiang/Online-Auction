@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const { verifyAccessToken, checkRole } = require('../middlewares/authMiddleware');
-const { validateCancelOrder } = require('../middlewares/orderValidator');
+const { validateCancelOrder, validateProcessPayment } = require('../middlewares/orderValidator');
 const handleValidationErrors = require('../middlewares/validationHandler');
-const { cancelOrder } = require('../controllers/orderController');
+const { cancelOrder, processPayment } = require('../controllers/orderController');
 
 /**
  * POST /api/seller/orders/cancel
@@ -17,6 +17,19 @@ router.post(
   validateCancelOrder,
   handleValidationErrors,
   cancelOrder
+);
+
+/**
+ * POST /api/orders/paid
+ * Process winner payment for auction product
+ * Requires: Winner authorization, JWT authentication, valid payment data
+ */
+router.post(
+  '/paid',
+  verifyAccessToken,
+  validateProcessPayment,
+  handleValidationErrors,
+  processPayment
 );
 
 module.exports = router;
