@@ -216,104 +216,116 @@ class SellerService {
   }
 
   /**
-   * Rate the winner of an auction
+   * Rate the winner/seller of an auction
    * @param {Object} ratingData - Rating information
    * @returns {Promise<Object>} - Created rating
    */
-  async rateWinner(ratingData) {
-    try {
-      const { reviewerId, userId, productId, ratingPoint, content } = ratingData;
+    async rateUser(ratingData) {
+        const t = await sequelize.transaction(); // Khuyên dùng transaction
+        try {
+            const { reviewerId, userId, productId, ratingPoint, content } = ratingData;
 
-      // Step 1: Verify product exists and belongs to the seller
-      const product = await Product.findOne({
-        where: { product_id: productId }
-      });
+            // --- Step 1: Lấy thông tin sản phẩm ---
+            const product = await Product.findOne({
+                where: { product_id: productId }
+            });
 
-      if (!product) {
-        return {
-          success: false,
-          message: 'Product not found'
-        };
-      }
+            if (!product) {
+                await t.rollback();
+                return { success: false, message: 'Product not found' };
+            }
 
-      if (product.seller_id !== reviewerId) {
-        return {
-          success: false,
-          message: 'You are not the seller of this product'
-        };
-      }
+            // --- Step 2: Kiểm tra thời gian ---
+            // Phải kết thúc đấu giá mới được rate
+            const currentTime = new Date();
+            if (new Date(product.end_time) >= currentTime) {
+                await t.rollback();
+                return { success: false, message: 'Product auction has not ended yet' };
+            }
 
-      // Step 2: Ensure product has ended
-      const currentTime = new Date();
-      if (new Date(product.end_time) >= currentTime) {
-        return {
-          success: false,
-          message: 'Product auction has not ended yet'
-        };
-      }
+            // --- Step 3: Kiểm tra Winner ---
+            // Nếu không có winner, không ai được rate cả
+            if (!product.winner_id) {
+                await t.rollback();
+                return { success: false, message: 'This auction has no winner' };
+            }
 
-      // Step 3: Verify the target user is the winner
-      if (product.winner_id !== userId) {
-        return {
-          success: false,
-          message: 'The specified user is not the winner of this auction'
-        };
-      }
+            // --- Step 4: Xác định vai trò (QUAN TRỌNG) ---
+            // Logic: Người review và người được rate phải là cặp Seller - Winner của sản phẩm này.
+            
+            const isReviewerSeller = product.seller_id === reviewerId;
+            const isReviewerWinner = product.winner_id === reviewerId;
 
-      if (!product.winner_id) {
-        return {
-          success: false,
-          message: 'This auction has no winner'
-        };
-      }
+            // 4.1: Kiểm tra người Review có liên quan không
+            if (!isReviewerSeller && !isReviewerWinner) {
+                await t.rollback();
+                return { success: false, message: 'You do not have permission to rate on this product' };
+            }
 
-      // Step 4: Check if seller has already rated this transaction
-      const existingRating = await Rating.findOne({
-        where: {
-          reviewer_id: reviewerId,
-          user_id: userId,
-          product_id: productId
+            // 4.2: Kiểm tra người nhận (Target) có phải là người còn lại không
+            // Nếu Reviewer là Seller -> Target phải là Winner
+            // Nếu Reviewer là Winner -> Target phải là Seller
+            if (isReviewerSeller && userId !== product.winner_id) {
+                await t.rollback();
+                return { success: false, message: 'Seller can only rate the Winner' };
+            }
+            if (isReviewerWinner && userId !== product.seller_id) {
+                await t.rollback();
+                return { success: false, message: 'Winner can only rate the Seller' };
+            }
+            
+            // Chặn tự sướng (Self-rating check - phòng hờ trường hợp winner và seller là 1, dù logic đấu giá thường chặn việc này)
+            if (reviewerId === userId) {
+                await t.rollback();
+                return { success: false, message: 'You cannot rate yourself' };
+            }
+
+            // --- Step 5: Kiểm tra đã rate chưa ---
+            const existingRating = await Rating.findOne({
+                where: {
+                    reviewer_id: reviewerId,
+                    user_id: userId,
+                    product_id: productId
+                }
+            });
+
+            if (existingRating) {
+                await t.rollback();
+                return { success: false, message: 'You have already rated this user for this transaction' };
+            }
+
+            // --- Step 6: Validate điểm ---
+            if (ratingPoint !== 1 && ratingPoint !== -1) {
+                await t.rollback();
+                return { success: false, message: 'Rating point must be either +1 or -1' };
+            }
+
+            // --- Step 7: Thực hiện Database (Trong Transaction) ---
+            const newRating = await Rating.create({
+                user_id: userId,
+                reviewer_id: reviewerId,
+                product_id: productId,
+                rating_point: ratingPoint,
+                content: content || null,
+                created_at: new Date()
+            }, { transaction: t });
+
+            // Cập nhật điểm uy tín user
+            await this.updateUserRatingScore(userId, t); // Truyền transaction vào hàm này nếu có thể
+
+            await t.commit(); // Lưu thay đổi
+
+            return {
+                success: true,
+                message: 'Rating submitted successfully',
+                rating: newRating
+            };
+
+        } catch (error) {
+            if (t) await t.rollback(); // Hoàn tác nếu lỗi
+            throw error;
         }
-      });
-
-      if (existingRating) {
-        return {
-          success: false,
-          message: 'You have already rated this winner for this transaction'
-        };
-      }
-
-      // Step 5: Validate rating point
-      if (ratingPoint !== 1 && ratingPoint !== -1) {
-        return {
-          success: false,
-          message: 'Rating point must be either +1 or -1'
-        };
-      }
-
-      // Step 6: Create rating
-      const newRating = await Rating.create({
-        user_id: userId,
-        reviewer_id: reviewerId,
-        product_id: productId,
-        rating_point: ratingPoint,
-        content: content || null,
-        created_at: new Date()
-      });
-
-      // Step 7: Update user's rating score
-      await this.updateUserRatingScore(userId);
-
-      return {
-        success: true,
-        message: 'Rating submitted successfully',
-        rating: newRating
-      };
-
-    } catch (error) {
-      throw error;
     }
-  }
 
   /**
    * Update user's rating score based on all ratings received
@@ -330,7 +342,7 @@ class SellerService {
       if (ratings.length === 0) {
         return;
       }
-
+n
       // Calculate positive ratio
       const positiveRatings = ratings.filter(r => r.rating_point === 1).length;
       const totalRatings = ratings.length;

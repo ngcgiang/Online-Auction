@@ -3,7 +3,7 @@ const { body } = require('express-validator');
 /**
  * Validation rules for rating a winner
  */
-const validateRateWinner = [
+const validateRateUser = [
   // User ID validation (target user)
   body('userId')
     .notEmpty()
@@ -45,5 +45,5 @@ const validateRateWinner = [
 ];
 
 module.exports = {
-  validateRateWinner
+  validateRateUser
 };

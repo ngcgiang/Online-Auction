@@ -5,7 +5,7 @@ const { validationResult } = require('express-validator');
  * Rate the winner of an auction
  * POST /api/users/rating
  */
-const rateWinner = async (req, res, next) => {
+const rateUser = async (req, res, next) => {
   try {
     // Check validation errors
     const errors = validationResult(req);
@@ -32,7 +32,7 @@ const rateWinner = async (req, res, next) => {
     const { userId, productId, ratingPoint, content } = req.body;
 
     // Call service to create rating
-    const result = await sellerService.rateWinner({
+    const result = await sellerService.rateUser({
       reviewerId,
       userId,
       productId,
@@ -57,5 +57,5 @@ const rateWinner = async (req, res, next) => {
 };
 
 module.exports = {
-  rateWinner,
+  rateUser,
 };
