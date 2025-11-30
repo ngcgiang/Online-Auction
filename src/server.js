@@ -13,7 +13,7 @@ const bidRoutes = require('./routes/bid');
 const emailRoutes = require('./routes/email');
 const sellerRoutes = require('./routes/seller');
 const adminRoutes = require('./routes/admin');
-const ratingRoutes = require('./routes/rating');
+const userRoutes = require('./routes/user');
 const orderRoutes = require('./routes/order');
 const errorHandler = require('./middlewares/errorHandler');
 
@@ -47,7 +47,7 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/emails', emailRoutes);
 app.use('/api/seller', sellerRoutes);
 app.use('/api/admin', adminRoutes);
-app.use('/api/users', ratingRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api/orders', orderRoutes);
   
 app.use('/api/bids', bidRoutes);

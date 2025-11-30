@@ -12,10 +12,7 @@ const {
 const { validateRefuseBidder, validateCheckRefused } = require('../middlewares/refuseBidderValidator');
 const handleValidationErrors = require('../middlewares/validationHandler');
 const { verifyAccessToken} = require('../middlewares/authMiddleware');
-const {
-    checkPermission
-} = require('../controllers/sellerController');
-
+const { canCreateProduct} = require('../middlewares/sellerPermissionMiddleware');
 
 // GET /api/products/search - Advanced search with full-text and filters
 router.get(
@@ -29,7 +26,7 @@ router.get(
 router.post(
   '/',
   verifyAccessToken,
-  checkPermission,
+  canCreateProduct,
   validateCreateProduct,
   handleValidationErrors,
   productController.createProduct

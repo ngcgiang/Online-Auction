@@ -150,8 +150,10 @@ async function cancelTransaction(sellerId, productId) {
     };
     
   } catch (error) {
-    // Rollback on any error
-    await t.rollback();
+    // Rollback on any error (check if transaction is still active)
+    if (t && !t.finished) {
+      await t.rollback();
+    }
     throw error;
   }
 }
@@ -266,7 +268,7 @@ async function processWinnerPayment(userId, paymentData) {
       // Scenario D: Order was cancelled
       if (existingOrder.order_status === 'cancelled') {
         await t.rollback();
-        const error = new Error('Người bán đã hủy giao dịch này. Không thể thanh toán.');
+        const error = new Error('Người bán đã hủy giao dịch này. Không thể thanh toán');
         error.statusCode = 400;
         throw error;
       }
@@ -306,8 +308,10 @@ async function processWinnerPayment(userId, paymentData) {
     };
     
   } catch (error) {
-    // Rollback on any error
-    await t.rollback();
+    // Rollback on any error (check if transaction is still active)
+    if (t && !t.finished) {
+      await t.rollback();
+    }
     throw error;
   }
 }

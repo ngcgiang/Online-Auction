@@ -1,4 +1,4 @@
-const { Product, User, ProductImage, Rating } = require('../models');
+const { Product, User, ProductImage, Rating, sequelize } = require('../models');
 const { Op } = require('sequelize');
 
 class SellerService {
@@ -330,19 +330,21 @@ class SellerService {
   /**
    * Update user's rating score based on all ratings received
    * @param {number} userId - ID of the user
+   * @param {Object} transaction - Optional Sequelize transaction
    */
-  async updateUserRatingScore(userId) {
+  async updateUserRatingScore(userId, transaction = null) {
     try {
       // Get all ratings for this user
       const ratings = await Rating.findAll({
         where: { user_id: userId },
-        attributes: ['rating_point']
+        attributes: ['rating_point'],
+        ...(transaction && { transaction })
       });
 
       if (ratings.length === 0) {
         return;
       }
-n
+
       // Calculate positive ratio
       const positiveRatings = ratings.filter(r => r.rating_point === 1).length;
       const totalRatings = ratings.length;
@@ -351,7 +353,10 @@ n
       // Update user's rating score
       await User.update(
         { rating_score: ratingScore.toFixed(2) },
-        { where: { user_id: userId } }
+        { 
+          where: { user_id: userId },
+          ...(transaction && { transaction })
+        }
       );
 
     } catch (error) {
