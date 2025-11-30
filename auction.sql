@@ -121,8 +121,10 @@ CREATE TABLE Orders (
     order_id INT AUTO_INCREMENT PRIMARY KEY,
     product_id INT NOT NULL,
     winner_id INT NOT NULL,
+    seller_id INT NOT NULL,
     
     total_amount DECIMAL(15, 2) NOT NULL,
+    img_evidence VARCHAR(255), -- Ảnh bằng chứng thanh toán
     payment_method VARCHAR(50), -- MOMO, ZALOPAY...
     shipping_address VARCHAR(255),
     
@@ -131,7 +133,8 @@ CREATE TABLE Orders (
     
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (product_id) REFERENCES Products(product_id),
-    FOREIGN KEY (winner_id) REFERENCES Users(user_id)
+    FOREIGN KEY (winner_id) REFERENCES Users(user_id),
+    FOREIGN KEY (seller_id) REFERENCES Users(user_id)
 );
 
 -- 11. Bảng Rating (Đánh giá người dùng)

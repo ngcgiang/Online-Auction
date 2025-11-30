@@ -14,6 +14,7 @@ const emailRoutes = require('./routes/email');
 const sellerRoutes = require('./routes/seller');
 const adminRoutes = require('./routes/admin');
 const ratingRoutes = require('./routes/rating');
+const orderRoutes = require('./routes/order');
 const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
@@ -47,6 +48,7 @@ app.use('/api/emails', emailRoutes);
 app.use('/api/seller', sellerRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/users', ratingRoutes);
+app.use('/api/orders', orderRoutes);
   
 app.use('/api/bids', bidRoutes);
 

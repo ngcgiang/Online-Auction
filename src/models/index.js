@@ -9,6 +9,7 @@ const ProductDescription = require('./ProductDescription');
 const QuestionAnswer = require('./QuestionAnswer');
 const Rating = require('./Rating');
 const RefusedBidder = require('./RefusedBidder');
+const Order = require('./Order');
 
 // Define associations
 
@@ -209,6 +210,38 @@ RefusedBidder.belongsTo(User, {
   as: 'bidder'
 });
 
+// Order - Product relationship
+Product.hasMany(Order, {
+  foreignKey: 'product_id',
+  as: 'orders'
+});
+
+Order.belongsTo(Product, {
+  foreignKey: 'product_id',
+  as: 'product'
+});
+
+// Order - User relationships (Winner and Seller)
+User.hasMany(Order, {
+  foreignKey: 'winner_id',
+  as: 'ordersAsWinner'
+});
+
+User.hasMany(Order, {
+  foreignKey: 'seller_id',
+  as: 'ordersAsSeller'
+});
+
+Order.belongsTo(User, {
+  foreignKey: 'winner_id',
+  as: 'winner'
+});
+
+Order.belongsTo(User, {
+  foreignKey: 'seller_id',
+  as: 'seller'
+});
+
 module.exports = {
   sequelize,
   User,
@@ -220,5 +253,6 @@ module.exports = {
   ProductDescription,
   QuestionAnswer,
   Rating,
-  RefusedBidder
+  RefusedBidder,
+  Order
 };
