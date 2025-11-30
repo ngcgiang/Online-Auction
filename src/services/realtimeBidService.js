@@ -179,10 +179,26 @@ class RealtimeBidService {
           limit: 5
         });
 
-        bidHistory = bids.map(bid => {
+              
+        // Find the highest bid amount to mask it
+        let highestBidIndex = -1;
+        let highestAmount = -1;
+        
+        bids.forEach((bid, index) => {
+          const amount = parseFloat(bid.amount);
+          if (amount > highestAmount) {
+            highestAmount = amount;
+            highestBidIndex = index;
+          }
+        });
+
+        bidHistory = bids.map((bid, index) => {
           const bidData = bid.toJSON();
           if (bidData.bidder && bidData.bidder.full_name) {
             bidData.bidder.full_name = maskFullname(bidData.bidder.full_name);
+            if (index === highestBidIndex) {
+              bidData.amount = '$$$MAX-BID$$$'; // Mask the highest bid amount
+            }
           }
           return bidData;
         });

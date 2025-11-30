@@ -336,8 +336,8 @@ class BidService {
           // New current price = old leader's max + step
           // But cannot exceed new bidder's max
           if (currentLeaderBid.bidder_id === userId) {
-            // If the current leader is bidding again, just increase their max
-            newCurrentPrice = Math.min(leaderAmount, newBidAmount);
+            // If the current leader is bidding again, just increase their max bid
+            newCurrentPrice = product.current_price;
           } else {
             newCurrentPrice = Math.min(leaderAmount + priceStep, newBidAmount);
           }

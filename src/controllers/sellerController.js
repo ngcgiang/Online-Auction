@@ -88,7 +88,79 @@ const checkPermission = async (req, res) => {
     }
 };
 
+
+/**
+ * Get active products for the current seller
+ * GET /api/seller/products
+ */
+const getActiveProducts = async (req, res, next) => {
+  try {
+    const sellerId = req.user?.user_id;
+
+    if (!sellerId) {
+      return res.status(401).json({
+        success: false,
+        message: 'Authentication required'
+      });
+    }
+
+    const products = await SellerService.getActiveProducts(sellerId);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Active products retrieved successfully',
+      count: products.length,
+      data: products
+    });
+
+  } catch (error) {
+    console.error('Error getting active products:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'An error occurred while retrieving active products',
+      error: error.message
+    });
+  }
+};
+
+/**
+ * Get ended products for the current seller with winner info
+ * GET /api/seller/products/ended
+ */
+const getEndedProducts = async (req, res, next) => {
+  try {
+    const sellerId = req.user?.user_id;
+
+    if (!sellerId) {
+      return res.status(401).json({
+        success: false,
+        message: 'Authentication required'
+      });
+    }
+
+    const products = await SellerService.getEndedProducts(sellerId);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Ended products retrieved successfully',
+      count: products.length,
+      data: products
+    });
+
+  } catch (error) {
+    console.error('Error getting ended products:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'An error occurred while retrieving ended products',
+      error: error.message
+    });
+  }
+};
+
+
 module.exports = {
     requestUpgrade,
-    checkPermission
+    checkPermission,
+    getActiveProducts,
+    getEndedProducts
 };
