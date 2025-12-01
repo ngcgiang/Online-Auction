@@ -174,12 +174,12 @@ CREATE TABLE IF NOT EXISTS RefusedBidders (
 -- 13. Bảng Messages (Chat - Yêu cầu 7)
 CREATE TABLE Messages (
     message_id INT AUTO_INCREMENT PRIMARY KEY,
-    order_id INT NOT NULL, -- Chat gắn liền với đơn hàng cụ thể
+    product_id INT NOT NULL,
     sender_id INT NOT NULL,
     content TEXT NOT NULL,
     sent_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     
-    FOREIGN KEY (order_id) REFERENCES Orders(order_id),
+    FOREIGN KEY (product_id) REFERENCES Products(product_id),
     FOREIGN KEY (sender_id) REFERENCES Users(user_id)
 );
 

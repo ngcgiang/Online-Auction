@@ -1,4 +1,6 @@
 const { Server } = require('socket.io');
+const { verifySocketToken } = require('../middlewares/socketAuthMiddleware');
+const chatService = require('../services/chatService');
 
 /**
  * Initialize Socket.io server with Express app
@@ -14,12 +16,144 @@ const initializeSocket = (server) => {
     transports: ['websocket', 'polling']
   });
 
+  // Apply authentication middleware
+  io.use(verifySocketToken);
+
   // Connection event
   io.on('connection', (socket) => {
-    console.log(`✅ User connected: ${socket.id}`);
+    console.log(`✅ User connected: ${socket.id} (User ID: ${socket.user.user_id})`);
 
     /**
-     * Event: Join product detail room
+     * Event: Join private chat room (Seller-Winner chat)
+     * Client emits: { productId: 123 }
+     * Requires: Auction ended, user is seller or winner
+     */
+    socket.on('join_chat_room', async (data) => {
+      try {
+        const { productId } = data;
+        const userId = socket.user.user_id;
+
+        if (!productId) {
+          return socket.emit('chat_error', {
+            error: 'Product ID is required'
+          });
+        }
+
+        // Validate access
+        const validation = await chatService.validateChatAccess(userId, productId);
+
+        if (!validation.valid) {
+          return socket.emit('chat_error', {
+            error: validation.error
+          });
+        }
+
+        // Join room
+        const roomName = `private_chat_${productId}`;
+        socket.join(roomName);
+        
+        // Store current room in socket
+        socket.currentChatRoom = roomName;
+        socket.currentProductId = productId;
+
+        console.log(`💬 User ${userId} (${validation.userRole}) joined chat room: ${roomName}`);
+
+        // Fetch and send chat history
+        const chatHistory = await chatService.getChatHistory(productId);
+
+        socket.emit('chat_room_joined', {
+          success: true,
+          room: roomName,
+          product: validation.product,
+          userRole: validation.userRole,
+          chatHistory: chatHistory
+        });
+
+      } catch (error) {
+        console.error('Error joining chat room:', error);
+        socket.emit('chat_error', {
+          error: 'Failed to join chat room',
+          details: error.message
+        });
+      }
+    });
+
+    /**
+     * Event: Send message in chat room
+     * Client emits: { productId: 123, content: "Hello!" }
+     */
+    socket.on('send_message', async (data) => {
+      try {
+        const { productId, content } = data;
+        const userId = socket.user.user_id;
+
+        if (!productId || !content) {
+          return socket.emit('chat_error', {
+            error: 'Product ID and message content are required'
+          });
+        }
+
+        // Validate access
+        const validation = await chatService.validateChatAccess(userId, productId);
+
+        if (!validation.valid) {
+          return socket.emit('chat_error', {
+            error: validation.error
+          });
+        }
+
+        // Save message to database
+        const savedMessage = await chatService.saveMessage({
+          productId,
+          senderId: userId,
+          content
+        });
+
+        // Emit to all users in the room (including sender)
+        const roomName = `private_chat_${productId}`;
+        io.to(roomName).emit('new_message', {
+          success: true,
+          message: savedMessage
+        });
+
+        console.log(`📨 Message sent in room ${roomName} by user ${userId}`);
+
+      } catch (error) {
+        console.error('Error sending message:', error);
+        socket.emit('chat_error', {
+          error: 'Failed to send message',
+          details: error.message
+        });
+      }
+    });
+
+    /**
+     * Event: Leave chat room
+     * Client emits: { productId: 123 }
+     */
+    socket.on('leave_chat_room', (data) => {
+      try {
+        const { productId } = data;
+        const roomName = `auction_room_${productId}`;
+        
+        socket.leave(roomName);
+        socket.currentChatRoom = null;
+        socket.currentProductId = null;
+
+        console.log(`📤 User ${socket.user.user_id} left chat room: ${roomName}`);
+
+        socket.emit('chat_room_left', {
+          success: true,
+          room: roomName
+        });
+
+      } catch (error) {
+        console.error('Error leaving chat room:', error);
+      }
+    });
+
+    /**
+     * Event: Join product detail room (for bidding updates)
      * Client emits: { productId: 123 }
      */
     socket.on('join_product_room', (data) => {
@@ -78,7 +212,7 @@ const initializeSocket = (server) => {
      * Event: Disconnect
      */
     socket.on('disconnect', () => {
-      console.log(`❌ User disconnected: ${socket.id}`);
+      console.log(`❌ User disconnected: ${socket.id} (User ID: ${socket.user.user_id})`);
     });
 
     /**

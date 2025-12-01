@@ -16,6 +16,7 @@ const adminRoutes = require('./routes/admin');
 const userRoutes = require('./routes/user');
 const orderRoutes = require('./routes/order');
 const qaRoutes = require('./routes/qa');
+const chatRoutes = require('./routes/chat');
 const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
@@ -51,6 +52,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/qa', qaRoutes);
+app.use('/api/chat', chatRoutes);
 app.use('/api/bids', bidRoutes);
 
 // HTML Routes for client pages
@@ -60,6 +62,10 @@ app.get('/product/:id', (req, res) => {
 
 app.get('/homepage', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'homepage-client.html'));
+});
+
+app.get('/chat-demo', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'chat-demo.html'));
 });
 
 // Basic route

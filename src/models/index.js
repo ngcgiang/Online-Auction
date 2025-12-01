@@ -10,6 +10,7 @@ const QuestionAnswer = require('./QuestionAnswer');
 const Rating = require('./Rating');
 const RefusedBidder = require('./RefusedBidder');
 const Order = require('./Order');
+const Message = require('./Message');
 
 // Define associations
 
@@ -243,6 +244,28 @@ QuestionAnswer.hasMany(QuestionAnswer, {
   as: 'replies'
 });
 
+// Message - Product relationship
+Product.hasMany(Message, {
+  foreignKey: 'product_id',
+  as: 'messages'
+});
+
+Message.belongsTo(Product, {
+  foreignKey: 'product_id',
+  as: 'product'
+});
+
+// Message - User relationship (Sender)
+User.hasMany(Message, {
+  foreignKey: 'sender_id',
+  as: 'sentMessages'
+});
+
+Message.belongsTo(User, {
+  foreignKey: 'sender_id',
+  as: 'sender'
+});
+
 module.exports = {
   sequelize,
   User,
@@ -256,4 +279,5 @@ module.exports = {
   RefusedBidder,
   Order,
   QuestionAnswer,
+  Message,
 };
