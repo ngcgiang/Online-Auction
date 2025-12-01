@@ -6,11 +6,10 @@ const Watchlist = require('./WatchList');
 const Bid = require('./Bid');
 const ProductImage = require('./ProductImage');
 const ProductDescription = require('./ProductDescription');
-//const QuestionAnswer = require('./QuestionAnswer');
+const QuestionAnswer = require('./QuestionAnswer');
 const Rating = require('./Rating');
 const RefusedBidder = require('./RefusedBidder');
 const Order = require('./Order');
-const QA = require('./QuestionAnswer');
 
 // Define associations
 
@@ -212,41 +211,37 @@ Order.belongsTo(User, {
   as: 'seller'
 });
 
-// QA - User relationship
-QA.belongsTo(User, {
-  foreignKey: 'user_id',
-  as: 'user'
+Product.hasMany(QuestionAnswer, {
+  foreignKey: 'product_id',
+  as: 'questions'
 });
 
-User.hasMany(QA, {
-  foreignKey: 'user_id',
-  as: 'qaComments'
-});
-
-// QA - Product relationship
-QA.belongsTo(Product, {
+QuestionAnswer.belongsTo(Product, {
   foreignKey: 'product_id',
   as: 'product'
 });
 
-Product.hasMany(QA, {
-  foreignKey: 'product_id',
-  as: 'qaComments'
+// QuestionAnswer - User relationship
+User.hasMany(QuestionAnswer, {
+  foreignKey: 'user_id',
+  as: 'comments'
 });
 
-// QA - QA relationship (parent-child for questions and answers)
-QA.belongsTo(QA, {
+QuestionAnswer.belongsTo(User, {
+  foreignKey: 'user_id',
+  as: 'user'
+});
+
+// QuestionAnswer - Self-referencing (parent-child for questions and answers)
+QuestionAnswer.belongsTo(QuestionAnswer, {
   foreignKey: 'parent_comment_id',
   as: 'parentComment'
 });
 
-QA.hasMany(QA, {
+QuestionAnswer.hasMany(QuestionAnswer, {
   foreignKey: 'parent_comment_id',
   as: 'replies'
 });
-
-// QA - QA relationship (for replies)
-
 
 module.exports = {
   sequelize,
@@ -260,5 +255,5 @@ module.exports = {
   Rating,
   RefusedBidder,
   Order,
-  QA,
+  QuestionAnswer,
 };
