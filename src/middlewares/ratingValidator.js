@@ -44,6 +44,35 @@ const validateRateUser = [
     .withMessage('Content must not exceed 255 characters')
 ];
 
+/**
+ * Validation rules for updating a rating
+ */
+const validateUpdateRating = [
+  // Rating point validation
+  body('ratingPoint')
+    .notEmpty()
+    .withMessage('Rating point is required')
+    .isInt()
+    .withMessage('Rating point must be an integer')
+    .custom((value) => {
+      if (value !== 1 && value !== -1) {
+        throw new Error('Rating point must be either +1 or -1');
+      }
+      return true;
+    })
+    .toInt(),
+
+  // Content validation (optional)
+  body('content')
+    .optional()
+    .isString()
+    .withMessage('Content must be a string')
+    .trim()
+    .isLength({ max: 255 })
+    .withMessage('Content must not exceed 255 characters')
+];
+
 module.exports = {
-  validateRateUser
+  validateRateUser,
+  validateUpdateRating
 };
