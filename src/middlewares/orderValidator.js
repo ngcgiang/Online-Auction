@@ -55,7 +55,19 @@ const validateProcessPayment = [
     .withMessage('imgEvidence phải là URL hợp lệ')
 ];
 
+/**
+ * Validation rules for updating delivery status (shipped/delivered)
+ */
+const validateUpdateDeliveryStatus = [
+  body('product_id')
+    .notEmpty()
+    .withMessage('product_id là bắt buộc')
+    .isInt({ min: 1 })
+    .withMessage('product_id phải là số nguyên dương')
+];
+
 module.exports = {
   validateCancelOrder,
-  validateProcessPayment
+  validateProcessPayment,
+  validateUpdateDeliveryStatus
 };

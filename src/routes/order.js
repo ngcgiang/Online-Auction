@@ -1,9 +1,18 @@
 const express = require('express');
 const router = express.Router();
 const { verifyAccessToken, checkRole } = require('../middlewares/authMiddleware');
-const { validateCancelOrder, validateProcessPayment } = require('../middlewares/orderValidator');
+const { 
+  validateCancelOrder, 
+  validateProcessPayment,
+  validateUpdateDeliveryStatus 
+} = require('../middlewares/orderValidator');
 const handleValidationErrors = require('../middlewares/validationHandler');
-const { cancelOrder, processPayment } = require('../controllers/orderController');
+const { 
+  cancelOrder, 
+  processPayment,
+  markOrderShipped,
+  markOrderDelivered 
+} = require('../controllers/orderController');
 
 /**
  * POST /api/seller/orders/cancel
@@ -30,6 +39,33 @@ router.post(
   validateProcessPayment,
   handleValidationErrors,
   processPayment
+);
+
+/**
+ * PUT /api/seller/orders/shipped
+ * Mark order as shipped by seller
+ * Requires: Seller role, JWT authentication, valid product_id
+ */
+router.put(
+  '/shipped',
+  verifyAccessToken,
+  checkRole(['seller']),
+  validateUpdateDeliveryStatus,
+  handleValidationErrors,
+  markOrderShipped
+);
+
+/**
+ * PUT /api/orders/delivered
+ * Mark order as delivered by winner
+ * Requires: Winner authorization, JWT authentication, valid product_id
+ */
+router.put(
+  '/delivered',
+  verifyAccessToken,
+  validateUpdateDeliveryStatus,
+  handleValidationErrors,
+  markOrderDelivered
 );
 
 module.exports = router;

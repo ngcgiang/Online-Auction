@@ -316,7 +316,217 @@ async function processWinnerPayment(userId, paymentData) {
   }
 }
 
+/**
+ * Mark order as shipped by seller
+ * Validates seller ownership, payment status, and prevents duplicate shipping
+ * 
+ * @param {number} sellerId - Current user ID (seller) from JWT token
+ * @param {number} productId - Product ID to mark as shipped
+ * @returns {Promise<Object>} Success message and order details
+ * @throws {Error} Validation or business logic errors
+ */
+async function markAsShipped(sellerId, productId) {
+  // Start database transaction for ACID compliance
+  const t = await sequelize.transaction();
+  
+  try {
+    // Step 1: Fetch order with product information
+    const order = await Order.findOne({
+      where: { product_id: productId },
+      include: [
+        {
+          model: require('../models').Product,
+          as: 'product',
+          attributes: ['product_id', 'product_name', 'seller_id']
+        }
+      ],
+      transaction: t
+    });
+    
+    if (!order) {
+      await t.rollback();
+      const error = new Error('Không tìm thấy đơn hàng');
+      error.statusCode = 404;
+      throw error;
+    }
+    
+    // Step 2: Validate seller ownership
+    if (order.seller_id !== sellerId) {
+      await t.rollback();
+      const error = new Error('Bạn không có quyền cập nhật đơn hàng này');
+      error.statusCode = 403;
+      throw error;
+    }
+    
+    // Step 3: Validate payment status
+    if (order.order_status !== 'paid') {
+      await t.rollback();
+      const error = new Error('Chỉ có thể vận chuyển đơn hàng đã thanh toán');
+      error.statusCode = 400;
+      throw error;
+    }
+    
+    // Step 4: Validate current delivery status
+    if (order.delivery_status === 'cancelled') {
+      await t.rollback();
+      const error = new Error('Không thể vận chuyển đơn hàng đã hủy');
+      error.statusCode = 400;
+      throw error;
+    }
+    
+    if (order.delivery_status === 'shipped') {
+      await t.rollback();
+      const error = new Error('Đơn hàng đã được vận chuyển trước đó');
+      error.statusCode = 400;
+      throw error;
+    }
+    
+    if (order.delivery_status === 'delivered') {
+      await t.rollback();
+      const error = new Error('Đơn hàng đã được giao. Không thể cập nhật lại');
+      error.statusCode = 400;
+      throw error;
+    }
+    
+    // Step 5: Update delivery status to shipped
+    await order.update({
+      delivery_status: 'shipped'
+    }, { transaction: t });
+    
+    // Commit transaction
+    await t.commit();
+    
+    return {
+      success: true,
+      message: 'Đã cập nhật trạng thái vận chuyển',
+      order: {
+        order_id: order.order_id,
+        product_id: order.product_id,
+        winner_id: order.winner_id,
+        seller_id: order.seller_id,
+        total_amount: order.total_amount,
+        order_status: order.order_status,
+        delivery_status: order.delivery_status,
+        shipping_address: order.shipping_address
+      }
+    };
+    
+  } catch (error) {
+    // Rollback on any error (check if transaction is still active)
+    if (t && !t.finished) {
+      await t.rollback();
+    }
+    throw error;
+  }
+}
+
+/**
+ * Mark order as delivered by winner
+ * Validates winner identity, shipped status, and prevents duplicate confirmation
+ * 
+ * @param {number} winnerId - Current user ID (winner) from JWT token
+ * @param {number} productId - Product ID to mark as delivered
+ * @returns {Promise<Object>} Success message and order details
+ * @throws {Error} Validation or business logic errors
+ */
+async function markAsDelivered(winnerId, productId) {
+  // Start database transaction for ACID compliance
+  const t = await sequelize.transaction();
+  
+  try {
+    // Step 1: Fetch order with product information
+    const order = await Order.findOne({
+      where: { product_id: productId },
+      include: [
+        {
+          model: require('../models').Product,
+          as: 'product',
+          attributes: ['product_id', 'product_name', 'winner_id']
+        }
+      ],
+      transaction: t
+    });
+    
+    if (!order) {
+      await t.rollback();
+      const error = new Error('Không tìm thấy đơn hàng');
+      error.statusCode = 404;
+      throw error;
+    }
+    
+    // Step 2: Validate winner identity
+    if (order.winner_id !== winnerId) {
+      await t.rollback();
+      const error = new Error('Chỉ người thắng cuộc mới có thể xác nhận nhận hàng');
+      error.statusCode = 403;
+      throw error;
+    }
+    
+    // Step 3: Validate payment status
+    if (order.order_status !== 'paid') {
+      await t.rollback();
+      const error = new Error('Đơn hàng chưa được thanh toán');
+      error.statusCode = 400;
+      throw error;
+    }
+    
+    // Step 4: Validate current delivery status
+    if (order.delivery_status === 'cancelled') {
+      await t.rollback();
+      const error = new Error('Không thể xác nhận nhận hàng cho đơn đã hủy');
+      error.statusCode = 400;
+      throw error;
+    }
+    
+    if (order.delivery_status === 'pending') {
+      await t.rollback();
+      const error = new Error('Người bán chưa vận chuyển đơn hàng này');
+      error.statusCode = 400;
+      throw error;
+    }
+    
+    if (order.delivery_status === 'delivered') {
+      await t.rollback();
+      const error = new Error('Đã xác nhận nhận hàng trước đó');
+      error.statusCode = 400;
+      throw error;
+    }
+    
+    // Step 5: Update delivery status to delivered
+    await order.update({
+      delivery_status: 'delivered'
+    }, { transaction: t });
+    
+    // Commit transaction
+    await t.commit();
+    
+    return {
+      success: true,
+      message: 'Đã xác nhận nhận hàng thành công',
+      order: {
+        order_id: order.order_id,
+        product_id: order.product_id,
+        winner_id: order.winner_id,
+        seller_id: order.seller_id,
+        total_amount: order.total_amount,
+        order_status: order.order_status,
+        delivery_status: order.delivery_status,
+        shipping_address: order.shipping_address
+      }
+    };
+    
+  } catch (error) {
+    // Rollback on any error (check if transaction is still active)
+    if (t && !t.finished) {
+      await t.rollback();
+    }
+    throw error;
+  }
+}
+
 module.exports = {
   cancelTransaction,
-  processWinnerPayment
+  processWinnerPayment,
+  markAsShipped,
+  markAsDelivered
 };
