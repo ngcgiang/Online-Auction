@@ -6,10 +6,11 @@ const Watchlist = require('./WatchList');
 const Bid = require('./Bid');
 const ProductImage = require('./ProductImage');
 const ProductDescription = require('./ProductDescription');
-const QuestionAnswer = require('./QuestionAnswer');
+//const QuestionAnswer = require('./QuestionAnswer');
 const Rating = require('./Rating');
 const RefusedBidder = require('./RefusedBidder');
 const Order = require('./Order');
+const QA = require('./QA');
 
 // Define associations
 
@@ -124,37 +125,6 @@ ProductDescription.belongsTo(Product, {
 });
 
 // QuestionAnswer - Product relationship
-Product.hasMany(QuestionAnswer, {
-  foreignKey: 'product_id',
-  as: 'questions'
-});
-
-QuestionAnswer.belongsTo(Product, {
-  foreignKey: 'product_id',
-  as: 'product'
-});
-
-// QuestionAnswer - User relationship
-User.hasMany(QuestionAnswer, {
-  foreignKey: 'user_id',
-  as: 'comments'
-});
-
-QuestionAnswer.belongsTo(User, {
-  foreignKey: 'user_id',
-  as: 'user'
-});
-
-// QuestionAnswer - Self-referencing (parent-child for questions and answers)
-QuestionAnswer.belongsTo(QuestionAnswer, {
-  foreignKey: 'parent_comment_id',
-  as: 'parentComment'
-});
-
-QuestionAnswer.hasMany(QuestionAnswer, {
-  foreignKey: 'parent_comment_id',
-  as: 'replies'
-});
 
 // Rating - User relationships
 User.hasMany(Rating, {
@@ -242,6 +212,42 @@ Order.belongsTo(User, {
   as: 'seller'
 });
 
+// QA - User relationship
+QA.belongsTo(User, {
+  foreignKey: 'user_id',
+  as: 'user'
+});
+
+User.hasMany(QA, {
+  foreignKey: 'user_id',
+  as: 'qaComments'
+});
+
+// QA - Product relationship
+QA.belongsTo(Product, {
+  foreignKey: 'product_id',
+  as: 'product'
+});
+
+Product.hasMany(QA, {
+  foreignKey: 'product_id',
+  as: 'qaComments'
+});
+
+// QA - QA relationship (parent-child for questions and answers)
+QA.belongsTo(QA, {
+  foreignKey: 'parent_comment_id',
+  as: 'parentComment'
+});
+
+QA.hasMany(QA, {
+  foreignKey: 'parent_comment_id',
+  as: 'replies'
+});
+
+// QA - QA relationship (for replies)
+
+
 module.exports = {
   sequelize,
   User,
@@ -251,8 +257,8 @@ module.exports = {
   Bid,
   ProductImage,
   ProductDescription,
-  QuestionAnswer,
   Rating,
   RefusedBidder,
-  Order
+  Order,
+  QA,
 };

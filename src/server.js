@@ -15,6 +15,7 @@ const sellerRoutes = require('./routes/seller');
 const adminRoutes = require('./routes/admin');
 const userRoutes = require('./routes/user');
 const orderRoutes = require('./routes/order');
+const qaRoutes = require('./routes/qa');
 const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
@@ -49,7 +50,7 @@ app.use('/api/seller', sellerRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/orders', orderRoutes);
-  
+app.use('/api/qa', qaRoutes);
 app.use('/api/bids', bidRoutes);
 
 // HTML Routes for client pages
