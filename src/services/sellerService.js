@@ -328,6 +328,80 @@ class SellerService {
     }
 
   /**
+   * Update an existing rating
+   * @param {Object} updateData - Update information
+   * @returns {Promise<Object>} - Updated rating
+   */
+  async updateRating(updateData) {
+    const t = await sequelize.transaction();
+    try {
+      const { ratingId, reviewerId, ratingPoint, content } = updateData;
+
+      // --- Step 1: Lấy rating hiện tại ---
+      const existingRating = await Rating.findOne({
+        where: { rating_id: ratingId },
+        transaction: t
+      });
+
+      if (!existingRating) {
+        await t.rollback();
+        return { success: false, message: 'Rating not found' };
+      }
+
+      // --- Step 2: Kiểm tra quyền sở hữu ---
+      if (existingRating.reviewer_id !== reviewerId) {
+        await t.rollback();
+        return { success: false, message: 'You can only update your own ratings' };
+      }
+
+      // --- Step 3: Lấy thông tin sản phẩm ---
+      const product = await Product.findOne({
+        where: { product_id: existingRating.product_id },
+        transaction: t
+      });
+
+      if (!product) {
+        await t.rollback();
+        return { success: false, message: 'Product not found' };
+      }
+
+      // --- Step 4: Kiểm tra thời gian (optional - có thể cho phép sửa sau khi kết thúc) ---
+      const currentTime = new Date();
+      if (new Date(product.end_time) >= currentTime) {
+        await t.rollback();
+        return { success: false, message: 'Cannot update rating while auction is still active' };
+      }
+
+      // --- Step 5: Validate điểm ---
+      if (ratingPoint !== 1 && ratingPoint !== -1) {
+        await t.rollback();
+        return { success: false, message: 'Rating point must be either +1 or -1' };
+      }
+
+      // --- Step 6: Cập nhật rating ---
+      await existingRating.update({
+        rating_point: ratingPoint,
+        content: content || existingRating.content
+      }, { transaction: t });
+
+      // --- Step 7: Cập nhật lại điểm uy tín của user bị đánh giá ---
+      await this.updateUserRatingScore(existingRating.user_id, t);
+
+      await t.commit();
+
+      return {
+        success: true,
+        message: 'Rating updated successfully',
+        rating: existingRating
+      };
+
+    } catch (error) {
+      if (t) await t.rollback();
+      throw error;
+    }
+  }
+
+  /**
    * Update user's rating score based on all ratings received
    * @param {number} userId - ID of the user
    * @param {Object} transaction - Optional Sequelize transaction

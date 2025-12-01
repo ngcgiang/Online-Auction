@@ -24,7 +24,7 @@ const validateResgisterUser = [
 ];
 
 const emailValidator = [
-    body('newEmail')
+    body('newEsmail')
         .isEmail()
         .withMessage('Invalid email format')
         .isLength({ max: 100 })
