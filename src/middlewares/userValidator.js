@@ -31,6 +31,25 @@ const emailValidator = [
         .withMessage('Email must be less than 100 characters')
 ];
 
+const updateInfoValidator =[
+    body('full_name')
+        .isString()
+        .trim()
+        .notEmpty().withMessage('Full name is required')
+        .isLength({ max: 100 })
+        .withMessage('Full name must be less than 100 characters'),
+    body('email')
+        .isEmail()
+        .withMessage('Invalid email format')
+        .isLength({ max: 100 })
+        .withMessage('Email must be less than 100 characters'),
+    body('dob')
+        .isDate()
+        .withMessage('Invalid date format')
+        .isBefore(new Date().toISOString().split('T')[0])
+        .withMessage('Date of birth must be before today')
+]
+
 const passwordValidator = [
     body('newPassword')
         .isLength({ min: 8, max:255 })
@@ -40,5 +59,6 @@ const passwordValidator = [
 module.exports = {
     validateResgisterUser,
     emailValidator,
-    passwordValidator
+    passwordValidator,
+    updateInfoValidator
 };

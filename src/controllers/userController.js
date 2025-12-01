@@ -71,6 +71,27 @@ const changePassword = async (req, res) => {
     }
 };
 
+const updateUserInfo = async (req, res) => {
+    try {
+        const user_id  = req.user?.user_id;
+        const { full_name, email, dob } = req.body;
+        const updatedUser = await UserService.updateUserInfo(user_id, { full_name, email, dob });
+        return res.status(200).json({
+            success: true,
+            message: 'User info updated successfully',
+            data: {
+                user: updatedUser
+            }
+        });
+    } catch (error) {
+        console.error('Error updating user info:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
+    }
+}
+
 module.exports = {
-    changeEmail, changeFullName, changePassword
+    changeEmail, changeFullName, changePassword, updateUserInfo 
 };

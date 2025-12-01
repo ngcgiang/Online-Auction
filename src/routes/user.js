@@ -4,8 +4,8 @@ const { verifyAccessToken } = require('../middlewares/authMiddleware');
 const { validateRateUser, validateUpdateRating } = require('../middlewares/ratingValidator');
 const handleValidationErrors = require('../middlewares/validationHandler');
 const { rateUser, updateUserRating } = require('../controllers/ratingController');
-const { changeEmail, changeFullName, changePassword } = require('../controllers/userController');
-const { emailValidator, passwordValidator } = require('../middlewares/userValidator');
+const { changeEmail, changeFullName, changePassword, updateUserInfo } = require('../controllers/userController');
+const { emailValidator, passwordValidator, updateInfoValidator } = require('../middlewares/userValidator');
 
 // Rate the winner of an auction
 router.post(
@@ -25,8 +25,8 @@ router.put(
   updateUserRating
 );
 
-router.patch('/change-email',verifyAccessToken,emailValidator, handleValidationErrors, changeEmail);
-router.patch('/change-fullname', verifyAccessToken, changeFullName);
+//router.patch('/change-email',verifyAccessToken,emailValidator, handleValidationErrors, changeEmail);
+//router.patch('/change-fullname', verifyAccessToken, changeFullName);
 router.patch('/change-password', verifyAccessToken,passwordValidator, handleValidationErrors, changePassword);
-
+router.patch('/update-info', verifyAccessToken,updateInfoValidator, handleValidationErrors, updateUserInfo);
 module.exports = router;

@@ -51,6 +51,23 @@ class UserService {
         throw new Error('Failed to change user password');
     }
 }
+    async updateUserInfo(user_id, newInfo){
+        try{
+            const user = await User.findByPk(user_id);
+            if (!user) {
+                throw new Error('User not found');
+            }
+            user.full_name = newInfo.full_name;
+            user.email = newInfo.email;
+            user.dob = newInfo.dob;
+            await user.save();
+            return user;
+        }
+        catch (error) {
+            console.error("updateUserInfo error:", error);
+            throw new Error('Failed to update user info');
+        }
+    }
 
 
     async checkPassword(user_id, password) {
