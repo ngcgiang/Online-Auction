@@ -3,6 +3,8 @@ const {
      addComment
 } = require('../controllers/qaController');
 const { verifyAccessToken} = require('../middlewares/authMiddleware');
+const validateComment = require('../middlewares/commentValidator');
+const handleValidationErrors = require('../middlewares/validationHandler');
 
 const express = require('express');
 const router = express.Router();
@@ -10,6 +12,8 @@ const router = express.Router();
 router.get('/:product_id', getQAbyProduct);
 router.post('/',
     verifyAccessToken,
+    validateComment,
+    handleValidationErrors,
     addComment);
 
 module.exports = router;

@@ -10,7 +10,7 @@ const ProductDescription = require('./ProductDescription');
 const Rating = require('./Rating');
 const RefusedBidder = require('./RefusedBidder');
 const Order = require('./Order');
-const QA = require('./QA');
+const QA = require('./QuestionAnswer');
 
 // Define associations
 

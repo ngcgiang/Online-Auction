@@ -23,6 +23,22 @@ const validateResgisterUser = [
         .withMessage('Address must be less than 255 characters')
 ];
 
+const emailValidator = [
+    body('newEmail')
+        .isEmail()
+        .withMessage('Invalid email format')
+        .isLength({ max: 100 })
+        .withMessage('Email must be less than 100 characters')
+];
+
+const passwordValidator = [
+    body('newPassword')
+        .isLength({ min: 8, max:255 })
+        .withMessage('Password must be between 8 and 255 characters')
+];
+
 module.exports = {
-    validateResgisterUser
+    validateResgisterUser,
+    emailValidator,
+    passwordValidator
 };

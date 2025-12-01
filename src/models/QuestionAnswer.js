@@ -1,39 +1,48 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
 
-const QA = sequelize.define('QA', {
+const QuestionAnswer = sequelize.define('QuestionAnswer', {
   comment_id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
-    autoIncrement: true,
+    autoIncrement: true
   },
   product_id: {
     type: DataTypes.INTEGER,
     allowNull: false,
+    references: {
+      model: 'Products',
+      key: 'product_id'
+    }
   },
   user_id: {
-    type: DataTypes.STRING,
+    type: DataTypes.INTEGER,
     allowNull: false,
+    references: {
+      model: 'Users',
+      key: 'user_id'
+    }
   },
   parent_comment_id: {
     type: DataTypes.INTEGER,
+    allowNull: true,
     defaultValue: null,
+    references: {
+      model: 'QuestionAnswers',
+      key: 'comment_id'
+    }
   },
   content: {
     type: DataTypes.TEXT,
-    allowNull: false,
+    allowNull: false
   },
   created_at: {
     type: DataTypes.DATE,
-    allowNull: false,
-    defaultValue: DataTypes.NOW,
-  },
-},{
+    defaultValue: DataTypes.NOW
+  }
+}, {
   tableName: 'QuestionAnswers',
   timestamps: false
-}
-);
+});
 
-module.exports = QA;
-
-
+module.exports = QuestionAnswer;
