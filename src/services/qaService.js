@@ -1,10 +1,10 @@
-const {QA } = require('../models');
+const {QuestionAnswer } = require('../models');
 const sequelize = require('../config/db');
 
 class qaService {
     async addComment(productId, userId, parentCommentId, content) {
         try{
-            const newComment = await QA.create({
+            const newComment = await QuestionAnswer.create({
                 product_id: productId,
                 user_id: userId,
                 parent_comment_id: parentCommentId,
@@ -18,15 +18,15 @@ class qaService {
     }
     async getCommentsByProduct(productId) {
     try {
-        const comments = await QA.findAll({
-            where: { product_id: productId, parent_comment_id: null }, // get top-level
+        const comments = await QuestionAnswer.findAll({
+            where: { product_id: productId }, // get top-level
             include: [
                 {
-                    model: QA,
+                    model: QuestionAnswer,
                     as: 'replies',
                     include: [
                         {
-                            model: QA,
+                            model: QuestionAnswer,
                             as: 'replies'
                         }
                     ]
