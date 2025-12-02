@@ -355,7 +355,8 @@
                         1. Login to get your access token<br>
                         2. Enter a product ID where you are seller or winner<br>
                         3. Click "Connect & Join Chat"<br>
-                        4. Start chatting!
+                        4. Start chatting!<br><br>
+                        <strong>⚠️ Note:</strong> Chat requires authentication. Guest users cannot access private chat rooms.
                     </div>
                 </div>
             </div>
@@ -527,7 +528,14 @@
 
             socket.on('chat_error', (data) => {
                 addLog(`⚠️ Chat error: ${data.error}`);
-                showMessage(`Error: ${data.error}`, 'error');
+                
+                // Check if error requires login (new optional auth system)
+                if (data.requiresLogin) {
+                    showMessage(`🔒 ${data.error} Please check your access token.`, 'error');
+                    addLog('💡 Hint: Make sure you have a valid JWT token for private chat');
+                } else {
+                    showMessage(`Error: ${data.error}`, 'error');
+                }
             });
 
             socket.on('chat_room_left', (data) => {

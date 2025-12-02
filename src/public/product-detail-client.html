@@ -150,13 +150,23 @@
     const PRODUCT_ID = parseInt(urlParts[urlParts.length - 1]) || 26;
     const SOCKET_SERVER = 'http://localhost:3000'; // TODO: Thay đổi theo môi trường
 
-    // Kết nối Socket.io
-    const socket = io(SOCKET_SERVER, {
+    // Get JWT token from localStorage (optional for guest viewing)
+    const accessToken = localStorage.getItem('accessToken');
+    
+    // Kết nối Socket.io - Guest mode if no token
+    const socketConfig = {
       transports: ['websocket', 'polling'],
       reconnection: true,
       reconnectionDelay: 1000,
       reconnectionAttempts: 5
-    });
+    };
+
+    // Add token if available (optional)
+    if (accessToken) {
+      socketConfig.auth = { token: accessToken };
+    }
+
+    const socket = io(SOCKET_SERVER, socketConfig);
 
     // ========================================
     // PHẦN 2: XỬ LÝ KẾT NỐI

@@ -1,5 +1,5 @@
 const { Server } = require('socket.io');
-const { verifySocketToken } = require('../middlewares/socketAuthMiddleware');
+const { verifySocketToken, requireAuth } = require('../middlewares/socketAuthMiddleware');
 const chatService = require('../services/chatService');
 
 /**
@@ -16,19 +16,30 @@ const initializeSocket = (server) => {
     transports: ['websocket', 'polling']
   });
 
-  // Apply authentication middleware
+  // Apply OPTIONAL authentication middleware (allows both guests and authenticated users)
   io.use(verifySocketToken);
 
   // Connection event
   io.on('connection', (socket) => {
-    console.log(`✅ User connected: ${socket.id} (User ID: ${socket.user.user_id})`);
+    const userInfo = socket.isAuthenticated 
+      ? `User ID: ${socket.user.user_id}` 
+      : 'Guest (not authenticated)';
+    console.log(`✅ ${socket.isGuest ? 'Guest' : 'User'} connected: ${socket.id} (${userInfo})`);
 
     /**
      * Event: Join private chat room (Seller-Winner chat)
      * Client emits: { productId: 123 }
-     * Requires: Auction ended, user is seller or winner
+     * Requires: AUTHENTICATION (login required)
      */
     socket.on('join_chat_room', async (data) => {
+      // Check authentication
+      const authCheck = requireAuth(socket);
+      if (!authCheck.authorized) {
+        return socket.emit('chat_error', {
+          error: authCheck.error,
+          requiresLogin: true
+        });
+      }
       try {
         const { productId } = data;
         const userId = socket.user.user_id;
@@ -81,8 +92,18 @@ const initializeSocket = (server) => {
     /**
      * Event: Send message in chat room
      * Client emits: { productId: 123, content: "Hello!" }
+     * Requires: AUTHENTICATION (login required)
      */
     socket.on('send_message', async (data) => {
+      // Check authentication
+      const authCheck = requireAuth(socket);
+      if (!authCheck.authorized) {
+        return socket.emit('chat_error', {
+          error: authCheck.error,
+          requiresLogin: true
+        });
+      }
+
       try {
         const { productId, content } = data;
         const userId = socket.user.user_id;
@@ -130,11 +151,21 @@ const initializeSocket = (server) => {
     /**
      * Event: Leave chat room
      * Client emits: { productId: 123 }
+     * Requires: AUTHENTICATION (login required)
      */
     socket.on('leave_chat_room', (data) => {
+      // Check authentication
+      const authCheck = requireAuth(socket);
+      if (!authCheck.authorized) {
+        return socket.emit('chat_error', {
+          error: authCheck.error,
+          requiresLogin: true
+        });
+      }
+
       try {
         const { productId } = data;
-        const roomName = `auction_room_${productId}`;
+        const roomName = `private_chat_${productId}`;
         
         socket.leave(roomName);
         socket.currentChatRoom = null;
@@ -155,64 +186,77 @@ const initializeSocket = (server) => {
     /**
      * Event: Join product detail room (for bidding updates)
      * Client emits: { productId: 123 }
+     * PUBLIC: No authentication required (guests can view)
      */
     socket.on('join_product_room', (data) => {
       const { productId } = data;
       const roomName = `product_${productId}`;
       
       socket.join(roomName);
-      console.log(`📦 User ${socket.id} joined room: ${roomName}`);
+      const userType = socket.isGuest ? 'Guest' : `User ${socket.user.user_id}`;
+      console.log(`📦 ${userType} (${socket.id}) joined room: ${roomName}`);
       
       // Notify user they've joined successfully
       socket.emit('room_joined', {
         room: roomName,
-        message: `Joined product ${productId} room`
+        message: `Joined product ${productId} room`,
+        isGuest: socket.isGuest
       });
     });
 
     /**
      * Event: Leave product detail room
      * Client emits: { productId: 123 }
+     * PUBLIC: No authentication required
      */
     socket.on('leave_product_room', (data) => {
       const { productId } = data;
       const roomName = `product_${productId}`;
       
       socket.leave(roomName);
-      console.log(`📤 User ${socket.id} left room: ${roomName}`);
+      const userType = socket.isGuest ? 'Guest' : `User ${socket.user.user_id}`;
+      console.log(`📤 ${userType} (${socket.id}) left room: ${roomName}`);
     });
 
     /**
      * Event: Join homepage feed room
      * All users on homepage join this room to receive minimal updates
+     * PUBLIC: No authentication required (guests can view)
      */
     socket.on('join_homepage', () => {
       const roomName = 'homepage_feed';
       
       socket.join(roomName);
-      console.log(`🏠 User ${socket.id} joined room: ${roomName}`);
+      const userType = socket.isGuest ? 'Guest' : `User ${socket.user.user_id}`;
+      console.log(`🏠 ${userType} (${socket.id}) joined room: ${roomName}`);
       
       socket.emit('room_joined', {
         room: roomName,
-        message: 'Joined homepage feed'
+        message: 'Joined homepage feed',
+        isGuest: socket.isGuest
       });
     });
 
     /**
      * Event: Leave homepage feed room
+     * PUBLIC: No authentication required
      */
     socket.on('leave_homepage', () => {
       const roomName = 'homepage_feed';
       
       socket.leave(roomName);
-      console.log(`📤 User ${socket.id} left homepage room`);
+      const userType = socket.isGuest ? 'Guest' : `User ${socket.user.user_id}`;
+      console.log(`📤 ${userType} (${socket.id}) left homepage room`);
     });
 
     /**
      * Event: Disconnect
      */
     socket.on('disconnect', () => {
-      console.log(`❌ User disconnected: ${socket.id} (User ID: ${socket.user.user_id})`);
+      const userInfo = socket.isAuthenticated 
+        ? `User ID: ${socket.user.user_id}` 
+        : 'Guest';
+      console.log(`❌ ${userInfo} disconnected: ${socket.id}`);
     });
 
     /**

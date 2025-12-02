@@ -4,49 +4,62 @@ const { getAuctionConfig} = require('../utils/configHelper');
 const { maskFullname, maskMaxBit } = require('../utils/textHelpers');
 
 class BidService {
-  /**
+/**
    * Check if user is eligible to bid on a product
-   * @param {number} userId - ID of the user attempting to bid
-   * @param {Object} product - Product object from database
-   * @returns {Promise<Object>} - { eligible: boolean, message: string }
+   * Logic: Check permission first -> If restricted, check rating stats.
    */
   async checkUserEligibility(userId, product) {
     try {
-      // Get all ratings received by this user
-      const userRatings = await Rating.findAll({
-        where: { user_id: userId },
-        attributes: ['rating_point']
-      });
-
-      // If user has ratings, check the positive ratio
-      if (userRatings.length > 0) {
-        const positiveRatings = userRatings.filter(r => r.rating_point === 1).length;
-        const totalRatings = userRatings.length;
-        const positiveRatio = positiveRatings / totalRatings;
-
-        if (positiveRatio < 0.8) {
-          return {
-            eligible: false,
-            message: 'User has insufficient positive feedback ratio (< 80%) to bid on this product'
-          };
-        }
-        return { eligible: true, message: 'User is eligible' };
-      }
-
-      // User is a newbie (no ratings)
-      // Check product permission
-      if (!product.permission) {
-        return {
-          eligible: false,
-          message: 'This product does not allow bids from users without feedback history'
+      // --- BƯỚC 1: Kiểm tra cấu hình sản phẩm trước ---
+      // Nếu product.permission là true (Ví dụ: Cho phép tất cả), 
+      // thì return luôn, KHÔNG CẦN tốn tài nguyên gọi vào Database.
+      if (product.permission) {
+        return { 
+          eligible: true, 
+          message: 'Sản phẩm mở cho mọi người dùng.' 
         };
       }
 
+      // Lấy tổng số đánh giá (Dùng count cho nhẹ server)
+      const totalRatings = await Rating.count({
+        where: { user_id: userId }
+      });
+
+      // Trường hợp 1: User là Newbie (Chưa có đánh giá nào)
+      // Vì sản phẩm đang yêu cầu "permission check" (hạn chế), nên newbie sẽ bị loại.
+      if (totalRatings === 0) {
+        return {
+          eligible: false,
+          message: 'Sản phẩm này yêu cầu người dùng phải có lịch sử uy tín để tham gia.'
+        };
+      }
+
+      // Trường hợp 2: User đã có lịch sử, check tỷ lệ tốt
+      const positiveRatings = await Rating.count({
+        where: { 
+          user_id: userId,
+          rating_point: 1 
+        }
+      });
+
+      const positiveRatio = positiveRatings / totalRatings;
+
+      // Check điều kiện 80%
+      if (positiveRatio < 0.8) {
+        return {
+          eligible: false,
+          message: `Điểm uy tín của bạn thấp (${(positiveRatio * 100).toFixed(1)}%). Yêu cầu tối thiểu 80% cho sản phẩm này.`
+        };
+      }
+
+      // Nếu vượt qua tất cả
       return { eligible: true, message: 'User is eligible' };
+
     } catch (error) {
+      console.error("Error in checkUserEligibility:", error);
       return {
         eligible: false,
-        message: 'Error checking user eligibility'
+        message: 'Lỗi hệ thống khi kiểm tra điều kiện người dùng.'
       };
     }
   }
@@ -293,6 +306,54 @@ class BidService {
         return {
           success: false,
           message: `Bid amount must be at least ${nextValidPrice}`
+        };
+      }
+
+      // Step 4.5: Check Buy Now condition
+      if (product.buy_now_value && product.buy_now_value > 0 && bidAmount >= product.buy_now_value) {
+        // Instant win via Buy Now
+        const buyNowPrice = parseFloat(product.buy_now_value);
+        
+        // Create the winning bid at exact buy_now_price (not higher)
+        const buyNowBid = await Bid.create({
+          product_id: productId,
+          bidder_id: userId,
+          amount: buyNowPrice,
+          bid_time: currentTime,
+          status: 1
+        }, { transaction });
+
+        // Update product: set current price to buy_now_price, mark as sold, end immediately
+        await product.update({
+          current_price: buyNowPrice,
+          winner_id: userId,
+          status: 'sold',
+          end_time: currentTime
+        }, { transaction });
+
+        await transaction.commit();
+        
+        return {
+          success: true,
+          isBuyNow: true,
+          message: `Congratulations! You purchased this item instantly at ${buyNowPrice}`,
+          bid: {
+            bid_id: buyNowBid.bid_id,
+            bidder_id: userId,
+            amount: buyNowPrice,
+            bid_time: currentTime
+          },
+          currentPrice: buyNowPrice,
+          bidCount: 1,
+          endTime: currentTime,
+          isWinning: true,
+          highestBidderId: userId,
+          product: {
+            current_price: buyNowPrice,
+            status: 'sold',
+            end_time: currentTime,
+            winner_id: userId
+          }
         };
       }
 
