@@ -1,4 +1,4 @@
-const { User } = require('../models');
+const { User, Bid , Product } = require('../models');
 const bcrypt = require('bcrypt');
 
 class UserService {
@@ -86,7 +86,49 @@ class UserService {
         console.error("checkPassword error:", error);
         throw new Error('Failed to check password');
     }
-}
+
+
+    }
+    async updatePassword(email, password){
+        try{
+            const hasedPassword = await bcrypt.hash(password,10);
+            const user = await User.findOne({where: {email}});
+            if(!user){
+                throw new Error('User not found');
+            }
+            user.password = hasedPassword;
+            await user.save();
+            return user;
+        }catch(error){
+            console.log("update password error:",error);
+            throw new Error('Failed to update password');
+        }  
+    }
+
+    async checkValidEmail(email){
+        const user = await User.findOne({where:{email}});
+        if(!user){
+            return false;
+        }
+        return true;
+    }
+
+    async viewBiddedProduct(bidder_id) {
+        try {
+            const list = await Bid.findAll({
+                where: { bidder_id },
+                include: [{
+                    model: Product,
+                    as: 'product',
+                    attributes: ['product_id', 'product_name', 'current_price']
+                }]
+            });
+            return list;
+        } catch (error) {
+            console.log("viewBiddedProduct error:", error);
+            throw new Error('Failed to view bidded product');
+        }
+    }
 
   
 }

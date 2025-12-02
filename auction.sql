@@ -48,7 +48,7 @@ CREATE TABLE Products (
     status ENUM('active', 'sold', 'expired') DEFAULT 'active',
     
     permission bool default false,
-    auto_renewal bool default true,
+    auto_renewal bool default true, 
     
     FOREIGN KEY (category_id) REFERENCES Categories(category_id),
     FOREIGN KEY (seller_id) REFERENCES Users(user_id),
@@ -183,6 +183,16 @@ CREATE TABLE Messages (
     FOREIGN KEY (sender_id) REFERENCES Users(user_id)
 );
 
+CREATE TABLE IF NOT EXISTS system_settings (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    setting_key VARCHAR(100) NOT NULL UNIQUE, -- Tên biến cấu hình (VD: AUCTION_TIME)
+    setting_value TEXT NOT NULL,              -- Giá trị (Lưu dạng chuỗi)
+    description VARCHAR(255),                 -- Mô tả để Admin đọc hiểu
+    data_type VARCHAR(20) DEFAULT 'string',   -- Loại dữ liệu: 'number', 'boolean', 'string', 'json'
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Insert Categories
 INSERT INTO Categories (category_name, parent_id) VALUES 
 ('Điện tử', NULL),
@@ -245,3 +255,8 @@ INSERT INTO Watchlists (user_id, product_id) VALUES (3, 1), (4, 1);
 INSERT INTO QuestionAnswers (product_id, user_id, content, parent_comment_id) VALUES
 (1, 3, 'Máy còn bảo hành không shop?', NULL), -- Câu hỏi
 (1, 2, 'Còn bảo hành Apple Care 6 tháng nhé bạn.', 1); -- Trả lời (id 1)
+
+INSERT INTO system_settings (setting_key, setting_value, description, data_type) VALUES 
+-- Cấu hình: Nếu có bid trong 5 phút cuối
+('AUCTION_EXTEND_TRIGGER_MINUTES', '5', 'Thời gian (phút) trước khi kết thúc để kích hoạt gia hạn', 'number'),
+('AUCTION_EXTEND_DURATION_MINUTES', '10', 'Thời gian (phút) được cộng thêm khi kích hoạt gia hạn', 'number')
