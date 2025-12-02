@@ -58,6 +58,15 @@ class AuthorizationService {
         return user;
     }
 
+    async verifyOtpcode(otp_code, email){
+        const user = await User.findOne({ where: { email } });
+        if (!user) return false;
+        if (user.otp_code !== otp_code) return false;
+        if (new Date() > user.otp_expiry) return false;
+        return true;
+    }
+
+
     async updateOtpCode(email) {
         const user = await User.findOne({ where: { email } });
         if (!user) {
@@ -69,6 +78,16 @@ class AuthorizationService {
         user.otp_expiry = otp_expiry;
         await user.save();
         return newOtpCode;
+    }
+
+    async saveOtp(otp_code, email){
+        const user = await User.findOne({ where: { email } });
+        if (!user) {
+            throw new Error('User not found');
+        }
+        user.otp_code = otp_code;
+        user.otp_expiry = new Date(Date.now() + 10 * 60 * 1000);
+        await user.save();
     }
 
     /**

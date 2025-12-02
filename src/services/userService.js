@@ -113,6 +113,19 @@ class UserService {
         return true;
     }
 
+    async resetForgotPassword(email, newPassword){
+        try{
+            const user = await User.findOne({where: {email}});
+            const hashedPassword = await bcrypt.hash(newPassword,10);
+            user.password = hashedPassword;
+            await user.save();
+            return user;
+        } catch(error){
+            console.log("resetForgotPassword error:",error);
+            throw new Error('Failed to reset password');
+        }
+    }
+
     async viewBiddedProduct(bidder_id) {
         try {
             const list = await Bid.findAll({
@@ -129,6 +142,7 @@ class UserService {
             throw new Error('Failed to view bidded product');
         }
     }
+    
 
   
 }

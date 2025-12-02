@@ -10,7 +10,8 @@ const {
   changePassword,
   updateUserInfo,
   forgetPasswordRequest,
-  viewBiddedProduct
+  viewBiddedProduct,
+  resetPassword
 
 } = require('../controllers/userController');
 const { emailValidator, passwordValidator, updateInfoValidator } = require('../middlewares/userValidator');
@@ -38,7 +39,8 @@ router.put(
 router.patch('/change-password', verifyAccessToken,passwordValidator, handleValidationErrors, changePassword);
 router.patch('/update-info', verifyAccessToken,updateInfoValidator, handleValidationErrors, updateUserInfo);
 
-router.get('/password-reset',forgetPasswordRequest);
+router.patch('/password-reset',forgetPasswordRequest);
 
 router.get('/bidded-product', verifyAccessToken, viewBiddedProduct);
+router.patch('/new-password',resetPassword);
 module.exports = router;
