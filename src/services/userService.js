@@ -1,4 +1,4 @@
-const { User, Bid , Product } = require('../models');
+const { User, Bid , Product, Watchlist } = require('../models');
 const bcrypt = require('bcrypt');
 
 class UserService {
@@ -142,7 +142,22 @@ class UserService {
             throw new Error('Failed to view bidded product');
         }
     }
-    
+    async viewWatchList(user_id){
+        try{
+            const list = await Watchlist.findAll({
+                where: {user_id},
+                include: [{
+                    model: Product,
+                    as: 'product',
+                    attributes: ['product_id', 'product_name', 'current_price']
+                }]
+            });
+            return list;
+        }catch(error){
+            console.log("viewWatchList error:", error);
+            throw new Error('Failed to view watch list');
+        }
+    }
 
   
 }

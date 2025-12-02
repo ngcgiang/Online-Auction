@@ -146,6 +146,26 @@ const viewBiddedProduct = async(req,res)=>{
     }
 }
 
+const viewWatchList = async(req,res)=>{
+    try{
+        const user_id = req.user?.user_id;
+        const list = await UserService.viewWatchList(user_id);
+        return res.status(200).json({
+            success: true,
+            message: 'View watch list successfully',
+            data: {
+                list: list
+            }
+        });
+    }catch(error){
+        console.error('Error view watch list');
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        })
+    }
+}
+
 const resetPassword = async(req,res)=>{
     try{
         const {email, newPassword, otp_code} = req.body;
@@ -171,5 +191,5 @@ const resetPassword = async(req,res)=>{
 }
 }
 module.exports = {
-    changeEmail, changeFullName, changePassword, updateUserInfo,forgetPasswordRequest, viewBiddedProduct, resetPassword 
+    changeEmail, changeFullName, changePassword, updateUserInfo,forgetPasswordRequest, viewBiddedProduct, resetPassword, viewWatchList 
 };

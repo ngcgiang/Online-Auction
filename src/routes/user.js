@@ -11,7 +11,8 @@ const {
   updateUserInfo,
   forgetPasswordRequest,
   viewBiddedProduct,
-  resetPassword
+  resetPassword,
+  viewWatchList
 
 } = require('../controllers/userController');
 const { emailValidator, passwordValidator, updateInfoValidator } = require('../middlewares/userValidator');
@@ -43,4 +44,6 @@ router.patch('/password-reset',forgetPasswordRequest);
 
 router.get('/bidded-product', verifyAccessToken, viewBiddedProduct);
 router.patch('/new-password',resetPassword);
+router.get('/watchlist', verifyAccessToken, viewWatchList);
+
 module.exports = router;
