@@ -192,4 +192,4 @@ const resetPassword = async(req,res)=>{
 }
 module.exports = {
     changeEmail, changeFullName, changePassword, updateUserInfo,forgetPasswordRequest, viewBiddedProduct, resetPassword, viewWatchList 
-};
+};   

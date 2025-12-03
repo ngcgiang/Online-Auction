@@ -620,6 +620,34 @@ class ProductService {
     }
   }
 
+  async getSellerEmail(product_id){
+    try{
+      const product = await Product.findByPk(product_id);
+      if (!product) {
+        throw new Error('Product not found');
+      }
+      const seller = await User.findByPk(product.seller_id);
+      if (!seller) {
+        throw new Error('Seller not found');
+      }
+      return seller.email;
+    }catch(error){
+      throw new Error('Error fetching seller id: ' + error.message);
+    }
+  }
+
+  async getSellerId(product_id){
+    try{
+      const product = await Product.findByPk(product_id);
+      if (!product) {
+        throw new Error('Product not found');
+      }
+      return product.seller_id;
+    }catch(error){
+      throw new Error('Error fetching seller id: ' + error.message);
+    }
+
+}
 }
 
 module.exports = new ProductService();

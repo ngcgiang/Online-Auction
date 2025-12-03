@@ -572,6 +572,39 @@ class BidService {
       throw error;
     }
   }
+
+ async getBidddedUsersEmailsFromProduct(product_id) {
+  try {
+    // Get all valid bids with bidder information
+    const bids = await Bid.findAll({
+      where: { 
+        product_id: product_id,
+        status: 1
+      },
+      include: [{
+        model: User,
+        as: 'bidder',
+        attributes: ['user_id', 'email', 'full_name']
+      }],
+      attributes: ['bidder_id']
+    });
+
+    // Create a Set to store unique emails
+    const emailSet = new Set();
+    
+    bids.forEach(bid => {
+      if (bid.bidder && bid.bidder.email) {
+        emailSet.add(bid.bidder.email);
+      }
+    });
+
+    return Array.from(emailSet);
+  } catch (error) {
+    console.error('Error in getBidddedUsersEmailsFromProduct:', error);
+    throw error;
+  }
+}
+  
 }
 
 module.exports = new BidService();

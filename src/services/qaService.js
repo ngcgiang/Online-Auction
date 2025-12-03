@@ -1,4 +1,4 @@
-const {QuestionAnswer } = require('../models');
+const {QuestionAnswer, User } = require('../models');
 const sequelize = require('../config/db');
 
 class qaService {
@@ -16,6 +16,10 @@ class qaService {
             throw new Error('Failed to add comment');
         }
     }
+
+
+ 
+
     async getCommentsByProduct(productId) {
     try {
         const comments = await QuestionAnswer.findAll({
@@ -40,6 +44,18 @@ class qaService {
         throw new Error('Failed to fetch comments');
     }
 }
+
+    async getCommentEmail(commentID){
+        try{
+            const comment_id = await QuestionAnswer.findByPk(commentID);
+            
+            const sender_email = await User.findByPk(comment_id.user_id);
+            return sender_email.email;
+        }catch(error){
+            console.error("getSenderEmail error:", error);
+            throw new Error('Failed to fetch comment email');
+        }
+    }
 
 }
 
