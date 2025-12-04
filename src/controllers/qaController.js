@@ -21,6 +21,9 @@ const addComment = async (req, res) => {
     try {
         // Get product details including seller info
         const product = await productService.getProductById(product_id);
+        //console.log(product);
+        const name = product.product_name;
+        console.log(name);
         
         if (!product) {
             return res.status(404).json({ error: 'Product not found' });
@@ -36,7 +39,7 @@ const addComment = async (req, res) => {
         if (user_id !== seller_id) {
             // A bidder/user is commenting -> Notify the seller
             const link = `${process.env.FRONTEND_URL}/product/${product_id}`;
-            const message = `Có câu hỏi mới về sản phẩm "${product.title}" của bạn.`;
+            const message = `Có câu hỏi mới về sản phẩm "${name}" của bạn.`;
             
             await emailService.sendQAEmail(seller_email, message, link);
             
@@ -47,7 +50,7 @@ const addComment = async (req, res) => {
             
             if (emailList && emailList.length > 0) {    
                 const link = `${process.env.FRONTEND_URL}/product/${product_id}`;
-                const message = `Người bán đã trả lời câu hỏi về sản phẩm "${product.title}".`;
+                const message = `Người bán đã trả lời câu hỏi về sản phẩm "${name}".`;
                 
                 await emailService.sendQAEmail(emailList, message, link);
             }
