@@ -448,7 +448,10 @@ class BidService {
         status: 1
       }, { transaction });
 
-      // Step 8: Update product current_price, winner_id, and end_time
+      // Step 8: Capture previous winner BEFORE updating
+      const previousWinnerId = product.winner_id; // null if first bid
+
+      // Step 9: Update product current_price, winner_id, and end_time
       await product.update({
         end_time: newEndTime || product.end_time,
         current_price: newCurrentPrice,
@@ -471,6 +474,12 @@ class BidService {
         bid: newBid,
         bidCount: bidCount,
         endTime: newEndTime || product.end_time,
+        previousWinnerId: previousWinnerId, // Include previous winner for email notifications
+        product: {
+          product_id: product.product_id,
+          product_name: product.product_name,
+          seller_id: product.seller_id
+        },
         ...bidResult
       };
 
