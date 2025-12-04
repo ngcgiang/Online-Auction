@@ -80,6 +80,14 @@ class EmailWorker {
           await this.handleBidPlaced(payload.data);
           break;
 
+        case 'AUCTION_ENDED_NO_BIDS':
+          await this.handleAuctionEndedNoBids(payload.data);
+          break;
+
+        case 'AUCTION_ENDED_SUCCESS':
+          await this.handleAuctionEndedSuccess(payload.data);
+          break;
+
         case 'USER_REGISTERED':
           await this.handleUserRegistered(payload.data);
           break;
@@ -194,6 +202,92 @@ class EmailWorker {
   }
 
   /**
+   * Handle AUCTION_ENDED_NO_BIDS event
+   * Notify seller that auction ended with no bids
+   * @param {Object} data - Event payload
+   */
+  async handleAuctionEndedNoBids(data) {
+    const { product_id, product_name, seller_id, end_time } = data;
+    
+    console.log(`🏁 Processing AUCTION_ENDED_NO_BIDS event for product #${product_id}`);
+
+    try {
+      // Fetch seller information
+      const seller = await User.findByPk(seller_id, { 
+        attributes: ['user_id', 'email', 'full_name'] 
+      });
+
+      if (!seller) {
+        throw new Error(`Seller not found: ${seller_id}`);
+      }
+
+      // Send notification email to seller
+      await emailService.sendAuctionEndedNoBidsEmail(seller.email, {
+        product_id,
+        product_name,
+        end_time
+      });
+
+      console.log(`  ✅ Auction ended (no bids) email sent to seller: ${seller.email}`);
+
+    } catch (error) {
+      console.error(`❌ Error in handleAuctionEndedNoBids:`, error.message);
+      throw error;
+    }
+  }
+
+  /**
+   * Handle AUCTION_ENDED_SUCCESS event
+   * Notify seller and winner that auction ended successfully
+   * @param {Object} data - Event payload
+   */
+  async handleAuctionEndedSuccess(data) {
+    const { product_id, product_name, seller_id, winner_id, final_price, end_time } = data;
+    
+    console.log(`🏁 Processing AUCTION_ENDED_SUCCESS event for product #${product_id}`);
+
+    try {
+      // Fetch seller and winner information in parallel
+      const [seller, winner] = await Promise.all([
+        User.findByPk(seller_id, { attributes: ['user_id', 'email', 'full_name'] }),
+        User.findByPk(winner_id, { attributes: ['user_id', 'email', 'full_name'] })
+      ]);
+
+      if (!seller || !winner) {
+        throw new Error(`Missing user data: Seller (${seller_id}) or Winner (${winner_id})`);
+      }
+
+      const auctionData = {
+        product_id,
+        product_name,
+        final_price,
+        end_time,
+        winner_name: winner.full_name,
+        winner_id
+      };
+
+      // Send emails to both seller and winner in parallel
+      const emailPromises = [
+        emailService.sendAuctionWonEmailToSeller(seller.email, auctionData)
+          .then(() => console.log(`  ✅ Auction success email sent to seller: ${seller.email}`))
+          .catch(err => console.error(`  ❌ Failed to send seller email:`, err.message)),
+
+        emailService.sendAuctionWonEmailToWinner(winner.email, auctionData)
+          .then(() => console.log(`  ✅ Congratulations email sent to winner: ${winner.email}`))
+          .catch(err => console.error(`  ❌ Failed to send winner email:`, err.message))
+      ];
+
+      await Promise.allSettled(emailPromises);
+
+      console.log(`🎉 AUCTION_ENDED_SUCCESS event processed successfully for product #${product_id}`);
+
+    } catch (error) {
+      console.error(`❌ Error in handleAuctionEndedSuccess:`, error.message);
+      throw error;
+    }
+  }
+
+  /**
    * Handle USER_REGISTERED event (placeholder)
    * @param {Object} data - Event payload
    */
@@ -204,7 +298,7 @@ class EmailWorker {
   }
 
   /**
-   * Handle AUCTION_ENDED event (placeholder)
+   * Handle AUCTION_ENDED event (placeholder - deprecated, use specific events above)
    * @param {Object} data - Event payload
    */
   async handleAuctionEnded(data) {

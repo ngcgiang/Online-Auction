@@ -5,6 +5,7 @@ const path = require('path');
 const sequelize = require('./config/db');
 const { initializeSocket } = require('./config/socket');
 const realtimeBidService = require('./services/realtimeBidService');
+const auctionEndScanner = require('./cron/auctionEndScanner');
 const watchlistRoutes = require('./routes/watchlist');
 const productRoutes = require('./routes/product');
 const authRoutes = require('./routes/authorization');
@@ -91,6 +92,28 @@ sequelize.authenticate()
 // Start server with Socket.io
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+  
+  // Start Auction End Scanner after server is ready
+  auctionEndScanner.start();
+});
+
+// Graceful shutdown
+process.on('SIGINT', () => {
+  console.log('\n🛑 Shutting down gracefully...');
+  auctionEndScanner.stop();
+  server.close(() => {
+    console.log('✅ Server closed');
+    process.exit(0);
+  });
+});
+
+process.on('SIGTERM', () => {
+  console.log('\n🛑 SIGTERM received, shutting down...');
+  auctionEndScanner.stop();
+  server.close(() => {
+    console.log('✅ Server closed');
+    process.exit(0);
+  });
 });
 
 module.exports = { app, server, io };
