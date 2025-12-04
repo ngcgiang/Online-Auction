@@ -1,6 +1,7 @@
 const UserService = require('../services/userService');
 const EmailService = require('../services/emailService');
 const AuthorizationService = require('../services/authorizationService');
+const userService = require('../services/userService');
 
 const changeEmail = async (req, res) => {
     try {
@@ -190,6 +191,70 @@ const resetPassword = async(req,res)=>{
         })
 }
 }
+const viewWonProduct = async (req,res)=>{
+    try{
+        const user_id = req.user?.user_id;
+        const wonProducts = await UserService.viewWonProduct(user_id);
+        if(!wonProducts){
+            return res.json({
+                success: true,
+                message: "no won product"
+            })
+        }else{
+            return res.status(200).json({
+                success: true,
+                message: "fetched won products",
+                data: {
+                    list: wonProducts
+                }
+            })
+        }
+    }catch(error){
+        console.error("error fetching won producsts")
+        return res.status(500).json({
+            success: false,
+            message: "Internal sever error"
+        })
+    }
+}
+
+
+const viewUserRatings = async (req, res)=>{
+    //const userid = req.user?.user_id;
+    //const r = userService.getAllRatings(userid);
+    //console.log(r);
+    try{
+        const user_id = req.user?.user_id;
+        const ratings = await userService.getAllRatings(user_id);
+        console.log(user_id);
+        console.log(ratings);
+        return res.status(200).json({
+            success: true,
+            message: "fetch user ratings",
+            data: {
+                list: ratings
+            }
+        });
+    }catch(error){
+        console.error("error fetching ratings")
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        })
+
+    }
+    
+}
+
 module.exports = {
-    changeEmail, changeFullName, changePassword, updateUserInfo,forgetPasswordRequest, viewBiddedProduct, resetPassword, viewWatchList 
+    changeEmail, 
+    changeFullName, 
+    changePassword, 
+    updateUserInfo,
+    forgetPasswordRequest, 
+    viewBiddedProduct, 
+    resetPassword, 
+    viewWatchList,
+    viewWonProduct,
+    viewUserRatings 
 };   
