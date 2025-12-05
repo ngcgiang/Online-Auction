@@ -314,6 +314,9 @@ class BidService {
         // Instant win via Buy Now
         const buyNowPrice = parseFloat(product.buy_now_value);
         
+        // Capture previous winner BEFORE updating (for email notifications)
+        const previousWinnerId = product.winner_id; // null if no previous bids
+        
         // Create the winning bid at exact buy_now_price (not higher)
         const buyNowBid = await Bid.create({
           product_id: productId,
@@ -348,7 +351,11 @@ class BidService {
           endTime: currentTime,
           isWinning: true,
           highestBidderId: userId,
+          previousWinnerId: previousWinnerId, // Include for email logic
           product: {
+            product_id: product.product_id,
+            product_name: product.product_name,
+            seller_id: product.seller_id,
             current_price: buyNowPrice,
             status: 'sold',
             end_time: currentTime,

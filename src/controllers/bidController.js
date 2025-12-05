@@ -39,25 +39,43 @@ const placeBid = async (req, res, next) => {
       console.error('⚠️ Failed to emit realtime bid update:', error);
     });
 
-    // ✅ Publish BID_PLACED event to RabbitMQ for async email processing
+    // ✅ Publish event to RabbitMQ for async email processing
     // Non-blocking: Errors are logged but don't affect the API response
-    // Only send email if winner changed (previousWinnerId exists AND different from new winner)
-    const winnerChanged = result.previousWinnerId && result.previousWinnerId !== result.highestBidderId;
     
-    mqService.publishToQueue('email_queue', {
-      event: 'BID_PLACED',
-      data: {
-        product_id: result.product.product_id,
-        product_name: result.product.product_name,
-        new_price: result.currentPrice,
-        seller_id: result.product.seller_id,
-        new_bidder_id: userId,
-        previous_winner_id: winnerChanged ? result.previousWinnerId : null, // Only include if winner changed
-        winner_changed: winnerChanged // Flag to help worker understand the context
-      }
-    }).catch(error => {
-      console.error('⚠️ Failed to publish BID_PLACED event to MQ:', error);
-    });
+    if (result.isBuyNow) {
+      // Buy Now: Send auction won emails (instant win)
+      mqService.publishToQueue('email_queue', {
+        event: 'AUCTION_ENDED_SUCCESS',
+        data: {
+          product_id: result.product.product_id,
+          product_name: result.product.product_name,
+          seller_id: result.product.seller_id,
+          winner_id: userId,
+          final_price: result.currentPrice,
+          end_time: result.endTime
+        }
+      }).catch(error => {
+        console.error('⚠️ Failed to publish AUCTION_ENDED_SUCCESS event to MQ:', error);
+      });
+    } else {
+      // Normal bid: Send bid notification emails
+      const winnerChanged = result.previousWinnerId && result.previousWinnerId !== result.highestBidderId;
+      
+      mqService.publishToQueue('email_queue', {
+        event: 'BID_PLACED',
+        data: {
+          product_id: result.product.product_id,
+          product_name: result.product.product_name,
+          new_price: result.currentPrice,
+          seller_id: result.product.seller_id,
+          new_bidder_id: userId,
+          previous_winner_id: winnerChanged ? result.previousWinnerId : null,
+          winner_changed: winnerChanged
+        }
+      }).catch(error => {
+        console.error('⚠️ Failed to publish BID_PLACED event to MQ:', error);
+      });
+    }
 
     res.status(201).json({
       success: true,
