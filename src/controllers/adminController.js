@@ -134,9 +134,68 @@ const getAllSellers = async (req, res) => {
     }
 };
 
+const createNewCategory = async(req, res) => {
+    try {
+        // Log the incoming request for debugging
+        console.log('Request body:', req.body);
+        
+        const { newCategory, parentCategoryID } = req.body;
+        
+        // Validate input
+        if (!newCategory) {
+            return res.status(400).json({
+                success: false,
+                message: 'Category name is required'
+            });
+        }
+        
+        // Call service with proper parameter names
+        const result = await AdminService.createNewCategory(
+            newCategory, 
+            parentCategoryID || null
+        );
+        
+        console.log('Category created:', result);
+        
+        return res.status(201).json({
+            success: true,
+            message: 'New category created successfully',
+            data: result
+        });
+        
+    } catch (error) {
+        // Log the actual error for debugging
+        console.error('Error creating category:', error.message);
+        
+        // Handle specific errors
+        if (error.message === 'Category name is required' || 
+            error.message.includes('already exists')) {
+            return res.status(400).json({
+                success: false,
+                message: error.message
+            });
+        }
+        
+        if (error.message === 'Parent category not found') {
+            return res.status(404).json({
+                success: false,
+                message: error.message
+            });
+        }
+        
+        // Generic error
+        return res.status(500).json({
+            success: false,
+            message: 'An error occurred while creating category',
+            error: error.message // Include error message in development
+        });
+    }
+}
+
 module.exports = {
     getPendingRequests,
     approveUpgrade,
     rejectUpgrade,
-    getAllSellers
+    getAllSellers,
+    createNewCategory
 };

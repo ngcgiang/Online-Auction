@@ -1,4 +1,4 @@
-const { User } = require('../models');
+const { User, Category, Product } = require('../models');
 const { Op } = require('sequelize');
 
 class AdminService {
@@ -165,6 +165,60 @@ class AdminService {
             });
 
             return sellersWithStatus;
+
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    /**
+ * Create a new category
+ * @param {string} category_name - Name of the category
+ * @param {number|null} parent_category_id - ID of parent category (null for root category)
+ * @returns {Promise<Object>} - Created category info
+ */
+    async createNewCategory(category_name, parent_category_id) {
+        try {
+            // Validate category name
+            if (!category_name || category_name.trim() === '') {
+                throw new Error('Category name is required');
+            }
+            console.log(category_name);
+
+            // Check if category name already exists at the same level
+            const existingCategory = await Category.findOne({
+                where: {
+                    category_name: category_name.trim(),
+                    parent_id: parent_category_id
+                }
+            });
+
+            if (existingCategory) {
+                throw new Error('Category with this name already exists at this level');
+            }
+
+            // If parent_categor y_id is provided, verify it exists
+            if (parent_category_id) {
+                const parentCategory = await Category.findByPk(parent_category_id);
+                
+                if (!parentCategory) {
+                    throw new Error('Parent category not found');
+                }
+            }
+
+            // Create new category
+            const newCategory = await Category.create({
+                category_name: category_name.trim(),
+                parent_category_id: parent_category_id
+            });
+
+            return {
+                category_id: newCategory.category_id,
+                category_name: newCategory.category_name,
+                parent_category_id: newCategory.parent_category_id,
+                created_at: newCategory.created_at,
+                message: 'Category created successfully'
+            };
 
         } catch (error) {
             throw error;

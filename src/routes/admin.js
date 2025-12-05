@@ -5,7 +5,8 @@ const {
     getPendingRequests,
     approveUpgrade,
     rejectUpgrade,
-    getAllSellers
+    getAllSellers,
+    createNewCategory
 } = require('../controllers/adminController');
 
 // Get all pending upgrade requests
@@ -19,5 +20,7 @@ router.post('/reject-upgrade', verifyAccessToken, checkRole(['admin']), rejectUp
 
 // Get all sellers with permission status
 router.get('/sellers', verifyAccessToken, checkRole(['admin']), getAllSellers);
+
+router.post('/new-category',verifyAccessToken,checkRole(['admin']),createNewCategory);
 
 module.exports = router;
