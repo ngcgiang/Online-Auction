@@ -1,6 +1,7 @@
 const bidService = require('../services/bidService');
 const realtimeBidService = require('../services/realtimeBidService');
 const mqService = require('../services/mqService');
+const { auctionBidsTotal } = require('../utils/metrics');
 
 /**
  * Place a bid on a product
@@ -24,8 +25,13 @@ const placeBid = async (req, res, next) => {
 
     // Check if bid placement was successful
     if (!result.success) {
+      // Increment failed bid metric
+      auctionBidsTotal.labels(productId.toString(), userId.toString(), 'failed').inc();
       return res.status(400).json(result);
     }
+
+    // ✅ Increment successful bid metric (Prometheus business metric)
+    auctionBidsTotal.labels(productId.toString(), userId.toString(), 'success').inc();
 
     // ✅ Emit realtime updates to Socket.io rooms (non-blocking)
     // This runs in the background and doesn't affect the response

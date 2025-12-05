@@ -21,6 +21,8 @@ const chatRoutes = require('./routes/chat');
 const errorHandler = require('./middlewares/errorHandler');
 const logger = require('./utils/logger');
 const morgan = require('morgan');
+const metricsMiddleware = require('./middlewares/metricsMiddleware');
+const { register } = require('./utils/metrics');
 
 const app = express();
 
@@ -40,7 +42,15 @@ realtimeBidService.setSocketIO(io);
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(morgan('combined', { stream: logger.stream }));
+
+// Morgan logging with skip function to exclude /metrics endpoint
+app.use(morgan('combined', { 
+  stream: logger.stream,
+  skip: (req, res) => req.path === '/metrics'
+}));
+
+// Prometheus metrics middleware (should be early in the chain)
+app.use(metricsMiddleware);
 
 // Serve static files from public directory
 app.use(express.static('public'));
@@ -75,6 +85,17 @@ app.get('/chat-demo', (req, res) => {
 // Basic route
 app.get('/', (req, res) => {
   res.json({ message: 'Auction API is running' });
+});
+
+// Prometheus metrics endpoint
+app.get('/metrics', async (req, res) => {
+  try {
+    res.set('Content-Type', register.contentType);
+    const metrics = await register.metrics();
+    res.end(metrics);
+  } catch (err) {
+    res.status(500).end(err);
+  }
 });
 
 // Global error handler (must be last)
