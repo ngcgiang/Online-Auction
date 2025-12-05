@@ -189,7 +189,7 @@ class AdminService {
             const existingCategory = await Category.findOne({
                 where: {
                     category_name: category_name.trim(),
-                    parent_id: parent_category_id
+                    parent_1id: parent_category_id
                 }
             });
 
@@ -218,6 +218,85 @@ class AdminService {
                 parent_category_id: newCategory.parent_category_id,
                 created_at: newCategory.created_at,
                 message: 'Category created successfully'
+            };
+
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    /**
+ * Delete a category
+ * @param {number} category_id - ID of the category to delete
+ * @returns {Promise<Object>} - Deletion result
+ */
+    async deleteCategory(category_id) {
+        try {
+            
+            if (!category_id) {
+                throw new Error('Category ID is required');
+            }
+
+            // Find the category to delete
+            const category = await Category.findByPk(category_id);
+
+            if (!category) {
+                throw new Error('Category not found');
+            }
+
+            // Check if this is a parent category (has child categories)
+            const childCategories = await Category.findAll({
+                where: {
+                    parent_id: category_id
+                }
+            });
+
+            // If it's a parent category, check if any child has products
+            if (childCategories.length > 0) {
+                // Get all child category IDs
+                const childCategoryIds = childCategories.map(child => child.category_id);
+
+                // Check if any child category has products
+                const productsInChildren = await Product.count({
+                    where: {
+                        category_id: {
+                            [Op.in]: childCategoryIds
+                        }
+                    }
+                });
+
+                if (productsInChildren > 0) {
+                    throw new Error('Cannot delete category: child categories contain products');
+                }
+
+                // Delete all child categories first (they have no products)
+                await Category.destroy({
+                    where: {
+                        category_id: {
+                            [Op.in]: childCategoryIds
+                        }
+                    }
+                });
+            }
+
+            // Check if the category itself has products (if it's a child category)
+            const productsInCategory = await Product.count({
+                where: {
+                    category_id: category_id
+                }
+            });
+
+            if (productsInCategory > 0) {
+                throw new Error('Cannot delete category: category contains products');
+            }
+
+            // Delete the category
+            await category.destroy();
+
+            return {
+                category_id: category_id,
+                category_name: category.category_name,
+                message: 'Category deleted successfully'
             };
 
         } catch (error) {

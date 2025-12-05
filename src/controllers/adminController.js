@@ -190,12 +190,71 @@ const createNewCategory = async(req, res) => {
             error: error.message // Include error message in development
         });
     }
-}
+};
+
+const deleteCategory = async (req, res) => {
+    try {
+        // Get category_id from request parameters or body
+        const { category_id } =  req.body;
+        
+        // Validate input
+        if (!category_id) {
+            return res.status(400).json({
+                success: false,
+                message: 'Category ID is required'
+            });
+        }
+
+        // Call service to delete category
+        const result = await AdminService.deleteCategory(category_id);
+
+        return res.status(200).json({
+            success: true,
+            message: 'Category deleted successfully',
+            data: result
+        });
+
+    } catch (error) {
+        // Log error for debugging
+        console.error('Error deleting category:', error.message);
+
+        // Handle specific errors
+        if (error.message === 'Category not found') {
+            return res.status(404).json({
+                success: false,
+                message: error.message
+            });
+        }
+
+        if (error.message === 'Category ID is required') {
+            return res.status(400).json({
+                success: false,
+                message: error.message
+            });
+        }
+
+        if (error.message.includes('contains products') || 
+            error.message.includes('child categories contain products')) {
+            return res.status(409).json({
+                success: false,
+                message: error.message
+            });
+        }
+
+        // Generic error
+        return res.status(500).json({
+            success: false,
+            message: 'An error occurred while deleting category',
+            error: error.message
+        });
+    }
+};
 
 module.exports = {
     getPendingRequests,
     approveUpgrade,
     rejectUpgrade,
     getAllSellers,
-    createNewCategory
+    createNewCategory,
+    deleteCategory
 };
