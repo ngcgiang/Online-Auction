@@ -195,7 +195,7 @@ const createNewCategory = async(req, res) => {
 const deleteCategory = async (req, res) => {
     try {
         // Get category_id from request parameters or body
-        const { category_id } =  req.body;
+        const { category_id } = req.params.category_id ? req.params : req.body;
         
         // Validate input
         if (!category_id) {
@@ -250,11 +250,78 @@ const deleteCategory = async (req, res) => {
     }
 };
 
+/**
+ * Delete a user
+ */
+const deleteUser = async (req, res) => {
+    try {
+        // Get user_id from request parameters or body
+        const { id } = req.params.id ? req.params:req.body;
+
+        // Validate input
+        if (!id) {
+            return res.status(400).json({
+                success: false,
+                message: 'User ID is required'
+            });
+        }
+
+        // Call service to delete user
+        const result = await AdminService.deleteUser(id);
+
+        return res.status(200).json({
+            success: true,
+            message: 'User deleted successfully',
+            data: result
+        });
+
+    } catch (error) {
+        // Log error for debugging
+        console.error('Error deleting user:', error.message);
+
+        // Handle specific errors
+        if (error.message === 'User not found') {
+            return res.status(404).json({
+                success: false,
+                message: error.message
+            });
+        }
+
+        if (error.message === 'User ID is required') {
+            return res.status(400).json({
+                success: false,
+                message: error.message
+            });
+        }
+
+        if (error.message === 'Cannot delete admin users') {
+            return res.status(403).json({
+                success: false,
+                message: error.message
+            });
+        }
+
+        if (error.message.includes('active products')) {
+            return res.status(409).json({
+                success: false,
+                message: error.message
+            });
+        }
+
+        // Generic error
+        return res.status(500).json({
+            success: false,
+            message: 'An error occurred while deleting user',
+            error: error.message
+        });
+    }
+};
 module.exports = {
     getPendingRequests,
     approveUpgrade,
     rejectUpgrade,
     getAllSellers,
     createNewCategory,
-    deleteCategory
+    deleteCategory,
+    deleteUser
 };

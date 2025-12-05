@@ -303,6 +303,59 @@ class AdminService {
             throw error;
         }
     }
+
+    async deleteUser(user_id) {
+    try {
+        // Validate user_id
+        if (!user_id) {
+            throw new Error('User ID is required');
+        }
+
+        // Find the user to delete
+        const user = await User.findByPk(user_id);
+
+        if (!user) {
+            throw new Error('User not found');
+        }
+
+        // Prevent deletion of admin users (optional security measure)
+        if (user.role === 'admin') {
+            throw new Error('Cannot delete admin users');
+        }
+
+        // If user is a seller, check for active products
+        if (user.role === 'seller') {
+            const activeProducts = await Product.count({
+                where: {
+                    seller_id: user_id
+                }
+            });
+
+            if (activeProducts > 0) {
+                throw new Error('Cannot delete seller with active products. Please remove all products first.');
+            }
+        }
+
+        // Store user info before deletion
+        const deletedUserInfo = {
+            user_id: user.user_id,
+            email: user.email,
+            full_name: user.full_name,
+            role: user.role
+        };
+
+        // Delete the user
+        await user.destroy();
+
+        return {
+            ...deletedUserInfo,
+            message: 'User deleted successfully'
+        };
+
+    } catch (error) {
+        throw error;
+    }
+}
 }
 
 module.exports = new AdminService();
