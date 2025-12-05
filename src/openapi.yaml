@@ -1,0 +1,1651 @@
+openapi: 3.0.3
+info:
+  title: Auction System API
+  description: |
+    RESTful API cho hệ thống đấu giá tự động (Automatic Auction System).
+    
+    **Tính năng chính:**
+    - Đấu giá tự động với proxy bidding
+    - Realtime updates qua Socket.io
+    - Quản lý sản phẩm đấu giá
+    - Xác thực JWT với Access Token & Refresh Token
+    - Chat riêng tư giữa Seller và Winner
+    - Rating system
+    
+    **Roles:**
+    - `admin`: Quản trị viên
+    - `seller`: Người bán (tạo sản phẩm đấu giá)
+    - `bidder`: Người mua (đặt giá)
+  version: 1.0.0
+  contact:
+    name: Online Auction Team
+    email: support@auction.com
+
+servers:
+  - url: http://localhost:3000
+    description: Development server
+
+tags:
+  - name: Authentication
+    description: Đăng ký, đăng nhập, xác thực OTP
+  - name: Products
+    description: Quản lý sản phẩm đấu giá
+  - name: Bids
+    description: Đặt giá và lịch sử đấu giá
+  - name: Categories
+    description: Danh mục sản phẩm
+  - name: Users
+    description: Quản lý thông tin người dùng
+  - name: Seller
+    description: Chức năng dành cho Seller
+  - name: Admin
+    description: Chức năng quản trị
+  - name: Orders
+    description: Quản lý đơn hàng và thanh toán
+  - name: Watchlist
+    description: Danh sách theo dõi sản phẩm
+  - name: Q&A
+    description: Hỏi đáp về sản phẩm
+  - name: Chat
+    description: Chat riêng tư Seller-Winner
+  - name: Rating
+    description: Đánh giá người dùng
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT Access Token (valid 15 minutes)
+
+  schemas:
+    # ==================== Core Entities ====================
+    User:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          example: 1
+        email:
+          type: string
+          format: email
+          example: "user@example.com"
+        full_name:
+          type: string
+          example: "Nguyen Van A"
+        address:
+          type: string
+          example: "123 Le Loi, Q1, TPHCM"
+        dob:
+          type: string
+          format: date
+          example: "1990-01-15"
+        role:
+          type: string
+          enum: [admin, seller, bidder]
+          example: "bidder"
+        rating_score:
+          type: number
+          format: float
+          example: 4.5
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-01-01T10:00:00Z"
+        is_verified:
+          type: boolean
+          example: true
+        upgrade_request:
+          type: boolean
+          example: false
+        upgrade_at:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2024-06-01T10:00:00Z"
+
+    Product:
+      type: object
+      properties:
+        product_id:
+          type: integer
+          example: 101
+        product_name:
+          type: string
+          example: "iPhone 15 Pro Max 256GB"
+        category_id:
+          type: integer
+          example: 5
+        seller_id:
+          type: integer
+          example: 10
+        winner_id:
+          type: integer
+          nullable: true
+          example: 25
+        start_value:
+          type: number
+          format: decimal
+          example: 20000000
+          description: "Giá khởi điểm (VND)"
+        current_price:
+          type: number
+          format: decimal
+          example: 25000000
+          description: "Giá hiện tại (VND)"
+        buy_now_value:
+          type: number
+          format: decimal
+          nullable: true
+          example: 30000000
+          description: "Giá mua ngay (VND)"
+        price_step:
+          type: number
+          format: decimal
+          example: 500000
+          description: "Bước giá tối thiểu (VND)"
+        start_time:
+          type: string
+          format: date-time
+          example: "2024-12-01T09:00:00Z"
+        end_time:
+          type: string
+          format: date-time
+          example: "2024-12-15T23:59:59Z"
+        status:
+          type: string
+          enum: [active, sold, expired]
+          example: "active"
+        permission:
+          type: boolean
+          example: true
+          description: "Được phép tự động gia hạn"
+        auto_renewal:
+          type: boolean
+          example: true
+          description: "Tự động gia hạn thời gian khi có bid trong 5 phút cuối"
+
+    ProductDetails:
+      allOf:
+        - $ref: '#/components/schemas/Product'
+        - type: object
+          properties:
+            seller:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                full_name:
+                  type: string
+                rating_score:
+                  type: number
+            winner:
+              type: object
+              nullable: true
+              properties:
+                user_id:
+                  type: integer
+                full_name:
+                  type: string
+            category:
+              type: object
+              properties:
+                category_id:
+                  type: integer
+                category_name:
+                  type: string
+            images:
+              type: array
+              items:
+                type: object
+                properties:
+                  image_id:
+                    type: integer
+                  image_url:
+                    type: string
+            descriptions:
+              type: array
+              items:
+                type: object
+                properties:
+                  des_id:
+                    type: integer
+                  description:
+                    type: string
+                  created_at:
+                    type: string
+                    format: date-time
+            bid_count:
+              type: integer
+              example: 45
+
+    Bid:
+      type: object
+      properties:
+        bid_id:
+          type: integer
+          example: 501
+        product_id:
+          type: integer
+          example: 101
+        bidder_id:
+          type: integer
+          example: 25
+        amount:
+          type: number
+          format: decimal
+          example: 25500000
+          description: "Số tiền đặt giá (VND)"
+        bid_time:
+          type: string
+          format: date-time
+          example: "2024-12-10T14:30:00Z"
+        status:
+          type: integer
+          enum: [0, 1]
+          example: 1
+          description: "1: active, 0: withdrawn"
+
+    BidHistory:
+      type: object
+      properties:
+        bid_id:
+          type: integer
+        amount:
+          type: number
+          format: decimal
+        bid_time:
+          type: string
+          format: date-time
+        bidder:
+          type: object
+          properties:
+            user_id:
+              type: integer
+            full_name:
+              type: string
+              description: "Tên đã được che (masked) nửa đầu"
+              example: "****_doe"
+
+    Category:
+      type: object
+      properties:
+        category_id:
+          type: integer
+          example: 1
+        category_name:
+          type: string
+          example: "Điện tử"
+        parent_id:
+          type: integer
+          nullable: true
+          example: null
+
+    Order:
+      type: object
+      properties:
+        order_id:
+          type: integer
+          example: 301
+        product_id:
+          type: integer
+          example: 101
+        winner_id:
+          type: integer
+          example: 25
+        seller_id:
+          type: integer
+          example: 10
+        total_amount:
+          type: number
+          format: decimal
+          example: 25500000
+        img_evidence:
+          type: string
+          example: "https://cdn.example.com/payment/abc123.jpg"
+          description: "URL ảnh chứng từ thanh toán"
+        payment_method:
+          type: string
+          example: "Bank Transfer"
+        shipping_address:
+          type: string
+          example: "456 Nguyen Hue, Q1, TPHCM"
+        delivery_status:
+          type: string
+          enum: [pending, shipped, delivered, cancelled]
+          example: "pending"
+        order_status:
+          type: string
+          enum: [unpaid, paid, cancelled]
+          example: "paid"
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-12-11T10:00:00Z"
+
+    Rating:
+      type: object
+      properties:
+        rating_id:
+          type: integer
+          example: 1
+        rater_id:
+          type: integer
+          example: 25
+          description: "Người đánh giá"
+        rated_user_id:
+          type: integer
+          example: 10
+          description: "Người được đánh giá"
+        product_id:
+          type: integer
+          example: 101
+        score:
+          type: integer
+          minimum: 1
+          maximum: 5
+          example: 5
+        comment:
+          type: string
+          example: "Seller tốt, giao hàng nhanh!"
+        created_at:
+          type: string
+          format: date-time
+
+    RefusedBidder:
+      type: object
+      properties:
+        refuse_id:
+          type: integer
+        product_id:
+          type: integer
+        bidder_id:
+          type: integer
+        refuse_at:
+          type: string
+          format: date-time
+
+    # ==================== Request/Response Models ====================
+    RegisterRequest:
+      type: object
+      required:
+        - email
+        - password
+        - full_name
+      properties:
+        email:
+          type: string
+          format: email
+          example: "newuser@example.com"
+        password:
+          type: string
+          format: password
+          minLength: 8
+          example: "SecurePass123!"
+        full_name:
+          type: string
+          example: "Nguyen Van B"
+        address:
+          type: string
+          example: "789 Tran Hung Dao, Q5, TPHCM"
+        dob:
+          type: string
+          format: date
+          example: "1995-05-20"
+
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: "user@example.com"
+        password:
+          type: string
+          format: password
+          example: "SecurePass123!"
+
+    LoginResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Login successful"
+        data:
+          type: object
+          properties:
+            accessToken:
+              type: string
+              example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+              description: "Valid for 15 minutes"
+            refreshToken:
+              type: string
+              example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+              description: "Valid for 7 days"
+            user:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                email:
+                  type: string
+                full_name:
+                  type: string
+                role:
+                  type: string
+
+    VerifyOTPRequest:
+      type: object
+      required:
+        - email
+        - otpCode
+      properties:
+        email:
+          type: string
+          format: email
+          example: "newuser@example.com"
+        otpCode:
+          type: string
+          example: "123456"
+          description: "6-digit OTP code"
+
+    RefreshTokenRequest:
+      type: object
+      required:
+        - refreshToken
+      properties:
+        refreshToken:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+    CreateProductRequest:
+      type: object
+      required:
+        - product_name
+        - category_id
+        - start_value
+        - price_step
+        - start_time
+        - end_time
+      properties:
+        product_name:
+          type: string
+          example: "MacBook Pro M3 16GB"
+        category_id:
+          type: integer
+          example: 5
+        start_value:
+          type: number
+          format: decimal
+          example: 30000000
+        buy_now_value:
+          type: number
+          format: decimal
+          nullable: true
+          example: 40000000
+        price_step:
+          type: number
+          format: decimal
+          example: 500000
+        start_time:
+          type: string
+          format: date-time
+          example: "2024-12-20T00:00:00Z"
+        end_time:
+          type: string
+          format: date-time
+          example: "2025-01-05T23:59:59Z"
+        auto_renewal:
+          type: boolean
+          example: true
+        descriptions:
+          type: array
+          items:
+            type: string
+          example: ["Máy mới 100%, nguyên seal", "Bảo hành 12 tháng chính hãng"]
+        images:
+          type: array
+          items:
+            type: string
+            format: uri
+          example: ["https://cdn.example.com/img1.jpg", "https://cdn.example.com/img2.jpg"]
+
+    PlaceBidRequest:
+      type: object
+      required:
+        - productId
+        - amount
+      properties:
+        productId:
+          type: integer
+          example: 101
+        amount:
+          type: number
+          format: decimal
+          example: 26000000
+          description: "Số tiền đặt giá (phải >= current_price + price_step)"
+
+    ProcessPaymentRequest:
+      type: object
+      required:
+        - productId
+        - totalAmount
+        - paymentMethod
+        - shippingAddress
+        - imgEvidence
+      properties:
+        productId:
+          type: integer
+          example: 101
+        totalAmount:
+          type: number
+          format: decimal
+          example: 26000000
+        paymentMethod:
+          type: string
+          example: "Bank Transfer"
+        shippingAddress:
+          type: string
+          example: "456 Nguyen Hue, Q1, TPHCM"
+        imgEvidence:
+          type: string
+          format: uri
+          example: "https://cdn.example.com/payment/proof.jpg"
+
+    # ==================== Generic Responses ====================
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Operation successful"
+        data:
+          type: object
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: "Error message"
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              message:
+                type: string
+
+    PaginationInfo:
+      type: object
+      properties:
+        currentPage:
+          type: integer
+          example: 1
+        pageSize:
+          type: integer
+          example: 12
+        totalItems:
+          type: integer
+          example: 145
+        totalPages:
+          type: integer
+          example: 13
+
+paths:
+  # ==================== AUTHENTICATION ====================
+  /api/auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Đăng ký tài khoản mới
+      description: |
+        Tạo tài khoản mới và gửi OTP qua email để xác thực.
+        
+        **Lưu ý:**
+        - Password phải >= 8 ký tự
+        - Email phải unique
+        - Sau khi đăng ký thành công, user cần verify OTP trước khi login
+      operationId: registerUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Đăng ký thành công, OTP đã được gửi qua email
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "User registered successfully"
+                  data:
+                    type: object
+                    properties:
+                      user_id:
+                        type: integer
+                      email:
+                        type: string
+                      address:
+                        type: string
+                      otp_expiry:
+                        type: string
+                        format: date-time
+        '400':
+          description: Dữ liệu không hợp lệ hoặc email đã tồn tại
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/verify:
+    post:
+      tags:
+        - Authentication
+      summary: Xác thực OTP
+      description: Xác nhận mã OTP 6 số đã gửi qua email
+      operationId: verifyOTP
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyOTPRequest'
+      responses:
+        '200':
+          description: Xác thực thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "User verified successfully"
+                  data:
+                    type: object
+                    properties:
+                      user_id:
+                        type: integer
+                      email:
+                        type: string
+                      address:
+                        type: string
+        '400':
+          description: OTP không hợp lệ hoặc đã hết hạn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/resend-otp:
+    patch:
+      tags:
+        - Authentication
+      summary: Gửi lại OTP
+      description: Yêu cầu gửi lại mã OTP mới qua email
+      operationId: resendOTP
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "user@example.com"
+      responses:
+        '200':
+          description: OTP mới đã được gửi
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "OTP code resent successfully"
+                  data:
+                    type: object
+                    properties:
+                      email:
+                        type: string
+                      otpCode:
+                        type: string
+        '400':
+          description: Email không tồn tại
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Đăng nhập
+      description: |
+        Đăng nhập với email và password, nhận về Access Token và Refresh Token.
+        
+        **Token Lifetime:**
+        - Access Token: 15 minutes
+        - Refresh Token: 7 days
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Đăng nhập thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: Email hoặc password không đúng
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Invalid email or password"
+        '403':
+          description: Tài khoản chưa xác thực email
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Please verify your email before logging in"
+
+  /api/auth/logout:
+    post:
+      tags:
+        - Authentication
+      summary: Đăng xuất
+      description: Xóa Refresh Token khỏi database
+      operationId: logout
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - userId
+              properties:
+                userId:
+                  type: integer
+                  example: 1
+      responses:
+        '200':
+          description: Đăng xuất thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Logout successful"
+        '400':
+          description: User ID không hợp lệ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/refresh-token:
+    post:
+      tags:
+        - Authentication
+      summary: Làm mới Access Token
+      description: Sử dụng Refresh Token để lấy Access Token mới
+      operationId: refreshToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+      responses:
+        '200':
+          description: Token được làm mới thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Token refreshed successfully"
+                  data:
+                    type: object
+                    properties:
+                      accessToken:
+                        type: string
+                      refreshToken:
+                        type: string
+        '401':
+          description: Refresh Token không hợp lệ hoặc đã hết hạn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ==================== PRODUCTS ====================
+  /api/products/search:
+    get:
+      tags:
+        - Products
+      summary: Tìm kiếm sản phẩm nâng cao
+      description: |
+        Full-text search với filters và pagination.
+        
+        **Features:**
+        - Full-text search trên product_name (Vietnamese accent-insensitive)
+        - Filter theo category
+        - Sort theo: time (mới nhất), price (giá), bid (nhiều bid nhất)
+        - Pagination
+      operationId: searchProducts
+      parameters:
+        - name: keyword
+          in: query
+          description: Từ khóa tìm kiếm
+          schema:
+            type: string
+            example: "iPhone"
+        - name: category
+          in: query
+          description: ID danh mục (optional)
+          schema:
+            type: integer
+            example: 5
+        - name: page
+          in: query
+          description: Số trang (mặc định 1)
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: pageSize
+          in: query
+          description: Số item mỗi trang (mặc định 12)
+          schema:
+            type: integer
+            default: 12
+            minimum: 1
+            maximum: 100
+        - name: sortBy
+          in: query
+          description: Sắp xếp theo
+          schema:
+            type: string
+            enum: [time, price, bid]
+            default: time
+        - name: newMinutes
+          in: query
+          description: Số phút để coi là sản phẩm mới (mặc định 60)
+          schema:
+            type: integer
+            default: 60
+      responses:
+        '200':
+          description: Danh sách sản phẩm
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Products retrieved successfully"
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+                  searchCriteria:
+                    type: object
+                  pagination:
+                    $ref: '#/components/schemas/PaginationInfo'
+
+  /api/products:
+    get:
+      tags:
+        - Products
+      summary: Lấy danh sách sản phẩm theo danh mục
+      description: Lấy sản phẩm với filter theo category và pagination
+      operationId: getProductsByCategory
+      parameters:
+        - name: category
+          in: query
+          description: ID danh mục (optional)
+          schema:
+            type: integer
+            example: 1
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            default: 12
+      responses:
+        '200':
+          description: Danh sách sản phẩm
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+                  pagination:
+                    $ref: '#/components/schemas/PaginationInfo'
+        '404':
+          description: Category không tồn tại
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags:
+        - Products
+      summary: Tạo sản phẩm đấu giá mới
+      description: |
+        Tạo sản phẩm đấu giá mới (yêu cầu role `seller`).
+        
+        **Lưu ý:**
+        - User phải có role `seller` hoặc `admin`
+        - Seller phải có permission hợp lệ (trong 7 ngày kể từ upgrade_at)
+        - end_time phải sau start_time
+      operationId: createProduct
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProductRequest'
+      responses:
+        '201':
+          description: Tạo sản phẩm thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Product created successfully"
+                  data:
+                    $ref: '#/components/schemas/Product'
+        '400':
+          description: Dữ liệu không hợp lệ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Chưa đăng nhập
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Không có quyền tạo sản phẩm
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/products/top-value:
+    get:
+      tags:
+        - Products
+      summary: Top sản phẩm giá cao nhất
+      description: Lấy danh sách sản phẩm có giá hiện tại cao nhất
+      operationId: getTopValueProducts
+      responses:
+        '200':
+          description: Danh sách top products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+
+  /api/products/top-least-time-left:
+    get:
+      tags:
+        - Products
+      summary: Top sản phẩm sắp hết hạn
+      description: Lấy danh sách sản phẩm có thời gian còn lại ít nhất
+      operationId: getTopLeastTimeLeft
+      responses:
+        '200':
+          description: Danh sách top products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+
+  /api/products/top-most-bidded:
+    get:
+      tags:
+        - Products
+      summary: Top sản phẩm nhiều lượt đấu giá nhất
+      description: Lấy danh sách sản phẩm có số lượt bid nhiều nhất
+      operationId: getTopMostBidded
+      responses:
+        '200':
+          description: Danh sách top products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+
+  /api/products/{product_id}:
+    get:
+      tags:
+        - Products
+      summary: Lấy thông tin sản phẩm theo ID
+      description: Lấy thông tin cơ bản của sản phẩm
+      operationId: getProductById
+      parameters:
+        - name: product_id
+          in: path
+          required: true
+          description: ID sản phẩm
+          schema:
+            type: integer
+            example: 101
+      responses:
+        '200':
+          description: Thông tin sản phẩm
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Product'
+        '404':
+          description: Sản phẩm không tồn tại
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/products/{product_id}/details:
+    get:
+      tags:
+        - Products
+      summary: Lấy thông tin chi tiết sản phẩm
+      description: |
+        Lấy thông tin đầy đủ bao gồm:
+        - Seller info
+        - Winner info (nếu có)
+        - Category
+        - Images
+        - Description history (append-only)
+        - Bid count
+      operationId: getProductDetails
+      parameters:
+        - name: product_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 101
+      responses:
+        '200':
+          description: Thông tin chi tiết sản phẩm
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/ProductDetails'
+        '404':
+          description: Sản phẩm không tồn tại
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/products/{product_id}/updates:
+    post:
+      tags:
+        - Products
+      summary: Thêm mô tả sản phẩm (Append-only)
+      description: |
+        Thêm description update mới vào lịch sử mô tả sản phẩm.
+        
+        **Đặc điểm:**
+        - Append-only: Không xóa/sửa description cũ
+        - Chỉ seller (owner) mới được thêm
+        - HTML được sanitize để chống XSS
+        - Tạo audit trail cho mọi thay đổi
+      operationId: appendProductDescription
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: product_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - content
+              properties:
+                content:
+                  type: string
+                  example: "Thêm thông tin: Bảo hành quốc tế 24 tháng"
+      responses:
+        '201':
+          description: Thêm description thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      des_id:
+                        type: integer
+                      product_id:
+                        type: integer
+                      description:
+                        type: string
+                      created_at:
+                        type: string
+                        format: date-time
+        '401':
+          description: Chưa đăng nhập
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Chỉ owner mới có quyền thêm
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Sản phẩm không tồn tại
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/products/{product_id}/refuse-bidder:
+    post:
+      tags:
+        - Products
+      summary: Từ chối bidder đặt giá
+      description: |
+        Seller từ chối một bidder cụ thể không được đặt giá cho sản phẩm này.
+        
+        **Lưu ý:**
+        - Chỉ seller (owner) có quyền
+        - Bidder bị refuse sẽ không thể đặt giá trên sản phẩm này nữa
+      operationId: refuseBidder
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: product_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - bidder_id
+              properties:
+                bidder_id:
+                  type: integer
+                  example: 25
+      responses:
+        '201':
+          description: Từ chối bidder thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          description: Chưa đăng nhập
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Không có quyền
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/products/{product_id}/refused-bidders:
+    get:
+      tags:
+        - Products
+      summary: Lấy danh sách bidders bị từ chối
+      description: Lấy danh sách các bidder đã bị seller từ chối
+      operationId: getRefusedBidders
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: product_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Danh sách refused bidders
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RefusedBidder'
+
+  /api/products/{product_id}/is-refused/{bidder_id}:
+    get:
+      tags:
+        - Products
+      summary: Kiểm tra bidder có bị từ chối không
+      description: Kiểm tra xem một bidder cụ thể có bị refuse trên sản phẩm này không
+      operationId: checkIfRefused
+      parameters:
+        - name: product_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: bidder_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Kết quả kiểm tra
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  isRefused:
+                    type: boolean
+                    example: false
+
+  # ==================== BIDS ====================
+  /api/bids:
+    post:
+      tags:
+        - Bids
+      summary: Đặt giá (Place Bid)
+      description: |
+        Đặt giá cho sản phẩm đấu giá với **Proxy Bidding**.
+        
+        **Proxy Bidding Logic:**
+        - User đặt max_bid (số tiền tối đa sẵn sàng trả)
+        - System tự động bid incrementally cho đến khi:
+          - Đạt max_bid của user
+          - Hoặc vượt max_bid của người khác
+        - Current_price chỉ tăng theo price_step
+        
+        **Auto Time Extension:**
+        - Nếu có bid trong 5 phút cuối → Gia hạn thêm 10 phút
+        - Chỉ áp dụng khi auto_renewal = true
+        
+        **Realtime Update:**
+        - Sau khi bid thành công, system emit qua Socket.io:
+          - Room `product_{id}`: Full data (cho product detail page)
+          - Room `homepage_feed`: Minimal data (cho homepage list)
+      operationId: placeBid
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlaceBidRequest'
+      responses:
+        '201':
+          description: Đặt giá thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Bid placed successfully"
+                  data:
+                    type: object
+                    properties:
+                      bid:
+                        $ref: '#/components/schemas/Bid'
+                      isWinning:
+                        type: boolean
+                        example: true
+                        description: "User hiện tại có đang thắng không"
+                      currentPrice:
+                        type: number
+                        example: 26000000
+                      highestBidderId:
+                        type: integer
+                        example: 25
+        '400':
+          description: |
+            Lỗi nghiệp vụ:
+            - Giá bid không hợp lệ
+            - Sản phẩm đã kết thúc
+            - User bị refuse
+            - User là seller của sản phẩm
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Chưa đăng nhập
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/bids/history/{productId}:
+    get:
+      tags:
+        - Bids
+      summary: Lấy lịch sử đấu giá
+      description: |
+        Lấy lịch sử các lượt bid của sản phẩm (tối đa 5 bids gần nhất).
+        
+        **Mode:**
+        - `valid`: Chỉ lấy bid có status=1 (active)
+        - `all`: Lấy cả valid và invalid bids (default)
+        
+        **Username Masking:**
+        - Tên bidder bị che nửa đầu (VD: `john_doe` → `****_doe`)
+      operationId: getBidHistory
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 101
+        - name: mode
+          in: query
+          description: Filter mode
+          schema:
+            type: string
+            enum: [valid, all]
+            default: all
+      responses:
+        '200':
+          description: Lịch sử bid
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  mode:
+                    type: string
+                  count:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/BidHistory'
+
+  /api/bids/user/{userId}/product/{productId}:
+    get:
+      tags:
+        - Bids
+      summary: Lấy bid của user trên sản phẩm
+      description: Lấy thông tin bid của user đang đăng nhập trên sản phẩm cụ thể
+      operationId: getUserBid
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Thông tin bid của user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/Bid'
+
+  /api/bids/{productId}/next-price:
+    get:
+      tags:
+        - Bids
+      summary: Lấy giá bid tiếp theo hợp lệ
+      description: |
+        Tính toán giá bid tối thiểu tiếp theo.
+        
+        **Formula:**
+        - Nếu chưa có bid: `start_value`
+        - Nếu đã có bid: `current_price + price_step`
+      operationId: getNextBidPrice
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Giá bid tiếp theo
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: object
+                    properties:
+                      nextPrice:
+                        type: number
+                        example: 26500000
+
+  /api/bids/{productId}/bid-availability:
+    get:
+      tags:
+        - Bids
+      summary: Kiểm tra quyền đặt giá
+      description: |
+        Kiểm tra user có đủ điều kiện đặt giá không.
+        
+        **Kiểm tra:**
+        - User không phải là seller của sản phẩm
+        - User không bị refuse
+        - Sản phẩm đang active
+      operationId: checkBidAvailability
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: userId
+          in: query
+          description: User ID (optional nếu đã login)
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Kết quả kiểm tra
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  eligible:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "User is eligible to bid"
+
+  # ==================== CATEGORIES ====================
+  /api/categories:
+    get:
+      tags:
+        - Categories
+      summary: Lấy danh sách tất cả categories
+      description: Lấy toàn bộ danh mục sản phẩm (hierarchical structure)
+      operationId: getAllCategories
+      responses:
+        '200':
+          description: Danh sách categories
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Category'

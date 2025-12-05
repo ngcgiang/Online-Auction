@@ -19,6 +19,8 @@ const orderRoutes = require('./routes/order');
 const qaRoutes = require('./routes/qa');
 const chatRoutes = require('./routes/chat');
 const errorHandler = require('./middlewares/errorHandler');
+const logger = require('./utils/logger');
+const morgan = require('morgan');
 
 const app = express();
 
@@ -38,6 +40,7 @@ realtimeBidService.setSocketIO(io);
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(morgan('combined', { stream: logger.stream }));
 
 // Serve static files from public directory
 app.use(express.static('public'));
