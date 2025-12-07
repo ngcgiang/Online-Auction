@@ -1,3 +1,4 @@
+const adminService = require('../services/adminService');
 const AdminService = require('../services/adminService');
 
 /**
@@ -316,6 +317,43 @@ const deleteUser = async (req, res) => {
         });
     }
 };
+
+const getAllUsers = async(req,res) =>{
+    try{
+        const users = await adminService.getAllUsers();
+        return res.status(200).json({
+            success: true,
+            message: 'Fetch all users successfully',
+            data: {
+                list: users
+            }
+        })
+    }catch(error){
+        return res.status(500).json({
+            success: false,
+            message: 'Error fetching users'
+        })
+    }
+}
+
+const deleteProduct = async(req,res)=>{
+    try{
+        const id = req.params.id || req.body.id;
+        console.log(id);
+        await adminService.deleteProduct(id);
+        return res.status(200).json({
+            success: true,
+            message: 'Product deleted'
+        })
+    }catch(error){
+        console.error("error deleting product",error);
+        return res.status(500).json({
+            success: false,
+            message: "failed to delete product"
+        })
+    }
+}
+
 module.exports = {
     getPendingRequests,
     approveUpgrade,
@@ -323,5 +361,7 @@ module.exports = {
     getAllSellers,
     createNewCategory,
     deleteCategory,
-    deleteUser
+    deleteUser,
+    getAllUsers,
+    deleteProduct
 };

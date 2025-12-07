@@ -8,7 +8,9 @@ const {
     getAllSellers,
     createNewCategory,
     deleteCategory,
-    deleteUser
+    deleteUser,
+    getAllUsers,
+    deleteProduct
 } = require('../controllers/adminController');
 
 // Get all pending upgrade requests
@@ -25,7 +27,8 @@ router.get('/sellers', verifyAccessToken, checkRole(['admin']), getAllSellers);
 
 router.post('/new-category',verifyAccessToken,checkRole(['admin']),createNewCategory);
 router.delete('/delete-category/:category_id',verifyAccessToken,checkRole(['admin']),deleteCategory);
-router.delete('/delete-user/:id',verifyAccessToken,checkRole(['admin']),deleteUser)
-
+router.delete('/delete-user/:id',verifyAccessToken,checkRole(['admin']),deleteUser);
+router.get('/get-all-users',verifyAccessToken,checkRole(['admin']),getAllUsers);
+router.delete('/delete-product/:id',verifyAccessToken,checkRole(['admin']),deleteProduct);
 
 module.exports = router;

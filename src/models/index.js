@@ -12,17 +12,19 @@ const RefusedBidder = require('./RefusedBidder');
 const Order = require('./Order');
 const Message = require('./Message');
 
-// Define associations
-
-// User - Product relationships
+// -------------------------
+// User - Product
+// -------------------------
 User.hasMany(Product, {
   foreignKey: 'seller_id',
-  as: 'soldProducts'
+  as: 'soldProducts',
+  onDelete: 'CASCADE'
 });
 
 User.hasMany(Product, {
   foreignKey: 'winner_id',
-  as: 'wonProducts'
+  as: 'wonProducts',
+  onDelete: 'SET NULL'
 });
 
 Product.belongsTo(User, {
@@ -35,10 +37,13 @@ Product.belongsTo(User, {
   as: 'winner'
 });
 
-// Category - Product relationship
+// -------------------------
+// Category - Product
+// -------------------------
 Category.hasMany(Product, {
   foreignKey: 'category_id',
-  as: 'products'
+  as: 'products',
+  onDelete: 'SET NULL'
 });
 
 Product.belongsTo(Category, {
@@ -46,45 +51,57 @@ Product.belongsTo(Category, {
   as: 'category'
 });
 
-// Watchlist - User and Product relationships (Many-to-Many)
+// -------------------------
+// Watchlist (Many-to-Many)
+// -------------------------
 User.belongsToMany(Product, {
   through: Watchlist,
   foreignKey: 'user_id',
   otherKey: 'product_id',
-  as: 'watchedProducts'
+  as: 'watchedProducts',
+  onDelete: 'CASCADE'
 });
 
 Product.belongsToMany(User, {
   through: Watchlist,
   foreignKey: 'product_id',
   otherKey: 'user_id',
-  as: 'watchers'
+  as: 'watchers',
+  onDelete: 'CASCADE'
 });
 
-// Direct associations for Watchlist (needed for eager loading)
+// Direct relations for eager loading
 Watchlist.belongsTo(Product, {
   foreignKey: 'product_id',
-  as: 'product'
+  as: 'product',
+  onDelete: 'CASCADE'
 });
 
 Watchlist.belongsTo(User, {
   foreignKey: 'user_id',
-  as: 'user'
+  as: 'user',
+  onDelete: 'CASCADE'
 });
 
 Product.hasMany(Watchlist, {
   foreignKey: 'product_id',
-  as: 'watchlistEntries'
+  as: 'watchlistEntries',
+  onDelete: 'CASCADE'
 });
 
 User.hasMany(Watchlist, {
   foreignKey: 'user_id',
-  as: 'watchlistEntries'
+  as: 'watchlistEntries',
+  onDelete: 'CASCADE'
 });
 
-Product.hasMany(Bid,{
+// -------------------------
+// Bid
+// -------------------------
+Product.hasMany(Bid, {
   foreignKey: 'product_id',
-  as: 'bids'
+  as: 'bids',
+  onDelete: 'CASCADE'
 });
 
 Bid.belongsTo(Product, {
@@ -99,13 +116,17 @@ Bid.belongsTo(User, {
 
 User.hasMany(Bid, {
   foreignKey: 'bidder_id',
-  as: 'bids'
+  as: 'bids',
+  onDelete: 'CASCADE'
 });
 
-// Product - ProductImage relationship
+// -------------------------
+// Product Images
+// -------------------------
 Product.hasMany(ProductImage, {
   foreignKey: 'product_id',
-  as: 'images'
+  as: 'images',
+  onDelete: 'CASCADE'
 });
 
 ProductImage.belongsTo(Product, {
@@ -113,10 +134,13 @@ ProductImage.belongsTo(Product, {
   as: 'product'
 });
 
-// Product - ProductDescription relationship
+// -------------------------
+// Product Descriptions
+// -------------------------
 Product.hasMany(ProductDescription, {
   foreignKey: 'product_id',
-  as: 'descriptions'
+  as: 'descriptions',
+  onDelete: 'CASCADE'
 });
 
 ProductDescription.belongsTo(Product, {
@@ -124,17 +148,19 @@ ProductDescription.belongsTo(Product, {
   as: 'product'
 });
 
-// QuestionAnswer - Product relationship
-
-// Rating - User relationships
+// -------------------------
+// Rating
+// -------------------------
 User.hasMany(Rating, {
   foreignKey: 'user_id',
-  as: 'ratingsReceived'
+  as: 'ratingsReceived',
+  onDelete: 'CASCADE'
 });
 
 User.hasMany(Rating, {
   foreignKey: 'reviewer_id',
-  as: 'ratingsGiven'
+  as: 'ratingsGiven',
+  onDelete: 'CASCADE'
 });
 
 Rating.belongsTo(User, {
@@ -147,10 +173,10 @@ Rating.belongsTo(User, {
   as: 'reviewer'
 });
 
-// Rating - Product relationship
 Product.hasMany(Rating, {
   foreignKey: 'product_id',
-  as: 'ratings'
+  as: 'ratings',
+  onDelete: 'CASCADE'
 });
 
 Rating.belongsTo(Product, {
@@ -158,10 +184,13 @@ Rating.belongsTo(Product, {
   as: 'product'
 });
 
-// RefusedBidder - Product relationship
+// -------------------------
+// Refused Bidder
+// -------------------------
 Product.hasMany(RefusedBidder, {
   foreignKey: 'product_id',
-  as: 'refusedBidders'
+  as: 'refusedBidders',
+  onDelete: 'CASCADE'
 });
 
 RefusedBidder.belongsTo(Product, {
@@ -169,10 +198,10 @@ RefusedBidder.belongsTo(Product, {
   as: 'product'
 });
 
-// RefusedBidder - User relationship
 User.hasMany(RefusedBidder, {
   foreignKey: 'bidder_id',
-  as: 'refusals'
+  as: 'refusals',
+  onDelete: 'CASCADE'
 });
 
 RefusedBidder.belongsTo(User, {
@@ -180,10 +209,13 @@ RefusedBidder.belongsTo(User, {
   as: 'bidder'
 });
 
-// Order - Product relationship
+// -------------------------
+// Order
+// -------------------------
 Product.hasMany(Order, {
   foreignKey: 'product_id',
-  as: 'orders'
+  as: 'orders',
+  onDelete: 'CASCADE'
 });
 
 Order.belongsTo(Product, {
@@ -191,15 +223,16 @@ Order.belongsTo(Product, {
   as: 'product'
 });
 
-// Order - User relationships (Winner and Seller)
 User.hasMany(Order, {
   foreignKey: 'winner_id',
-  as: 'ordersAsWinner'
+  as: 'ordersAsWinner',
+  onDelete: 'SET NULL'
 });
 
 User.hasMany(Order, {
   foreignKey: 'seller_id',
-  as: 'ordersAsSeller'
+  as: 'ordersAsSeller',
+  onDelete: 'SET NULL'
 });
 
 Order.belongsTo(User, {
@@ -212,9 +245,13 @@ Order.belongsTo(User, {
   as: 'seller'
 });
 
+// -------------------------
+// Question Answer
+// -------------------------
 Product.hasMany(QuestionAnswer, {
   foreignKey: 'product_id',
-  as: 'questions'
+  as: 'questions',
+  onDelete: 'CASCADE'
 });
 
 QuestionAnswer.belongsTo(Product, {
@@ -222,10 +259,10 @@ QuestionAnswer.belongsTo(Product, {
   as: 'product'
 });
 
-// QuestionAnswer - User relationship
 User.hasMany(QuestionAnswer, {
   foreignKey: 'user_id',
-  as: 'comments'
+  as: 'comments',
+  onDelete: 'CASCADE'
 });
 
 QuestionAnswer.belongsTo(User, {
@@ -233,21 +270,26 @@ QuestionAnswer.belongsTo(User, {
   as: 'user'
 });
 
-// QuestionAnswer - Self-referencing (parent-child for questions and answers)
+// Self-referencing QA
 QuestionAnswer.belongsTo(QuestionAnswer, {
   foreignKey: 'parent_comment_id',
-  as: 'parentComment'
+  as: 'parentComment',
+  onDelete: 'CASCADE'
 });
 
 QuestionAnswer.hasMany(QuestionAnswer, {
   foreignKey: 'parent_comment_id',
-  as: 'replies'
+  as: 'replies',
+  onDelete: 'CASCADE'
 });
 
-// Message - Product relationship
+// -------------------------
+// Message
+// -------------------------
 Product.hasMany(Message, {
   foreignKey: 'product_id',
-  as: 'messages'
+  as: 'messages',
+  onDelete: 'CASCADE'
 });
 
 Message.belongsTo(Product, {
@@ -255,10 +297,10 @@ Message.belongsTo(Product, {
   as: 'product'
 });
 
-// Message - User relationship (Sender)
 User.hasMany(Message, {
   foreignKey: 'sender_id',
-  as: 'sentMessages'
+  as: 'sentMessages',
+  onDelete: 'CASCADE'
 });
 
 Message.belongsTo(User, {

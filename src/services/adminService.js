@@ -356,6 +356,34 @@ class AdminService {
         throw error;
     }
 }
+
+    async getAllUsers() {
+    try {
+        const users = await User.findAll({
+            attributes: ['user_id', 'full_name', 'email', 'role', 'is_verified'],
+            order: [['created_at', 'DESC']]
+        });
+
+        return users;
+
+    } catch (error) {
+        throw error;
+    }
+}
+
+    async deleteProduct(product_id){
+        try{
+            await Product.destroy({
+                where: {product_id}
+            });
+            return {
+                message: "Product deleted successfully"
+            }
+
+        }catch(error){
+            throw error;
+        }
+    }
 }
 
 module.exports = new AdminService();
