@@ -1,5 +1,5 @@
-const { User, Category, Product } = require('../models');
-const { Op } = require('sequelize');
+const { User, Category, Product, Order } = require('../models');
+const { Op,fn,col } = require('sequelize');
 
 class AdminService {
     /**
@@ -384,6 +384,169 @@ class AdminService {
             throw error;
         }
     }
+
+    /**
+ * Get total income from all paid orders
+ * @returns {Promise<Object>} - Total income statistics
+ */
+async getTotalIncome() {
+    try {
+        const result = await Order.sum('total_amount', {
+            where: {
+                order_status: 'paid'
+            }
+        });
+
+        const totalIncome = result || 0;
+
+        return {
+            total_income: parseFloat(totalIncome).toFixed(2),
+            currency: 'USD',
+            message: 'Total income retrieved successfully'
+        };
+
+    } catch (error) {
+        throw error;
+    }
+}
+
+/**
+ * Get monthly income (current month)
+ * @returns {Promise<Object>} - Monthly income statistics
+ */
+async getMonthlyIncome() {
+    try {
+        // Get the first and last day of current month
+        const now = new Date();
+        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+        const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+
+        const result = await Order.sum('total_amount', {
+            where: {
+                order_status: 'paid',
+                created_at: {
+                    [Op.between]: [firstDay, lastDay]
+                }
+            }
+        });
+
+        const monthlyIncome = result || 0;
+
+        return {
+            monthly_income: parseFloat(monthlyIncome).toFixed(2),
+            month: now.toLocaleString('default', { month: 'long' }),
+            year: now.getFullYear(),
+            currency: 'USD',
+            message: 'Monthly income retrieved successfully'
+        };
+
+    } catch (error) {
+        throw error;
+    }
+}
+
+/**
+ * Get total number of orders
+ * @returns {Promise<Object>} - Total orders statistics
+ */
+async getTotalOrders() {
+    try {
+        const totalOrders = await Order.count();
+
+        // Get count by order status
+        //const { fn, col } = require('sequelize');
+        const orderStatusBreakdown = await Order.findAll({
+            attributes: [
+                'order_status',
+                [fn('COUNT', col('order_id')), 'count']
+            ],
+            group: ['order_status']
+        });
+
+        const orderStatusCounts = {};
+        orderStatusBreakdown.forEach(item => {
+            orderStatusCounts[item.order_status] = parseInt(item.get('count'));
+        });
+
+        // Get count by delivery status
+        const deliveryStatusBreakdown = await Order.findAll({
+            attributes: [
+                'delivery_status',
+                [fn('COUNT', col('order_id')), 'count']
+            ],
+            group: ['delivery_status']
+        });
+
+        const deliveryStatusCounts = {};
+        deliveryStatusBreakdown.forEach(item => {
+            deliveryStatusCounts[item.delivery_status] = parseInt(item.get('count'));
+        });
+
+        return {
+            total_orders: totalOrders,
+            order_status_breakdown: orderStatusCounts,
+            delivery_status_breakdown: deliveryStatusCounts,
+            message: 'Total orders retrieved successfully'
+        };
+
+    } catch (error) {
+        throw error;
+    }
+}
+
+/**
+ * Get total new users registered in current month
+ * @returns {Promise<Object>} - Monthly new users statistics
+ */
+async getTotalNewUsers() {
+    try {
+        // Get the first and last day of current month
+        const now = new Date();
+        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+        const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+
+        const newUsersCount = await User.count({
+            where: {
+                created_at: {
+                    [Op.between]: [firstDay, lastDay]
+                }
+            }
+        });
+
+        // Get breakdown by role
+        //const { fn, col } = require('sequelize');
+        const roleBreakdown = await User.findAll({
+            attributes: [
+                'role',
+                [fn('COUNT', col('user_id')), 'count']
+            ],
+            where: {
+                created_at: {
+                    [Op.between]: [firstDay, lastDay]
+                }
+            },
+            group: ['role']
+        });
+
+        const roleCounts = {};
+        roleBreakdown.forEach(item => {
+            roleCounts[item.role] = parseInt(item.get('count'));
+        });
+
+        return {
+            total_new_users: newUsersCount,
+            month: now.toLocaleString('default', { month: 'long' }),
+            year: now.getFullYear(),
+            role_breakdown: roleCounts,
+            message: 'Monthly new users retrieved successfully'
+        };
+
+    } catch (error) {
+        throw error;
+    }
+}
+    
+    
 }
 
 module.exports = new AdminService();

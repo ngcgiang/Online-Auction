@@ -10,7 +10,11 @@ const {
     deleteCategory,
     deleteUser,
     getAllUsers,
-    deleteProduct
+    deleteProduct,
+    getTotalIncome,
+    getNewUsers,
+    getMonthlyIncome,
+    getTotalOrders
 } = require('../controllers/adminController');
 
 // Get all pending upgrade requests
@@ -30,5 +34,10 @@ router.delete('/delete-category/:category_id',verifyAccessToken,checkRole(['admi
 router.delete('/delete-user/:id',verifyAccessToken,checkRole(['admin']),deleteUser);
 router.get('/get-all-users',verifyAccessToken,checkRole(['admin']),getAllUsers);
 router.delete('/delete-product/:id',verifyAccessToken,checkRole(['admin']),deleteProduct);
+
+router.get('/total-income',verifyAccessToken,checkRole(['admin']),getTotalIncome);
+router.get('/new-users',verifyAccessToken,checkRole(['admin']),getNewUsers);
+router.get('/total-orders',getTotalOrders);
+router.get('/monthly-income',getMonthlyIncome);
 
 module.exports = router;

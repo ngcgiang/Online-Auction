@@ -354,6 +354,78 @@ const deleteProduct = async(req,res)=>{
     }
 }
 
+const getTotalIncome = async(req,res)=>{
+    try{
+        const income = await adminService.getTotalIncome();
+        return res.status(200).json({
+            success: true,
+            message: "Get total income",
+            data: income
+        })
+    }catch(error){
+        console.error("error get total income",error)
+        return res.status(500).json({
+            success: false,
+            message: "Failed to get total income"
+        })
+    }
+}
+
+const getNewUsers = async(req,res)=>{
+    try{
+        const users = await adminService.getTotalNewUsers();
+        return res.status(200).json({
+            success: true,
+            message: "fecth new users successfully",
+            data: {
+                list: users,
+            }
+        })
+    }catch(error){
+        console.error("error fetching new users:",error);
+        return res.status(500).json({
+            success:false,
+            message: "failed to fetch new users"
+        })
+    }
+}
+
+const getTotalOrders = async(req,res)=>{
+    try{
+        const orders = await adminService.getTotalOrders();
+        return res.status(200).json({
+            success: true,
+            message: "fetch all orders successfully",
+            data: {
+                list: orders
+            }
+        })
+    }catch(error){
+        console.error('error fetching orders', error);
+        return res.status(500).json({
+            success: false,
+            message: "Failed to fetch orders"
+        })
+    }
+}
+
+const getMonthlyIncome = async(req,res)=>{
+    try{
+        const income = await adminService.getMonthlyIncome();
+        return res.status(200).json({
+            success: true,
+            message: "Get monthly income",
+            data: income
+        })
+    }catch(error){
+        console.error("error get monthly income",error)
+        return res.status(500).json({
+            success: false,
+            message: "Failed to get monthly income"
+        })
+    }
+}
+
 module.exports = {
     getPendingRequests,
     approveUpgrade,
@@ -363,5 +435,9 @@ module.exports = {
     deleteCategory,
     deleteUser,
     getAllUsers,
-    deleteProduct
+    deleteProduct,
+    getTotalIncome,
+    getNewUsers,
+    getMonthlyIncome,
+    getTotalOrders
 };
