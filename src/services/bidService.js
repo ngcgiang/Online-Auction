@@ -309,6 +309,23 @@ class BidService {
         };
       }
 
+      if (bidAmount % product.price_step !== 0) {
+        await transaction.rollback();
+        // Tính toán bội số thấp hơn gần nhất
+        const lowerValidBid = Math.floor(bidAmount / product.price_step) * product.price_step;
+        // Tính toán bội số cao hơn gần nhất
+        const upperValidBid = lowerValidBid + product.price_step  ;
+
+        return {
+          success: false,
+          message: `Bid amount must be in increments of ${product.price_step}.`,
+          suggestedBids: {
+            lower: lowerValidBid,
+            upper: upperValidBid
+          }
+        };
+      }
+
       // Step 4.5: Check Buy Now condition
       if (product.buy_now_value && product.buy_now_value > 0 && bidAmount >= product.buy_now_value) {
         // Instant win via Buy Now
@@ -407,7 +424,7 @@ class BidService {
             // If the current leader is bidding again, just increase their max bid
             newCurrentPrice = product.current_price;
           } else {
-            newCurrentPrice = Math.min(leaderAmount + priceStep, newBidAmount);
+            newCurrentPrice = Math.min(leaderAmount, newBidAmount);
           }
                     
           if (product.end_time - currentTime <= triggerTime * 60 * 1000 && product.auto_renewal) {
@@ -424,7 +441,7 @@ class BidService {
           winnerId = currentLeaderBid.bidder_id;
           // New current price = new bidder's max + step
           // But cannot exceed old leader's max
-          newCurrentPrice = Math.min(newBidAmount + priceStep, leaderAmount);
+          newCurrentPrice = Math.min(newBidAmount, leaderAmount);
           
           bidResult = {
             isWinning: false,
