@@ -20,7 +20,7 @@ class emailService {
     /**
      * Send OTP verification email
      */
-    async sendEmail(toEmail, otpCode) {
+    async sendVerificationEmail(toEmail, otpCode) {
         const transporter = this._createTransporter();
 
         const mailOptions = {
@@ -36,7 +36,7 @@ class emailService {
     /**
      * Send Q&A notification email
      */
-    async sendQAEmail(toEmails, message, link) {
+    async sendQAEmail(toEmails, message, product_id) {
         const transporter = this._createTransporter();
 
         const mailOptions = {
@@ -44,7 +44,7 @@ class emailService {
             bcc: toEmails,
             subject: 'Thông báo từ hệ thống Online Auction',
             text: message,
-            html: `<p>${message}</p><a href="${link}">Click here</a>`
+            html: `<a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/products/${product_id}"`
         };
 
         await transporter.sendMail(mailOptions);

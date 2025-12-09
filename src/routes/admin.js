@@ -37,7 +37,7 @@ router.delete('/delete-product/:id',verifyAccessToken,checkRole(['admin']),delet
 
 router.get('/total-income',verifyAccessToken,checkRole(['admin']),getTotalIncome);
 router.get('/new-users',verifyAccessToken,checkRole(['admin']),getNewUsers);
-router.get('/total-orders',getTotalOrders);
-router.get('/monthly-income',getMonthlyIncome);
+router.get('/total-orders',verifyAccessToken,checkRole(['admin']),getTotalOrders);
+router.get('/monthly-income',verifyAccessToken,checkRole(['admin']),getMonthlyIncome);
 
 module.exports = router;

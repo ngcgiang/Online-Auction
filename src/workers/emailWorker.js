@@ -92,8 +92,16 @@ class EmailWorker {
           await this.handleUserRegistered(payload.data);
           break;
 
+        case 'OTP_RESEND':
+          await this.handleOtpResend(payload.data);
+          break;
+
         case 'AUCTION_ENDED':
           await this.handleAuctionEnded(payload.data);
+          break;
+
+        case 'QA_NOTIFICATION':
+          await this.handleQA(payload.data);
           break;
 
         default:
@@ -288,13 +296,72 @@ class EmailWorker {
   }
 
   /**
-   * Handle USER_REGISTERED event (placeholder)
+   * Handle USER_REGISTERED event
+   * Send verification email with OTP code
    * @param {Object} data - Event payload
    */
   async handleUserRegistered(data) {
-    console.log(`📧 Processing USER_REGISTERED event for user #${data.user_id}`);
-    // TODO: Implement welcome email logic
-    console.log('  ℹ️ USER_REGISTERED handler not implemented yet');
+    const { email, otp_code, user_id } = data;
+    
+    console.log(`📧 Processing USER_REGISTERED event for user #${user_id}`);
+
+    try {
+      // Send verification email
+      await emailService.sendVerificationEmail(email, otp_code);
+      
+      console.log(`  ✅ Verification email sent to: ${email}`);
+
+    } catch (error) {
+      console.error(`❌ Error in handleUserRegistered:`, error.message);
+      throw error;
+    }
+  }
+
+  /**
+   * Handle OTP_RESEND event
+   * Resend verification email with new OTP code
+   * @param {Object} data - Event payload
+   */
+  async handleOtpResend(data) {
+    const { email, otp_code } = data;
+    
+    console.log(`🔄 Processing OTP_RESEND event for email: ${email}`);
+
+    try {
+      // Resend verification email
+      await emailService.sendVerificationEmail(email, otp_code);
+      
+      console.log(`  ✅ OTP resent to: ${email}`);
+
+    } catch (error) {
+      console.error(`❌ Error in handleOtpResend:`, error.message);
+      throw error;
+    }
+  }
+
+  /**
+   * Handle QA_NOTIFICATION event
+   * Send Q&A notification emails to seller or bidders
+   * @param {Object} data - Event payload
+   */
+  async handleQA(data) {
+    const { email, content, product_id } = data;
+    
+    console.log(`💬 Processing QA_NOTIFICATION event for product link: ${product_id}`);
+    
+    try {
+      await emailService.sendQAEmail(email, content, product_id);
+      
+      if (Array.isArray(email)) {
+        console.log(`  ✅ QA notification sent to ${email.length} recipients`);
+      } else {
+        console.log(`  ✅ QA notification sent to: ${email}`);
+      }
+      
+    } catch (error) {
+      console.error("❌ Error sending QA email:", error.message);
+      throw error;
+    }
   }
 
   /**

@@ -2,6 +2,7 @@ const qaService = require('../services/qaService');
 const productService = require('../services/productService');
 const emailService = require('../services/emailService');
 const bidService = require('../services/bidService');
+const mqService = require('../services/mqService');
 
 const getQAbyProduct = async (req, res) => {
     try {
@@ -11,7 +12,6 @@ const getQAbyProduct = async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
-
 };
 
 const addComment = async (req, res) => {
@@ -21,9 +21,7 @@ const addComment = async (req, res) => {
     try {
         // Get product details including seller info
         const product = await productService.getProductById(product_id);
-        //console.log(product);
         const name = product.product_name;
-        console.log(name);
         
         if (!product) {
             return res.status(404).json({ error: 'Product not found' });
@@ -41,18 +39,33 @@ const addComment = async (req, res) => {
             const link = `${process.env.FRONTEND_URL}/product/${product_id}`;
             const message = `Có câu hỏi mới về sản phẩm "${name}" của bạn.`;
             
-            await emailService.sendQAEmail(seller_email, message, link);
+            // Publish to message queue instead of direct email
+            await mqService.publishToQueue('email_queue', {
+                event: 'QA_NOTIFICATION',
+                data: {
+                    email: seller_email,
+                    content: message,
+                    product_id: link
+                }
+            });
             
         } else {
             // The seller is commenting (replying) -> Notify all bidders
             const emailList = await bidService.getBidddedUsersEmailsFromProduct(product_id);
-            console.log(emailList);
             
             if (emailList && emailList.length > 0) {    
                 const link = `${process.env.FRONTEND_URL}/product/${product_id}`;
                 const message = `Người bán đã trả lời câu hỏi về sản phẩm "${name}".`;
                 
-                await emailService.sendQAEmail(emailList, message, link);
+                // Publish to message queue for each bidder
+                await mqService.publishToQueue('email_queue', {
+                    event: 'QA_NOTIFICATION',
+                    data: {
+                        email: emailList,
+                        content: message,
+                        product_id: link
+                    }
+                });
             }
         }
         
@@ -63,9 +76,6 @@ const addComment = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
-
-
-
 
 module.exports = {
     getQAbyProduct,
