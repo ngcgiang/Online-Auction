@@ -21,29 +21,51 @@ class qaService {
  
 
     async getCommentsByProduct(productId) {
-    try {
-        const comments = await QuestionAnswer.findAll({
-            where: { product_id: productId }, // get top-level
-            include: [
-                {
-                    model: QuestionAnswer,
-                    as: 'replies',
-                    include: [
-                        {
-                            model: QuestionAnswer,
-                            as: 'replies'
-                        }
-                    ]
-                }
-            ]
-        });
+        try {
+            const comments = await QuestionAnswer.findAll({
+                where: { product_id: productId }, // Điều kiện lấy comment cha
+                include: [
+                    // 1. Lấy thông tin User cho comment cấp cao nhất (Cha)
+                    {
+                        model: User,
+                        as: 'user', // Phải khớp với 'as' trong quan hệ belongsTo
+                        attributes: ['full_name'] // Chỉ lấy các trường cần thiết
+                    },
+                    // 2. Lấy danh sách trả lời (Replies cấp 1)
+                    {
+                        model: QuestionAnswer,
+                        as: 'replies',
+                        include: [
+                            // Lấy thông tin User cho reply cấp 1
+                            {
+                                model: User,
+                                as: 'user',
+                                attributes: ['full_name']
+                            },
+                            // Lấy danh sách trả lời lồng nhau (Replies cấp 2)
+                            {
+                                model: QuestionAnswer,
+                                as: 'replies',
+                                include: [
+                                    // Lấy thông tin User cho reply cấp 2
+                                    {
+                                        model: User,
+                                        as: 'user',
+                                        attributes: ['full_name']
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            });
 
-        return comments;
-    } catch (error) {
-        console.error("getCommentsByProduct error:", error);
-        throw new Error('Failed to fetch comments');
+            return comments;
+        } catch (error) {
+            console.error("getCommentsByProduct error:", error);
+            throw new Error('Failed to fetch comments');
+        }
     }
-}
 
     async getCommentEmail(commentID){
         try{
