@@ -3,6 +3,7 @@ const productCreationService = require('../services/productCreationService');
 const { validationResult } = require('express-validator');
 const { Product, ProductDescription } = require('../models');
 const sanitizeHtml = require('sanitize-html');
+const { get } = require('../routes/category');
 
 /**
  * Search products with full-text search
@@ -67,6 +68,26 @@ const getProductsByCategory = async (req, res, next) => {
         message: error.message
       });
     }
+    next(error);
+  }
+};
+
+/**
+ * Get related products
+ * GET /api/products/related
+ */
+const getRelatedProducts = async (req, res, next) => {
+  try {
+    const { product_id } = req.params;
+    
+    const categoryId = await productService.getCategoryIdByProductId(parseInt(product_id));
+    const relatedProducts = await productService.getRelatedProducts(parseInt(product_id), categoryId);
+    return res.status(200).json({
+      success: true,
+      message: 'Related products retrieved successfully',
+      data: relatedProducts
+    });
+  } catch (error) {
     next(error);
   }
 };
@@ -334,6 +355,7 @@ const appendProductDescription = async (req, res, next) => {
 module.exports = {
   searchProducts,
   getProductsByCategory,
+  getRelatedProducts,
   getAllProducts,
   getProductById,
   getProductDetails,

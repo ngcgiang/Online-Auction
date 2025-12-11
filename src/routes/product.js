@@ -40,6 +40,12 @@ router.get(
   productController.getProductsByCategory
 );
 
+// GET /api/products/related - Get related products
+router.get(
+  '/related/:product_id',
+  productController.getRelatedProducts
+);
+
 router.get(
   '/top-value',
   productController.fetchTopValueProducts

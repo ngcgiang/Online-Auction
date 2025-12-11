@@ -399,6 +399,51 @@ class ProductService {
   }
 
   /**
+   * Get 5 related products in the same category
+   * @param {*} productId 
+   * @param {*} categoryId 
+   * @returns 
+   */
+  async getRelatedProducts(productId, categoryId) {
+    const relatedProducts = await Product.findAll({
+      where: {
+        category_id: categoryId,
+        product_id: { [Op.ne]: productId },
+        //status: 'active'
+      },
+      include: [
+        {
+          model: ProductImage,
+          as: 'images',
+          attributes: ['image_id', 'img_url'],
+          limit: 1,
+          separate: true,
+          order: [['image_id', 'ASC']]
+        },
+        {
+          model: User,
+          as: 'seller',
+          attributes: ['user_id', 'full_name', 'rating_score']
+        }
+      ],
+      limit: 5,
+      order: [['product_id', 'DESC']]
+    });
+    return relatedProducts;
+  }
+
+  /**
+   * Get category ID by product ID
+   */
+  async getCategoryIdByProductId(productId) {
+    const product = await Product.findByPk(productId);
+    if (!product) {
+      throw new Error('Product not found');
+    }
+    return product.category_id;
+  }
+
+  /**
    * Get detailed product information with all related data
    * @param {Number} productId
    * @returns {Object} - Complete product details
