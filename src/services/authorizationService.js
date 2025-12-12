@@ -157,6 +157,7 @@ class AuthorizationService {
                 address: user.address,
                 role: user.role,
                 rating_score: user.rating_score,
+                upgrade_at: user.upgrade_at,
                 created_at: user.created_at
             };
 
