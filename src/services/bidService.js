@@ -434,7 +434,8 @@ class BidService {
           bidResult = {
             isWinning: true,
             message: 'You are now the highest bidder',
-            currentPrice: newCurrentPrice
+            currentPrice: newCurrentPrice,
+            highestBidderId: winnerId
           };
         } else if (newBidAmount < leaderAmount) {
           // Case 3: New bid is lower - Old leader still wins

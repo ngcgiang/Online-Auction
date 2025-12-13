@@ -132,7 +132,7 @@ class RealtimeBidService {
     try {
       const bidData = {
         currentPrice: bidResult.currentPrice,
-        winnerId: bidResult.bid.bidder_id,
+        winnerId: bidResult.highestBidderId,
         bidCount: bidResult.bidCount,
         endTime: bidResult.endTime
       };
@@ -197,7 +197,7 @@ class RealtimeBidService {
           if (bidData.bidder && bidData.bidder.full_name) {
             bidData.bidder.full_name = maskFullname(bidData.bidder.full_name);
             if (index === highestBidIndex) {
-              bidData.amount = '$$$MAX-BID$$$'; // Mask the highest bid amount
+              bidData.amount = maskMaxBit(bidData.amount); // Mask the highest bid amount
             }
           }
           return bidData;
