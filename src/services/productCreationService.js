@@ -1,24 +1,34 @@
 const { Product, ProductImage, ProductDescription } = require('../models');
 const { sequelize } = require('../models');
 const sanitizeHtml = require('sanitize-html');
+const { uploadMultipleToCloudinary } = require('../config/cloudinary');
 
 class ProductCreationService {
   /**
    * Create a new auction product with images and description
    * @param {Object} productData - Product information
+   * @param {Array} files - Multer file objects for images
    * @param {number} sellerId - ID of the seller creating the product
    * @returns {Promise<Object>} - Created product with details
    */
-  async createProduct(productData, sellerId) {
+  async createProduct(productData, files, sellerId) {
     let transaction;
 
     try {
+      // Validate files
+      if (!files || files.length < 3) {
+        throw new Error('At least 3 images are required');
+      }
+
+      if (files.length > 10) {
+        throw new Error('Maximum 10 images allowed');
+      }
+
       transaction = await sequelize.transaction();
 
       const {
         product_name,
         category_id,
-        images,
         start_price,
         step_price,
         buy_now_price,
@@ -27,6 +37,18 @@ class ProductCreationService {
         auto_renewal,
         allow_new_users
       } = productData;
+
+      // Upload images to Cloudinary
+      console.log(`⬆️ Uploading ${files.length} images to Cloudinary...`);
+      let imageUrls = [];
+      try {
+        const cloudinaryResults = await uploadMultipleToCloudinary(files);
+        imageUrls = cloudinaryResults.map(result => result.secure_url);
+        console.log(`✅ Successfully uploaded ${imageUrls.length} images to Cloudinary`);
+      } catch (uploadError) {
+        console.error('❌ Error uploading images to Cloudinary:', uploadError);
+        throw new Error('Failed to upload images: ' + uploadError.message);
+      }
 
       // Sanitize HTML description to prevent XSS attacks
       const sanitizedDescription = sanitizeHtml(description, {
@@ -67,8 +89,8 @@ class ProductCreationService {
         auto_renewal: auto_renewal || true
       }, { transaction });
 
-      // Create product images
-      const imageRecords = images.map((imageUrl) => ({
+      // Create product images with Cloudinary URLs
+      const imageRecords = imageUrls.map((imageUrl) => ({
         product_id: newProduct.product_id,
         img_url: imageUrl
       }));

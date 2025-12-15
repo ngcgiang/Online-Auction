@@ -13,6 +13,7 @@ const { validateRefuseBidder, validateCheckRefused } = require('../middlewares/r
 const handleValidationErrors = require('../middlewares/validationHandler');
 const { verifyAccessToken} = require('../middlewares/authMiddleware');
 const { canCreateProduct} = require('../middlewares/sellerPermissionMiddleware');
+const { handleMultipleUpload } = require('../config/multer');
 
 // GET /api/products/search - Advanced search with full-text and filters
 router.get(
@@ -27,6 +28,7 @@ router.post(
   '/',
   verifyAccessToken,
   canCreateProduct,
+  handleMultipleUpload,
   validateCreateProduct,
   handleValidationErrors,
   productController.createProduct

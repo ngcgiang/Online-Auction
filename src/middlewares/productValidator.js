@@ -20,16 +20,9 @@ const validateCreateProduct = [
     .isInt({ min: 1 })
     .withMessage('Category ID must be a positive integer'),
 
-  // Images validation (minimum 3 images required)
-  body('images')
-    .notEmpty()
-    .withMessage('Images are required')
-    .isArray({ min: 3 })
-    .withMessage('At least 3 images are required'),
-
-  body('images.*')
-    .isURL()
-    .withMessage('Each image must be a valid URL'),
+  // Images validation is handled by Multer middleware
+  // This validator ensures the field validation exists for documentation
+  // Actual file validation is done in multer config
 
   // Start price validation
   body('start_price')

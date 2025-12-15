@@ -202,6 +202,18 @@ const fetchTopMostBiddedProducts = async (req,res) => {
 /**
  * Create a new auction product
  * POST /api/products
+ * 
+ * Expects multipart/form-data with:
+ * - images: Files (3-10 image files)
+ * - product_name: String
+ * - category_id: Number (optional)
+ * - start_price: Number
+ * - step_price: Number
+ * - buy_now_price: Number (optional)
+ * - end_time: ISO 8601 string
+ * - description: String (HTML allowed, sanitized)
+ * - auto_renewal: Boolean (optional, default: true)
+ * - allow_new_users: Boolean (optional, default: false)
  */
 const createProduct = async (req, res, next) => {
   try {
@@ -218,6 +230,18 @@ const createProduct = async (req, res, next) => {
       });
     }
 
+    // Check if files were uploaded
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'At least 3 images are required',
+        errors: [{
+          field: 'images',
+          message: 'No files were uploaded'
+        }]
+      });
+    }
+
     const seller_id = req.user?.user_id;
 
     // Get seller info to validate permission
@@ -231,8 +255,8 @@ const createProduct = async (req, res, next) => {
       });
     }
 
-    // Create product
-    const result = await productCreationService.createProduct(req.body, seller_id);
+    // Create product with uploaded files
+    const result = await productCreationService.createProduct(req.body, req.files, seller_id);
 
     return res.status(201).json({
       success: true,
