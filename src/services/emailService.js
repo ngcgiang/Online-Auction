@@ -112,7 +112,7 @@ class emailService {
                         
                         <p>Chúc mừng! Bạn đã đặt giá thành công cho sản phẩm:</p>
                         <p><strong>Sản phẩm:</strong> ${bidData.product_name}</p>
-                        <p><strong>Giá đấu của bạn:</strong> <span style="color: #2196F3; font-size: 20px; font-weight: bold;">${bidData.new_price.toLocaleString('vi-VN')} VNĐ</span></p>
+                        <p><strong>Giá đấu của bạn:</strong> <span style="color: #2196F3; font-size: 20px; font-weight: bold;">${bidData.amount_bid.toLocaleString('vi-VN')} VNĐ</span></p>
                         <p><strong>Thời gian:</strong> ${new Date().toLocaleString('vi-VN')}</p>
                         
                         <div style="background-color: #E3F2FD; padding: 15px; border-radius: 5px; margin-top: 20px;">

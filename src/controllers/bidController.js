@@ -67,6 +67,7 @@ const placeBid = async (req, res, next) => {
           product_id: result.product.product_id,
           product_name: result.product.product_name,
           new_price: result.currentPrice,
+          amount_bid: result.bid.amount,
           seller_id: result.product.seller_id,
           new_bidder_id: userId,
           previous_winner_id: winnerChanged ? result.previousWinnerId : null,
