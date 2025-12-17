@@ -2,6 +2,18 @@ const { User, Bid , Product, Watchlist, Rating } = require('../models');
 const bcrypt = require('bcrypt');
 
 class UserService {
+    async getUserProfile(user_id) {
+        try {
+            const user = await User.findByPk(user_id, {
+                attributes: { exclude: ['password'] }
+            });
+            return user;
+        } catch (error) {
+            console.error("getUserProfile error:", error);
+            throw new Error('Failed to get user profile');
+        }
+    }
+
     async changeUserEmail(user_id, newEmail) {
         try {
             const user = await User.findByPk(user_id);
@@ -34,23 +46,23 @@ class UserService {
     }
 
     async changeUserPassword(user_id, newPassword) {
-    try {
-        const user = await User.findByPk(user_id);
-        if (!user) {
-            throw new Error('User not found');
+        try {
+            const user = await User.findByPk(user_id);
+            if (!user) {
+                throw new Error('User not found');
+            }
+
+            const hashed = await bcrypt.hash(newPassword, 10);
+            user.password = hashed;
+
+            await user.save();
+            return user;
+
+        } catch (error) {
+            console.error("changeUserPassword error:", error);
+            throw new Error('Failed to change user password');
         }
-
-        const hashed = await bcrypt.hash(newPassword, 10);
-        user.password = hashed;
-
-        await user.save();
-        return user;
-
-    } catch (error) {
-        console.error("changeUserPassword error:", error);
-        throw new Error('Failed to change user password');
     }
-}
     async updateUserInfo(user_id, newInfo){
         try{
             const user = await User.findByPk(user_id);
@@ -177,11 +189,11 @@ class UserService {
         });
         
         return wonProducts;
-    } catch (error) {
-        console.error("viewWonProduct error:", error);
-        throw new Error('Failed to view won products');
+        } catch (error) {
+            console.error("viewWonProduct error:", error);
+            throw new Error('Failed to view won products');
+        }
     }
-}
 
     async getAllRatings(user_id){
         try{

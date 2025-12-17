@@ -5,6 +5,7 @@ const { validateRateUser, validateUpdateRating } = require('../middlewares/ratin
 const handleValidationErrors = require('../middlewares/validationHandler');
 const { rateUser, updateUserRating } = require('../controllers/ratingController');
 const { 
+  getUserProfile,
   changeEmail,
   changeFullName,
   changePassword,
@@ -18,6 +19,9 @@ const {
 
 } = require('../controllers/userController');
 const { emailValidator, passwordValidator, updateInfoValidator } = require('../middlewares/userValidator');
+
+// GET /api/users/profile - Get user profile
+router.get('/profile', verifyAccessToken, getUserProfile);
 
 // Rate the winner of an auction
 router.post(

@@ -3,6 +3,27 @@ const EmailService = require('../services/emailService');
 const AuthorizationService = require('../services/authorizationService');
 const userService = require('../services/userService');
 
+// Get user profile
+const getUserProfile = async (req, res) => {
+    try {
+        const user_id  = req.user?.user_id;
+        const userProfile = await UserService.getUserProfile(user_id);
+        return res.status(200).json({
+            success: true,
+            message: 'User profile fetched successfully',
+            data: {
+                user: userProfile
+            }
+        });
+    } catch (error) {
+        console.error('Error fetching user profile:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
+    }
+};
+
 const changeEmail = async (req, res) => {
     try {
         const user_id  = req.user?.user_id;
@@ -247,6 +268,7 @@ const viewUserRatings = async (req, res)=>{
 }
 
 module.exports = {
+    getUserProfile,
     changeEmail, 
     changeFullName, 
     changePassword, 
