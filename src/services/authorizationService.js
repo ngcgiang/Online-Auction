@@ -158,6 +158,7 @@ class AuthorizationService {
                 role: user.role,
                 rating_score: user.rating_score,
                 upgrade_at: user.upgrade_at,
+                upgrade_request: user.upgrade_request,
                 created_at: user.created_at
             };
 
