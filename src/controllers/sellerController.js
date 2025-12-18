@@ -5,7 +5,7 @@ const SellerService = require('../services/sellerService');
  */
 const requestUpgrade = async (req, res) => {
     try {
-        const userId = req.body.userId || req.user?.user_id;
+        const userId = req.user?.user_id;
         console.log(userId);
         if (!userId) {
             return res.status(400).json({

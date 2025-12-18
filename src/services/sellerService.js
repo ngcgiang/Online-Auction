@@ -22,7 +22,7 @@ class SellerService {
             }
 
             // Check if user is already a seller or admin
-            if (user.role === 'seller') {
+            if (user.role === 'seller' && new Date() - new Date(user.upgrade_at) < 7 * 24 * 60 * 60 * 1000) {
                 throw new Error('You are already a seller');
             }
 
