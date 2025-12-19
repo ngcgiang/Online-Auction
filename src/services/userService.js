@@ -69,15 +69,14 @@ class UserService {
             if (!user) {
                 throw new Error('User not found');
             }
-            user.full_name = newInfo.full_name;
-            user.email = newInfo.email;
-            user.dob = newInfo.dob;
-            await user.save();
+            
+            // Sequelize's update() method only updates fields present in newInfo
+            await user.update(newInfo);
             return user;
         }
         catch (error) {
             console.error("updateUserInfo error:", error);
-            throw new Error('Failed to update user info');
+            throw error; // Throw the original error to see what's wrong
         }
     }
 

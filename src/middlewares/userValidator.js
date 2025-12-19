@@ -33,21 +33,30 @@ const emailValidator = [
 
 const updateInfoValidator =[
     body('full_name')
+        .optional({ values: 'falsy' })
         .isString()
         .trim()
-        .notEmpty().withMessage('Full name is required')
+        //.notEmpty().withMessage('Full name is required')
         .isLength({ max: 100 })
         .withMessage('Full name must be less than 100 characters'),
     body('email')
+        .optional({ values: 'falsy' }) 
         .isEmail()
         .withMessage('Invalid email format')
         .isLength({ max: 100 })
         .withMessage('Email must be less than 100 characters'),
     body('dob')
+        .optional({ values: 'falsy' })
         .isDate()
         .withMessage('Invalid date format')
         .isBefore(new Date().toISOString().split('T')[0])
-        .withMessage('Date of birth must be before today')
+        .withMessage('Date of birth must be before today'),
+    body('address')
+        .optional({ values: 'falsy' })
+        .isString()
+        .trim()
+        .isLength({ max: 255 })
+        .withMessage('Address must be less than 255 characters')
 ]
 
 const passwordValidator = [

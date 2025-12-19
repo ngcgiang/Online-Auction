@@ -98,8 +98,37 @@ const changePassword = async (req, res) => {
 const updateUserInfo = async (req, res) => {
     try {
         const user_id  = req.user?.user_id;
-        const { full_name, email, dob } = req.body;
-        const updatedUser = await UserService.updateUserInfo(user_id, { full_name, email, dob });
+        const { full_name, email, address, dob } = req.body;
+        
+        // Create update object, only including fields that have values
+        const updateData = {};
+        
+        if (full_name && full_name.trim() !== '') {
+            updateData.full_name = full_name;
+        }
+        
+        if (email && email.trim() !== '') {
+            updateData.email = email;
+        }
+        
+        if (dob && dob.trim() !== '') {
+            updateData.dob = dob;
+        }
+
+        if (address && address.trim() !== '') {
+            updateData.address = address;
+        }
+        
+        // Check if there's anything to update
+        if (Object.keys(updateData).length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'No valid fields to update'
+            });
+        }
+        
+        const updatedUser = await UserService.updateUserInfo(user_id, updateData);
+        
         return res.status(200).json({
             success: true,
             message: 'User info updated successfully',
