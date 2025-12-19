@@ -360,7 +360,7 @@ class AdminService {
     async getAllUsers() {
     try {
         const users = await User.findAll({
-            attributes: ['user_id', 'full_name', 'email', 'role', 'is_verified'],
+            attributes: ['user_id', 'full_name', 'email', 'role', 'is_verified', 'created_at', 'dob', 'rating_score', 'address'],
             order: [['created_at', 'DESC']]
         });
 
