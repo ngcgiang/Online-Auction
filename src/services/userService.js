@@ -167,7 +167,7 @@ class UserService {
                         model: Category,
                         as: 'category',
                         attributes: ['category_id', 'category_name']
-                    }]
+                    }]  
                 }]
             });
             return list;
