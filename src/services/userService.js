@@ -144,11 +144,16 @@ class UserService {
                 include: [{
                     model: Product,
                     as: 'product',
-                    attributes: ['product_id', 'product_name', 'current_price']
+                    attributes: ['product_id', 'product_name', 'current_price','end_time','buy_now_value','status'],
+                    include: [{
+                        model: Category,
+                        as: 'category',
+                        attributes: ['category_id', 'category_name']
+                    }]
                 }]
             });
             return list;
-        } catch (error) {
+        } catch (error) {   
             console.log("viewBiddedProduct error:", error);
             throw new Error('Failed to view bidded product');
         }
