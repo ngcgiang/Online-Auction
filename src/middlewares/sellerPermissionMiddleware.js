@@ -9,7 +9,7 @@ const { User } = require('../models');
 const canCreateProduct = async (req, res, next) => {
     try {
         // Get userId from request body or authenticated user
-        const userId = req.body.userId || req.user?.user_id;
+        const userId = req.user?.user_id;
 
         if (!userId) {
             return res.status(401).json({
