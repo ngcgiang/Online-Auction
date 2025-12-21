@@ -426,6 +426,56 @@ const getMonthlyIncome = async(req,res)=>{
     }
 }
 
+const updateUserInfo = async (req, res) => {
+    try {
+        const user_id  = req.user?.user_id;
+        const { full_name, email, address, dob } = req.body;
+        
+        // Create update object, only including fields that have values
+        const updateData = {};
+        
+        if (full_name && full_name.trim() !== '') {
+            updateData.full_name = full_name;
+        }
+        
+        if (email && email.trim() !== '') {
+            updateData.email = email;
+        }
+        
+        if (dob && dob.trim() !== '') {
+            updateData.dob = dob;
+        }
+
+        if (address && address.trim() !== '') {
+            updateData.address = address;
+        }
+        
+        // Check if there's anything to update
+        if (Object.keys(updateData).length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'No valid fields to update'
+            });
+        }
+        
+        const updatedUser = await adminService.updateUserInfo(user_id, updateData);
+        
+        return res.status(200).json({
+            success: true,
+            message: 'User info updated successfully',
+            data: {
+                user: updatedUser
+            }
+        });
+    } catch (error) {
+        console.error('Error updating user info:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
+    }
+}
+
 module.exports = {
     getPendingRequests,
     approveUpgrade,
@@ -439,5 +489,6 @@ module.exports = {
     getTotalIncome,
     getNewUsers,
     getMonthlyIncome,
-    getTotalOrders
+    getTotalOrders,
+    updateUserInfo
 };

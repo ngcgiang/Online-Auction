@@ -545,6 +545,23 @@ async getTotalNewUsers() {
         throw error;
     }
 }
+
+async updateUserInfo(user_id, newInfo){
+        try{
+            const user = await User.findByPk(user_id);
+            if (!user) {
+                throw new Error('User not found');
+            }
+            
+            // Sequelize's update() method only updates fields present in newInfo
+            await user.update(newInfo);
+            return user;
+        }
+        catch (error) {
+            console.error("updateUserInfo error:", error);
+            throw error; // Throw the original error to see what's wrong
+        }
+    }
     
     
 }
