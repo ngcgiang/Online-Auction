@@ -1,4 +1,5 @@
 const express = require('express');
+const updateInfoValidator = require('../middlewares/userValidator');
 const router = express.Router();
 const { verifyAccessToken, checkRole } = require('../middlewares/authMiddleware');
 const {
@@ -40,6 +41,6 @@ router.get('/total-income',verifyAccessToken,checkRole(['admin']),getTotalIncome
 router.get('/new-users',verifyAccessToken,checkRole(['admin']),getNewUsers);
 router.get('/total-orders',verifyAccessToken,checkRole(['admin']),getTotalOrders);
 router.get('/monthly-income',verifyAccessToken,checkRole(['admin']),getMonthlyIncome);
-router.patch('/update-user-info/:id',verifyAccessToken,checkRole(['admin']),updateUserInfo);
+router.patch('/update-user-info/:id',verifyAccessToken,checkRole(['admin']),updateInfoValidator,updateUserInfo);
 
 module.exports = router;
