@@ -1,5 +1,5 @@
 const express = require('express');
-const updateInfoValidator = require('../middlewares/userValidator');
+const {updateInfoValidator} = require('../middlewares/userValidator');
 const router = express.Router();
 const { verifyAccessToken, checkRole } = require('../middlewares/authMiddleware');
 const {
