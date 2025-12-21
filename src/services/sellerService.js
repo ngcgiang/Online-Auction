@@ -1,4 +1,4 @@
-const { Product, User, ProductImage, Rating, sequelize } = require('../models');
+const { Product, User, ProductImage, Rating, Bid, RefusedBidder, sequelize } = require('../models');
 const { Op } = require('sequelize');
 
 class SellerService {
@@ -93,6 +93,54 @@ class SellerService {
             throw error;
         }
     }
+
+    /**
+     * Get bidder list
+     * @param {number} productId - ID of the product
+     * @returns {Promise<Array>} - List of bidders (excluding refused bidders)
+     */
+    async getBidderList(productId) {
+      try {
+        const bids = await Bid.findAll({
+          where: { product_id: productId },
+          include: [ { model: User, as: 'bidder', attributes: ['user_id', 'full_name', 'email', 'rating_score'] } ],
+          order: [['amount', 'DESC']],
+          subQuery: false
+        });
+
+        // Get list of refused bidders for this product
+        const refusedBidders = await RefusedBidder.findAll({
+          where: { product_id: productId },
+          attributes: ['bidder_id']
+        });
+        const refusedBidderIds = new Set(refusedBidders.map(rb => rb.bidder_id));
+
+        // Remove duplicate bidders, keep only the highest bid per user
+        const uniqueBidders = new Map();
+        bids.forEach(bid => {
+          const bidderId = bid.bidder.user_id;
+          // Skip if bidder is in refused list
+          if (refusedBidderIds.has(bidderId)) {
+            return;
+          }
+          if (!uniqueBidders.has(bidderId)) {
+            uniqueBidders.set(bidderId, bid);
+          }
+        });
+
+        return Array.from(uniqueBidders.values()).map(bid => ({
+          bidder_id: bid.bidder.user_id,
+          full_name: bid.bidder.full_name,
+          email: bid.bidder.email,
+          rating_score: bid.bidder.rating_score,
+          bid_amount: bid.amount,
+          bid_time: bid.bid_time
+        }));
+      } catch (error) {
+        throw error;
+      }
+    }
+
 
      /**
    * Get active products for a seller (endtime > current_time)

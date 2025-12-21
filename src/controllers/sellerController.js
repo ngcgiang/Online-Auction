@@ -88,6 +88,38 @@ const checkPermission = async (req, res) => {
     }
 };
 
+/**
+ * Get bidder list for a specific product
+ * GET /api/seller/products/:productId/bidders
+ */
+const getBidderList = async (req, res, next) => {
+  try {
+    const sellerId = req.user?.user_id;
+    const productId = req.params.productId;
+    if (!sellerId) {
+      return res.status(401).json({
+        success: false,
+        message: 'Authentication required'
+      });
+    }
+    const bidders = await SellerService.getBidderList(productId);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Bidder list retrieved successfully',
+      count: bidders.length,
+      data: bidders
+    });
+
+  } catch (error) {
+    console.error('Error getting bidder list:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'An error occurred while retrieving bidder list',
+      error: error.message
+    });
+  }
+};
 
 /**
  * Get active products for the current seller
@@ -161,6 +193,7 @@ const getEndedProducts = async (req, res, next) => {
 module.exports = {
     requestUpgrade,
     checkPermission,
+    getBidderList,
     getActiveProducts,
     getEndedProducts
 };
