@@ -41,6 +41,6 @@ router.get('/total-income',verifyAccessToken,checkRole(['admin']),getTotalIncome
 router.get('/new-users',verifyAccessToken,checkRole(['admin']),getNewUsers);
 router.get('/total-orders',verifyAccessToken,checkRole(['admin']),getTotalOrders);
 router.get('/monthly-income',verifyAccessToken,checkRole(['admin']),getMonthlyIncome);
-router.patch('/update-user-info/:id',verifyAccessToken,checkRole(['admin']),updateInfoValidator,updateUserInfo);
+router.patch('/update-user-info/',verifyAccessToken,checkRole(['admin']),updateInfoValidator,updateUserInfo);
 
 module.exports = router;

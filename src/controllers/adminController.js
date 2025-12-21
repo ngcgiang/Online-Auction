@@ -428,20 +428,27 @@ const getMonthlyIncome = async(req,res)=>{
 
 const updateUserInfo = async (req, res) => {
     try {
-        const user_id  = req.user?.user_id;
-        const { full_name, email, address, dob } = req.body;
-        
+        const {user_id, full_name, email, address, dob } = req.body;
+
+        // Check for user_id
+        if (!user_id) {
+            return res.status(400).json({
+                success: false,
+                message: 'User ID is required'
+            });
+        }
+
         // Create update object, only including fields that have values
         const updateData = {};
-        
+
         if (full_name && full_name.trim() !== '') {
             updateData.full_name = full_name;
         }
-        
+
         if (email && email.trim() !== '') {
             updateData.email = email;
         }
-        
+
         if (dob && dob.trim() !== '') {
             updateData.dob = dob;
         }
@@ -449,7 +456,7 @@ const updateUserInfo = async (req, res) => {
         if (address && address.trim() !== '') {
             updateData.address = address;
         }
-        
+
         // Check if there's anything to update
         if (Object.keys(updateData).length === 0) {
             return res.status(400).json({
@@ -457,9 +464,9 @@ const updateUserInfo = async (req, res) => {
                 message: 'No valid fields to update'
             });
         }
-        
+
         const updatedUser = await adminService.updateUserInfo(user_id, updateData);
-        
+
         return res.status(200).json({
             success: true,
             message: 'User info updated successfully',
@@ -469,9 +476,11 @@ const updateUserInfo = async (req, res) => {
         });
     } catch (error) {
         console.error('Error updating user info:', error);
+        // Return error message for debugging (remove in production)
         return res.status(500).json({
             success: false,
-            message: 'Internal server error'
+            message: 'Internal server error',
+            error: error.message // Add this line for debugging
         });
     }
 }
