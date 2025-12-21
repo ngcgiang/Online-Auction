@@ -1,4 +1,4 @@
-const { User, Bid , Product, Watchlist, Rating } = require('../models');
+const { User, Bid , Product, Watchlist, Rating, Category } = require('../models');
 const bcrypt = require('bcrypt');
 
 class UserService {
@@ -160,7 +160,14 @@ class UserService {
                 include: [{
                     model: Product,
                     as: 'product',
-                    attributes: ['product_id', 'product_name', 'current_price']
+                    attributes: [
+                        'product_id', 'product_name', 'current_price', 'end_time', 'buy_now_value', 'status'
+                    ],
+                    include: [{
+                        model: Category,
+                        as: 'category',
+                        attributes: ['category_id', 'category_name']
+                    }]
                 }]
             });
             return list;
