@@ -141,6 +141,22 @@ class SellerService {
       }
     }
 
+    async getRefusedBidders(productId) {
+      try {
+        const refusedBidders = await RefusedBidder.findAll({
+          where: { product_id: productId },
+          include: [ { model: User, as: 'bidder', attributes: ['user_id', 'full_name', 'email', 'rating_score'] } ]
+        });
+        return refusedBidders.map(rb => ({
+          bidder_id: rb.bidder.user_id,
+          full_name: rb.bidder.full_name,
+          email: rb.bidder.email,
+          rating_score: rb.bidder.rating_score
+        }));
+      } catch (error) {
+        throw error;
+      }
+    }
 
      /**
    * Get active products for a seller (endtime > current_time)

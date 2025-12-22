@@ -121,6 +121,27 @@ const getBidderList = async (req, res, next) => {
   }
 };
 
+const getRefusedBidders = async (req, res, next) => {
+  try {
+    const productId = req.params.productId;
+    const bidders = await SellerService.getRefusedBidders(productId);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Refused bidder list retrieved successfully',
+      count: bidders.length,
+      data: bidders
+    });
+  } catch (error) {
+    console.error('Error getting refused bidder list:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'An error occurred while retrieving refused bidder list',
+      error: error.message
+    });
+  }
+};
+
 /**
  * Get active products for the current seller
  * GET /api/seller/products
@@ -195,5 +216,6 @@ module.exports = {
     checkPermission,
     getBidderList,
     getActiveProducts,
-    getEndedProducts
+    getEndedProducts,
+    getRefusedBidders
 };

@@ -7,7 +7,8 @@ const {
     checkPermission,
     getBidderList,
     getActiveProducts,
-    getEndedProducts
+    getEndedProducts,
+    getRefusedBidders
 } = require('../controllers/sellerController');
 
 // User request to upgrade to Seller
@@ -25,4 +26,7 @@ router.get('/products', verifyAccessToken, checkRole(['seller']), getActiveProdu
 // Get ended products with winner info
 router.get('/products/ended', verifyAccessToken, checkRole(['seller']), getEndedProducts);
 
+// Get refused bidders for a specific product
+router.get('/products/:productId/refused-bidders', getRefusedBidders);
+    
 module.exports = router;
