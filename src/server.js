@@ -69,19 +69,6 @@ app.use('/api/qa', qaRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/bids', bidRoutes);
 
-// HTML Routes for client pages
-app.get('/product/:id', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'product-detail-client.html'));
-});
-
-app.get('/homepage', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'homepage-client.html'));
-});
-
-app.get('/chat-demo', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'chat-demo.html'));
-});
-
 // Basic route
 app.get('/', (req, res) => {
   res.json({ message: 'Auction API is running' });
