@@ -15,7 +15,8 @@ const {
   resetPassword,
   viewWatchList,
   viewWonProduct,
-  viewUserRatings
+  viewUserRatings,
+  viewReviewedRatings
 
 } = require('../controllers/userController');
 const { emailValidator, passwordValidator, updateInfoValidator } = require('../middlewares/userValidator');
@@ -53,5 +54,6 @@ router.patch('/new-password',resetPassword);
 router.get('/watchlist', verifyAccessToken, viewWatchList);
 router.get('/won-products',verifyAccessToken,viewWonProduct);
 router.get('/ratings', verifyAccessToken,viewUserRatings);
+router.get('/ratings/reviewed', verifyAccessToken,viewReviewedRatings);
 
 module.exports = router;

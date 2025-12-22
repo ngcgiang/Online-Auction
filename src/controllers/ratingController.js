@@ -1,5 +1,6 @@
 const sellerService = require('../services/sellerService');
 const { validationResult } = require('express-validator');
+const { getAllRatings } = require('../services/userService');
 
 /**
  * Rate the winner of an auction

@@ -296,6 +296,26 @@ const viewUserRatings = async (req, res)=>{
     
 }
 
+const viewReviewedRatings = async (req, res)=>{
+    try{
+        const user_id = req.user?.user_id;
+        const ratings = await userService.getReviewedRatings(user_id);
+        return res.status(200).json({
+            success: true,
+            message: "fetch reviewer ratings",
+            data: {
+                list: ratings
+            }
+        });
+    }catch(error){
+        console.error("error fetching ratings")
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        })
+    }
+}
+
 module.exports = {
     getUserProfile,
     changeEmail, 
@@ -307,5 +327,6 @@ module.exports = {
     resetPassword, 
     viewWatchList,
     viewWonProduct,
-    viewUserRatings 
+    viewUserRatings,
+    viewReviewedRatings
 };   

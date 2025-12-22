@@ -219,6 +219,20 @@ class UserService {
             throw new Error('failed to get all ratings');
         }
     }
+
+    async getReviewedRatings(user_id){
+        try{
+            const ratings = await Rating.findAll({
+                where:{
+                    reviewer_id : user_id
+                }
+            });
+            return ratings;
+        }catch(error){
+            console.error("getReviewedRatings error:",error);
+            throw new Error('failed to get reviewed ratings');
+        }
+    }
   
 }
 module.exports = new UserService();
