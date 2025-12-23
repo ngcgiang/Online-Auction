@@ -140,11 +140,11 @@ class UserService {
     async viewBiddedProduct(bidder_id) {
         try {
             const list = await Bid.findAll({
-                where: { bidder_id},
+                where: { bidder_id },
                 include: [{
                     model: Product,
                     as: 'product',
-                    attributes: ['product_id', 'product_name', 'current_price','end_time','buy_now_value','status'],
+                    attributes: ['product_id', 'product_name', 'current_price', 'end_time', 'buy_now_value', 'status'],
                     where: { status: 'active' },
                     include: [{
                         model: Category,
@@ -153,7 +153,16 @@ class UserService {
                     }]
                 }]
             });
-            return list;
+            // Filter to only unique products by product_id
+            const uniqueProducts = [];
+            const seen = new Set();
+            for (const bid of list) {
+                if (bid.product && !seen.has(bid.product.product_id)) {
+                    uniqueProducts.push(bid.product);
+                    seen.add(bid.product.product_id);
+                }
+            }
+            return uniqueProducts;
         } catch (error) {   
             console.log("viewBiddedProduct error:", error);
             throw new Error('Failed to view bidded product');
