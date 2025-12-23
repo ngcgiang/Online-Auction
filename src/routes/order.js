@@ -11,7 +11,8 @@ const {
   cancelOrder, 
   processPayment,
   markOrderShipped,
-  markOrderDelivered 
+  markOrderDelivered,
+  getOrderStatus
 } = require('../controllers/orderController');
 
 /**
@@ -66,6 +67,17 @@ router.put(
   validateUpdateDeliveryStatus,
   handleValidationErrors,
   markOrderDelivered
+);
+
+/**
+ * Get order status for a product
+ * GET /api/orders/status/:productId
+ * Requires: JWT authentication
+ */
+router.get(
+  '/status/:productId',
+  verifyAccessToken,
+  getOrderStatus
 );
 
 module.exports = router;

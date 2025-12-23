@@ -416,6 +416,18 @@ async function markAsShipped(sellerId, productId) {
 }
 
 /**
+ * Get order status by product ID
+ * 
+ * @param {number} productId - Product ID to get order status for
+ */
+async function getOrderStatus(productId) {
+  const order = await Order.findOne({
+    where: { product_id: productId }
+  });
+  return order;
+}
+
+/**
  * Mark order as delivered by winner
  * Validates winner identity, shipped status, and prevents duplicate confirmation
  * 
@@ -523,5 +535,6 @@ module.exports = {
   cancelTransaction,
   processWinnerPayment,
   markAsShipped,
-  markAsDelivered
+  markAsDelivered,
+  getOrderStatus
 };

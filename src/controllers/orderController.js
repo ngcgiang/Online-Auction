@@ -281,9 +281,44 @@ async function markOrderDelivered(req, res) {
   }
 }
 
+/**
+ * Get order status for a product
+ * GET /api/orders/status/:product_id
+ * @param {Object} req - Express request object
+ * @param {Object} req.user - User info from JWT (contains user_id)
+ * @param {Object} req.params - Request parameters
+ * @param {number} req.params.productId - Product ID to get order status
+ * @param {Object} res - Express response object
+ */
+async function getOrderStatus(req, res) {
+  try {
+    // Extract user ID from JWT token
+    const userId = req.user.user_id;
+    // Extract productId from request parameters
+    const { productId } = req.params;
+    // Call service to get order status
+    const result = await orderService.getOrderStatus(productId);
+    // Return success response
+    return res.status(200).json({
+      success: true,
+      message: 'Order status retrieved successfully',
+      data: result
+    });
+  } catch (error) {
+    console.error('Error in getOrderStatus controller:', error);
+    // Generic server error
+    return res.status(500).json({
+      success: false,
+      message: 'Lỗi server khi lấy trạng thái đơn hàng',
+      error: error.message
+    });
+  }
+}
+
 module.exports = {
   cancelOrder,
   processPayment,
   markOrderShipped,
-  markOrderDelivered
+  markOrderDelivered,
+  getOrderStatus
 };
