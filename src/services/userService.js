@@ -140,11 +140,12 @@ class UserService {
     async viewBiddedProduct(bidder_id) {
         try {
             const list = await Bid.findAll({
-                where: { bidder_id },
+                where: { bidder_id},
                 include: [{
                     model: Product,
                     as: 'product',
                     attributes: ['product_id', 'product_name', 'current_price','end_time','buy_now_value','status'],
+                    where: { status: 'active' },
                     include: [{
                         model: Category,
                         as: 'category',
@@ -187,7 +188,7 @@ class UserService {
         const wonProducts = await Product.findAll({
             where: {
                 winner_id: user_id,
-                //status: 'sold'        
+                status: 'sold'        
             },
             include: [
                 {
