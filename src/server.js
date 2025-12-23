@@ -18,6 +18,7 @@ const userRoutes = require('./routes/user');
 const orderRoutes = require('./routes/order');
 const qaRoutes = require('./routes/qa');
 const chatRoutes = require('./routes/chat');
+const paymentRoutes = require('./routes/payment');
 const errorHandler = require('./middlewares/errorHandler');
 const logger = require('./utils/logger');
 const morgan = require('morgan');
@@ -68,6 +69,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/qa', qaRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/bids', bidRoutes);
+app.use('/api/payments', paymentRoutes);
 
 // Basic route
 app.get('/', (req, res) => {

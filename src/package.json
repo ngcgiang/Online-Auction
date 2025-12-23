@@ -20,6 +20,7 @@
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
     "sql2": "^0.0.1",
+    "stripe": "^20.1.0",
     "winston": "^3.18.3",
     "winston-loki": "^6.1.3"
   },
