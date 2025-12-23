@@ -80,7 +80,6 @@ async function cancelOrder(req, res) {
  * @param {number} req.body.totalAmount - Payment amount
  * @param {string} req.body.paymentMethod - Payment method
  * @param {string} req.body.shippingAddress - Delivery address
- * @param {string} req.body.imgEvidence - Payment proof URL
  * @param {Object} res - Express response object
  */
 async function processPayment(req, res) {
@@ -104,7 +103,6 @@ async function processPayment(req, res) {
       totalAmount: req.body.totalAmount,
       paymentMethod: req.body.paymentMethod,
       shippingAddress: req.body.shippingAddress,
-      imgEvidence: req.body.imgEvidence
     };
     
     // Call service to process payment

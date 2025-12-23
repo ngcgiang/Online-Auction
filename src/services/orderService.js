@@ -102,7 +102,6 @@ async function cancelTransaction(sellerId, productId) {
         winner_id: product.winner_id,
         seller_id: sellerId,
         total_amount: product.current_price,
-        img_evidence: 'N/A',
         payment_method: 'N/A',
         shipping_address: null,
         order_status: 'cancelled',
@@ -168,7 +167,6 @@ async function cancelTransaction(sellerId, productId) {
  * @param {number} paymentData.totalAmount - Payment amount
  * @param {string} paymentData.paymentMethod - Payment method (MOMO, ZALOPAY, etc.)
  * @param {string} paymentData.shippingAddress - Delivery address
- * @param {string} paymentData.imgEvidence - Payment proof URL
  * @returns {Promise<Object>} Success message and order details
  * @throws {Error} Validation or business logic errors
  */
@@ -177,7 +175,7 @@ async function processWinnerPayment(userId, paymentData) {
   const t = await sequelize.transaction();
   
   try {
-    const { productId, totalAmount, paymentMethod, shippingAddress, imgEvidence } = paymentData;
+    const { productId, totalAmount, paymentMethod, shippingAddress } = paymentData;
     
     // Step 1: Fetch product with winner information
     const product = await Product.findByPk(productId, {
@@ -227,9 +225,9 @@ async function processWinnerPayment(userId, paymentData) {
     }
     
     // Step 5: Required Fields Validation
-    if (!paymentMethod || !shippingAddress || !imgEvidence) {
+    if (!paymentMethod || !shippingAddress) {
       await t.rollback();
-      const error = new Error('Thiếu thông tin bắt buộc: paymentMethod, shippingAddress, hoặc imgEvidence');
+      const error = new Error('Thiếu thông tin bắt buộc: paymentMethod hoặc shippingAddress');
       error.statusCode = 400;
       throw error;
     }
@@ -249,7 +247,6 @@ async function processWinnerPayment(userId, paymentData) {
         winner_id: userId,
         seller_id: product.seller_id,
         total_amount: totalAmount,
-        img_evidence: imgEvidence,
         payment_method: paymentMethod,
         shipping_address: shippingAddress,
         order_status: 'paid',
@@ -276,7 +273,6 @@ async function processWinnerPayment(userId, paymentData) {
       // Update existing unpaid order to paid
       await existingOrder.update({
         total_amount: totalAmount,
-        img_evidence: imgEvidence,
         payment_method: paymentMethod,
         shipping_address: shippingAddress,
         order_status: 'paid',
@@ -300,7 +296,6 @@ async function processWinnerPayment(userId, paymentData) {
         total_amount: order.total_amount,
         payment_method: order.payment_method,
         shipping_address: order.shipping_address,
-        img_evidence: order.img_evidence,
         order_status: order.order_status,
         delivery_status: order.delivery_status,
         created_at: order.created_at

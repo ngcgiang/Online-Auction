@@ -301,10 +301,6 @@ components:
           type: number
           format: decimal
           example: 25500000
-        img_evidence:
-          type: string
-          example: "https://cdn.example.com/payment/abc123.jpg"
-          description: "URL ảnh chứng từ thanh toán"
         payment_method:
           type: string
           example: "Bank Transfer"

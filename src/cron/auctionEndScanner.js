@@ -115,9 +115,10 @@ class AuctionEndScanner {
     try {
       console.log(`  🔄 Processing product #${product.product_id}: "${product.product_name}"`);
 
-      // Step A: Update status to 'expired' immediately (prevent double processing)
+      // Step A: Update status based on winner existence
+      const newStatus = product.winner_id !== null ? 'sold' : 'expired';
       await product.update(
-        { status: 'expired' },
+        { status: newStatus },
         { transaction }
       );
 

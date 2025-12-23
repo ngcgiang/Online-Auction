@@ -35,10 +35,6 @@ const Order = sequelize.define('Order', {
     type: DataTypes.DECIMAL(15, 2),
     allowNull: false
   },
-  img_evidence: {
-    type: DataTypes.STRING(255),
-    allowNull: false
-  },
   payment_method: {
     type: DataTypes.STRING(50),
     allowNull: true

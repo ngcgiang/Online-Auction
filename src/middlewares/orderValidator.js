@@ -44,15 +44,6 @@ const validateProcessPayment = [
     .trim()
     .isLength({ min: 10 })
     .withMessage('shippingAddress phải có ít nhất 10 ký tự'),
-  
-  body('imgEvidence')
-    .notEmpty()
-    .withMessage('imgEvidence là bắt buộc')
-    .isString()
-    .withMessage('imgEvidence phải là chuỗi')
-    .trim()
-    .isURL()
-    .withMessage('imgEvidence phải là URL hợp lệ')
 ];
 
 /**

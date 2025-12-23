@@ -124,7 +124,6 @@ CREATE TABLE Orders (
     seller_id INT NOT NULL,
     
     total_amount DECIMAL(15, 2) NOT NULL,
-    img_evidence VARCHAR(255), -- Ảnh bằng chứng thanh toán
     payment_method VARCHAR(50), -- MOMO, ZALOPAY...
     shipping_address VARCHAR(255),
     
