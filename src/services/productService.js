@@ -34,7 +34,7 @@ class ProductService {
       
       // Get all categories that match the keyword
       const categories = await Category.findAll({
-        attributes: ['category_id', 'category_name']
+        attributes: ['category_id', 'category_name', 'parent_id']
       });
       
       const matchingCategoryIds = categories
@@ -63,18 +63,19 @@ class ProductService {
     }
 
     // Handle category filter (explicit category parameter)
+    // Supports 2-level category hierarchy (Parent and Child)
     if (category) {
       const normalizedCategory = removeVietnameseAccents(category);
       
       const categories = await Category.findAll({
-        attributes: ['category_id', 'category_name']
+        attributes: ['category_id', 'category_name', 'parent_id']
       });
       
-      const matchingCategoryIds = categories
-        .filter(cat => removeVietnameseAccents(cat.category_name).includes(normalizedCategory))
-        .map(cat => cat.category_id);
+      // Find all categories matching the normalized name
+      const matchingCategories = categories
+        .filter(cat => removeVietnameseAccents(cat.category_name).includes(normalizedCategory));
 
-      if (matchingCategoryIds.length === 0) {
+      if (matchingCategories.length === 0) {
         return {
           products: [],
           pagination: {
@@ -88,9 +89,35 @@ class ProductService {
         };
       }
 
+      // Collect all category IDs based on parent/child hierarchy
+      const categoryIdsSet = new Set();
+
+      for (const cat of matchingCategories) {
+        if (cat.parent_id === null) {
+          // If Parent Category: Add parent + all children
+          categoryIdsSet.add(cat.category_id);
+          const children = categories.filter(c => c.parent_id === cat.category_id);
+          children.forEach(child => categoryIdsSet.add(child.category_id));
+        } else {
+          // If Child Category: Add only this child
+          categoryIdsSet.add(cat.category_id);
+        }
+      }
+
+      const matchingCategoryIds = Array.from(categoryIdsSet);
+
       // If both keyword and category, use AND condition
       whereConditions.category_id = {
         [Op.in]: matchingCategoryIds
+      };
+    }
+
+    // Filter by new products: only if newMinutes is provided
+    // If newMinutes is null/undefined, return all products regardless of start_time
+    if (newMinutes && newMinutes > 0) {
+      const newProductThreshold = new Date(Date.now() - newMinutes * 60 * 1000);
+      whereConditions.start_time = {
+        [Op.gt]: newProductThreshold
       };
     }
 
@@ -145,12 +172,9 @@ class ProductService {
       distinct: true
     });
 
-    // Mark new products and enrich with bid data
-    const newProductThreshold = new Date(Date.now() - newMinutes * 60 * 1000);
+    // Enrich products with bid data
     const enrichedProducts = products.map(product => {
       const productData = product.toJSON();
-      const createdAt = new Date(productData.start_time);
-      productData.isNew = createdAt > newProductThreshold;
       
       // Get avatar (first image)
       productData.avatar = productData.images && productData.images.length > 0 
@@ -202,6 +226,7 @@ class ProductService {
 
   /**
    * Get products by category with pagination
+   * Supports 2-level category hierarchy (Parent and Child)
    * @param {Object} queryParams - { category, page, pageSize }
    * @returns {Object} - { products, pagination }
    */
@@ -223,7 +248,26 @@ class ProductService {
         throw new Error('Category not found');
       }
 
-      whereConditions.category_id = categoryRecord.category_id;
+      // Check if this is a parent category or child category
+      const isParentCategory = categoryRecord.parent_id === null;
+
+      if (isParentCategory) {
+        // If Parent Category: Get all products from parent AND all child categories
+        const childCategories = await Category.findAll({
+          where: { parent_id: categoryRecord.category_id },
+          attributes: ['category_id']
+        });
+
+        const childCategoryIds = childCategories.map(cat => cat.category_id);
+        const allCategoryIds = [categoryRecord.category_id, ...childCategoryIds];
+
+        whereConditions.category_id = {
+          [Op.in]: allCategoryIds
+        };
+      } else {
+        // If Child Category: Get products only from this child category
+        whereConditions.category_id = categoryRecord.category_id;
+      }
     }
 
     // Query products

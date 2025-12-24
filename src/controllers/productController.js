@@ -17,7 +17,7 @@ const searchProducts = async (req, res, next) => {
       page = 1, 
       pageSize = 12,
       sortBy = 'time',
-      newMinutes = 60
+      newMinutes
     } = req.query;
 
     const result = await productService.searchProducts({
@@ -26,7 +26,7 @@ const searchProducts = async (req, res, next) => {
       page: parseInt(page),
       pageSize: parseInt(pageSize),
       sortBy,
-      newMinutes: parseInt(newMinutes)
+      newMinutes: newMinutes ? parseInt(newMinutes) : null
     });
 
     return res.status(200).json({
