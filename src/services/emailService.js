@@ -44,7 +44,7 @@ class emailService {
             bcc: toEmails,
             subject: 'Thông báo từ hệ thống Online Auction',
             text: message,
-            html: `<a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/products/${product_id}"`
+            html: `<a href="${process.env.FRONTEND_URL}/product/${product_id}">${process.env.FRONTEND_URL}/product/${product_id}</a>`
         };
 
         await transporter.sendMail(mailOptions);
@@ -74,7 +74,7 @@ class emailService {
                         <p><strong>Thời gian:</strong> ${new Date().toLocaleString('vi-VN')}</p>
                         
                         <div style="margin-top: 30px; text-align: center;">
-                            <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/products/${bidData.product_id}" 
+                            <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/product/${bidData.product_id}" 
                                style="background-color: #4CAF50; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
                                 Xem chi tiết sản phẩm
                             </a>
@@ -122,7 +122,7 @@ class emailService {
                         </div>
                         
                         <div style="margin-top: 30px; text-align: center;">
-                            <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/products/${bidData.product_id}" 
+                            <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/products/${bidData.product_id}" 
                                style="background-color: #2196F3; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
                                 Theo dõi đấu giá
                             </a>
@@ -170,7 +170,7 @@ class emailService {
                         </div>
                         
                         <div style="margin-top: 30px; text-align: center;">
-                            <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/products/${bidData.product_id}" 
+                            <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/product/${bidData.product_id}" 
                                style="background-color: #FF9800; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
                                 Đấu giá lại ngay
                             </a>
@@ -217,7 +217,7 @@ class emailService {
                         </div>
                         
                         <div style="margin-top: 30px; text-align: center;">
-                            <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/seller/products" 
+                            <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/seller/products" 
                                style="background-color: #9E9E9E; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
                                 Quản lý sản phẩm
                             </a>
@@ -265,7 +265,7 @@ class emailService {
                         </div>
                         
                         <div style="margin-top: 30px; text-align: center;">
-                            <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/orders/${auctionData.product_id}" 
+                            <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/orders/${auctionData.product_id}" 
                                style="background-color: #4CAF50; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
                                 Xem chi tiết đơn hàng
                             </a>
@@ -313,11 +313,11 @@ class emailService {
                         </div>
                         
                         <div style="margin-top: 30px; text-align: center;">
-                            <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/orders/${auctionData.product_id}" 
+                            <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/orders/${auctionData.product_id}" 
                                style="background-color: #FF9800; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
                                 Xem đơn hàng & Thanh toán
                             </a>
-                        </div>
+                        </div>  
                         
                         <p style="margin-top: 30px; color: #777; font-size: 12px;">
                             Email này được gửi tự động từ hệ thống Online Auction. Vui lòng không trả lời email này.

@@ -205,7 +205,11 @@ class UserService {
                     as: 'seller',
                     attributes: ['user_id', 'full_name', 'email']
                 }
-            ],
+            ],include: [{
+                model: Category,
+                as: 'category',
+                attributes: ['category_id', 'category_name']
+            }],
             order: [['end_time', 'DESC']] 
         });
         

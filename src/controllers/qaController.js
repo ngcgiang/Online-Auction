@@ -38,32 +38,32 @@ const addComment = async (req, res) => {
             // A bidder/user is commenting -> Notify the seller
             const link = `${process.env.FRONTEND_URL}/product/${product_id}`;
             const message = `Có câu hỏi mới về sản phẩm "${name}" của bạn.`;
-            
+
             // Publish to message queue instead of direct email
             await mqService.publishToQueue('email_queue', {
                 event: 'QA_NOTIFICATION',
                 data: {
                     email: seller_email,
                     content: message,
-                    product_id: link
+                    product_id: product_id // <-- send only product_id, not link
                 }
             });
-            
+
         } else {
             // The seller is commenting (replying) -> Notify all bidders
             const emailList = await bidService.getBidddedUsersEmailsFromProduct(product_id);
-            
+
             if (emailList && emailList.length > 0) {    
                 const link = `${process.env.FRONTEND_URL}/product/${product_id}`;
                 const message = `Người bán đã trả lời câu hỏi về sản phẩm "${name}".`;
-                
+
                 // Publish to message queue for each bidder
                 await mqService.publishToQueue('email_queue', {
                     event: 'QA_NOTIFICATION',
                     data: {
                         email: emailList,
                         content: message,
-                        product_id: link
+                        product_id: product_id // <-- send only product_id, not link
                     }
                 });
             }
