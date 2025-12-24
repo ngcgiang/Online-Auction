@@ -189,7 +189,7 @@ class AdminService {
             const existingCategory = await Category.findOne({
                 where: {
                     category_name: category_name.trim(),
-                    parent_1id: parent_category_id
+                    parent_id: parent_category_id
                 }
             });
 
@@ -209,13 +209,13 @@ class AdminService {
             // Create new category
             const newCategory = await Category.create({
                 category_name: category_name.trim(),
-                parent_category_id: parent_category_id
+                parent_id: parent_category_id
             });
 
             return {
                 category_id: newCategory.category_id,
                 category_name: newCategory.category_name,
-                parent_category_id: newCategory.parent_category_id,
+                parent_id: newCategory.parent_category_id,
                 created_at: newCategory.created_at,
                 message: 'Category created successfully'
             };

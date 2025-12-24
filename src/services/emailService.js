@@ -39,12 +39,30 @@ class emailService {
     async sendQAEmail(toEmails, message, product_id) {
         const transporter = this._createTransporter();
 
+        const productLink = `${process.env.FRONTEND_URL}/product/${product_id}`;
         const mailOptions = {
             from: process.env.EMAIL_USER,
             bcc: toEmails,
             subject: 'Thông báo từ hệ thống Online Auction',
-            text: message,
-            html: `<a href="${process.env.FRONTEND_URL}/product/${product_id}">${process.env.FRONTEND_URL}/product/${product_id}</a>`
+            text: `${message}\n${productLink}`,
+            html: `
+                <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4;">
+                    <div style="max-width: 600px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 10px;">
+                        <h2 style="color: #2196F3;">📢 Thông báo Q&A sản phẩm</h2>
+                        <hr style="border: 1px solid #eee;">
+                        <p style="font-size: 16px; color: #333;">${message}</p>
+                        <div style="margin-top: 20px;">
+                            <a href="${productLink}" 
+                               style="background-color: #2196F3; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
+                                Xem chi tiết sản phẩm
+                            </a>
+                        </div>
+                        <p style="margin-top: 30px; color: #777; font-size: 12px;">
+                            Email này được gửi tự động từ hệ thống Online Auction. Vui lòng không trả lời email này.
+                        </p>
+                    </div>
+                </div>
+            `
         };
 
         await transporter.sendMail(mailOptions);

@@ -139,31 +139,32 @@ const createNewCategory = async(req, res) => {
     try {
         // Log the incoming request for debugging
         console.log('Request body:', req.body);
-        
-        const { newCategory, parentCategoryID } = req.body;
-        
+
+        // Lấy trực tiếp từ req.body thay vì req.body.newCategory
+        const { category_name, parent_id } = req.body;
+
         // Validate input
-        if (!newCategory) {
+        if (!category_name) {
             return res.status(400).json({
                 success: false,
                 message: 'Category name is required'
             });
         }
-        
+
         // Call service with proper parameter names
         const result = await AdminService.createNewCategory(
-            newCategory, 
-            parentCategoryID || null
+            category_name, 
+            parent_id || null
         );
-        
+
         console.log('Category created:', result);
-        
+
         return res.status(201).json({
             success: true,
             message: 'New category created successfully',
             data: result
         });
-        
+
     } catch (error) {
         // Log the actual error for debugging
         console.error('Error creating category:', error.message);
