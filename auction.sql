@@ -6,7 +6,8 @@ USE auction_db;
 CREATE TABLE Users (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
     email VARCHAR(100) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL, -- Lưu hash bcrypt
+    google_id VARCHAR(255) UNIQUE DEFAULT NULL,
+    password VARCHAR(255), -- Lưu hash bcrypt
     full_name VARCHAR(100) NOT NULL,
     address VARCHAR(255),
     dob DATE,

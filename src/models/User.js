@@ -12,9 +12,14 @@ const User = sequelize.define('User', {
     allowNull: false,
     unique: true
   },
+  google_id: {
+    type: DataTypes.STRING(255),
+    allowNull: true,
+    unique: true
+  },
   password: {
     type: DataTypes.STRING(255),
-    allowNull: false
+    allowNull: true
   },
   full_name: {
     type: DataTypes.STRING(100),

@@ -202,11 +202,64 @@ const refreshToken = async (req, res) => {
     }
 };
 
+/**
+ * Google OAuth2 Login
+ * Accepts Google ID Token from frontend
+ * Handles user registration/login via Google
+ */
+const googleLogin = async (req, res) => {
+    try {
+        const { idToken } = req.body;
+
+        // Validate input
+        if (!idToken) {
+            return res.status(400).json({
+                success: false,
+                message: 'Google ID Token is required'
+            });
+        }
+
+        // Call service to handle Google login
+        const result = await AuthorizationService.googleLogin(idToken);
+
+        return res.status(200).json({
+            success: true,
+            message: 'Google login successful',
+            data: result
+        });
+
+    } catch (error) {
+        // Handle specific errors
+        if (error.message.includes('Invalid Google token')) {
+            return res.status(401).json({
+                success: false,
+                message: 'Invalid or expired Google token'
+            });
+        }
+
+        if (error.message.includes('Google token has expired')) {
+            return res.status(401).json({
+                success: false,
+                message: 'Google token has expired, please try again'
+            });
+        }
+
+        // Log unexpected errors for debugging
+        console.error('Google login error:', error.message);
+
+        return res.status(500).json({
+            success: false,
+            message: 'An error occurred during Google login'
+        });
+    }
+};
+
 module.exports = {
     registerUser,
     verifyUser,
     resendOtp,
     login,
     logout,
-    refreshToken
+    refreshToken,
+    googleLogin
 };
