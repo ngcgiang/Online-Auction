@@ -19,6 +19,8 @@ const {
     updateUserInfo
 } = require('../controllers/adminController');
 
+const { getAuctionConfig, createSystemConfig, updateSystemConfig } = require('../utils/configHelper');
+
 // Get all pending upgrade requests
 router.get('/pending-requests', verifyAccessToken, checkRole(['admin']), getPendingRequests);
 
@@ -42,5 +44,39 @@ router.get('/new-users',verifyAccessToken,checkRole(['admin']),getNewUsers);
 router.get('/total-orders',verifyAccessToken,checkRole(['admin']),getTotalOrders);
 router.get('/monthly-income',verifyAccessToken,checkRole(['admin']),getMonthlyIncome);
 router.patch('/update-user-info/',verifyAccessToken,checkRole(['admin']),updateInfoValidator,updateUserInfo);
+
+// Config
+router.get('/config', verifyAccessToken, checkRole(['admin']), async (req, res, next) => {
+    try {
+        // Giả sử bạn có một hàm để lấy cấu hình hệ thống
+        const config = await getAuctionConfig(); // Cần implement hàm này trong utils hoặc services
+        res.json(config);
+    } catch (error) {
+        next(error);
+    }
+});
+
+router.post('/config', verifyAccessToken, checkRole(['admin']), async (req, res, next) => {
+    try {
+        const newConfig = req.body;
+        // Giả sử bạn có một hàm để tạo cấu hình hệ thống
+        const createdConfig = await createSystemConfig(newConfig);
+        res.json(createdConfig);
+    }
+    catch (error) {
+        next(error);
+    }
+});
+
+router.patch('/config', verifyAccessToken, checkRole(['admin']), async (req, res, next) => {
+    try {
+        const newConfig = req.body;
+        // Giả sử bạn có một hàm để cập nhật cấu hình hệ thống
+        const updatedConfig = await updateSystemConfig(newConfig);
+        res.json(updatedConfig);
+    } catch (error) {
+        next(error);
+    }
+});
 
 module.exports = router;

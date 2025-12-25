@@ -25,4 +25,30 @@ async function getAuctionConfig() {
   };
 }
 
-module.exports = { getAuctionConfig };
+async function createSystemConfig(newConfig) {
+  const createdConfigs = [];
+  for (const [key, value] of Object.entries(newConfig)) {
+    const createdConfig = await SystemSetting.create({
+      setting_key: key,
+      setting_value: value
+    });
+    createdConfigs.push(createdConfig);
+  }
+  return createdConfigs;
+}
+
+async function updateSystemConfig(newConfig) {
+  const updatedConfigs = [];
+  for (const [key, value] of Object.entries(newConfig)) {
+    const updatedConfig = await SystemSetting.update(
+      { setting_value: value },
+      { where: { setting_key: key }, returning: true }
+    );
+    if (updatedConfig[0] > 0) {
+      updatedConfigs.push(updatedConfig[1][0]);
+    }
+  }
+  return updatedConfigs;
+}
+
+module.exports = { getAuctionConfig, createSystemConfig, updateSystemConfig };
