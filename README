@@ -1,0 +1,345 @@
+Một nền tảng đấu giá trực tuyến hiện đại được xây dựng với **Node.js**, **Express.js**, và **MySQL**, hỗ trợ bidding real-time, thanh toán, và quản lý seller/admin.
+
+## ✨ Tính Năng Chính
+
+### 👤 Người Dùng
+-  Đăng ký/Đăng nhập với email hoặc Google OAuth
+-  Quản lý hồ sơ cá nhân (avatar, email, mật khẩu)
+-  Đấu giá trực tuyến với Proxy Bidding (tương tự eBay)
+-  Quản lý danh sách theo dõi (Watchlist)
+-  Xem lịch sử đấu giá và sản phẩm đã thắng
+-  Q&A và nhận thông báo real-time
+-  Đánh giá và xem rating của người bán
+
+### 🏪 Người Bán
+-  Nâng cấp từ Bidder lên Seller
+-  Tạo sản phẩm với hình ảnh (upload Cloudinary)
+-  Quản lý đấu giá (từ chối người đấu giá, cập nhật mô tả)
+-  Xem danh sách người đấu giá
+-  Gửi sản phẩm cho người thắng
+-  Chat trực tiếp với người thắng
+
+### ⚙️ Quản Trị Viên
+-  Quản lý người dùng (xóa, cập nhật thông tin)
+-  Quản lý sản phẩm (xóa, duyệt)
+-  Quản lý danh mục (thêm, sửa, xóa)
+-  Xem thống kê (tổng doanh thu, đơn hàng, người dùng mới)
+-  Duyệt yêu cầu nâng cấp seller
+
+## 🛠️ Công Nghệ Sử Dụng
+
+| Lĩnh Vực | Công Nghệ |
+|---------|----------|
+| **Backend** | Node.js, Express.js |
+| **Database** | MySQL, Sequelize ORM |
+| **Authentication** | JWT, Google OAuth 2.0 |
+| **Real-time** | Socket.io |
+| **Image Upload** | Cloudinary |
+| **Payment** | Stripe |
+| **Message Queue** | RabbitMQ |
+| **Monitoring** | Prometheus, Grafana, Loki |
+| **Email** | Nodemailer |
+| **API Docs** | Swagger/OpenAPI |
+
+## 📋 Yêu Cầu Hệ Thống
+
+```
+- Node.js >= 14.0.0
+- MySQL >= 5.7
+- npm >= 6.0.0
+```
+
+## 🚀 Cài Đặt & Chạy
+
+### 1️⃣ Clone Repository
+
+```bash
+git clone https://github.com/yourusername/Online-Auction.git
+cd Online-Auction
+```
+
+### 2️⃣ Cài Đặt Dependencies
+
+```bash
+cd src
+npm install
+```
+
+### 3️⃣ Cấu Hình Environment Variables
+
+Tạo file .env trong thư mục src:
+
+```env
+# Database
+db_password=your_mysql_password
+
+# Server
+NODE_ENV=development
+PORT=3000
+LOG_LEVEL=info
+
+# JWT
+ACCESS_TOKEN_SECRET=your_access_token_secret
+REFRESH_TOKEN_SECRET=your_refresh_token_secret
+
+# Email Service
+EMAIL_USER=your_email@gmail.com
+EMAIL_PASS=your_app_password
+
+# Cloudinary (Image Upload)
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+
+# Stripe (Payment)
+STRIPE_SECRET_KEY=your_stripe_secret_key
+
+# Google OAuth
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+
+# Logging (Loki)
+ENABLE_LOKI=true
+LOKI_URL=http://127.0.0.1:3100
+
+# RabbitMQ
+RABBITMQ_URL=amqp://localhost:5672
+
+# Frontend URL
+FRONTEND_URL=http://localhost:5173
+```
+
+### 4️⃣ Khởi Tạo Database
+
+```bash
+# Đảm bảo MySQL đang chạy
+mysql -u root -p
+```
+
+```sql
+CREATE DATABASE auction_db;
+USE auction_db;
+-- Sequelize sẽ tự tạo bảng khi sync models
+```
+
+### 5️⃣ Chạy Server
+
+```bash
+# Chế độ Development (với hot-reload)
+npm run dev
+
+# Chế độ Production
+npm start
+```
+
+# Xem API doc:
+node swagger.js
+Swagger sẽ chạy tại: http://localhost:4000/api-docs/#/
+
+Server sẽ chạy tại: **http://localhost:3000**
+
+## 📁 Cấu Trúc Dự Án
+
+```
+src/
+├── config/              # Database, Cloudinary, Socket.io, RabbitMQ
+├── controllers/         # Route handlers
+├── middlewares/         # Authentication, validation, error handling
+├── models/             # Sequelize ORM models
+├── routes/             # API endpoints
+├── services/           # Business logic
+├── workers/            # Background workers (RabbitMQ consumer)
+├── cron/               # Scheduled tasks
+├── utils/              # Helper functions, metrics, logger
+├── server.js           # Entry point
+└── .env                # Environment variables
+```
+
+## 🔌 API Endpoints Chính
+
+### 🔐 Authentication
+```
+POST   /api/auth/register          - Đăng ký
+POST   /api/auth/login             - Đăng nhập
+POST   /api/auth/google-login      - Google OAuth
+POST   /api/auth/refresh-token     - Làm mới token
+POST   /api/auth/logout            - Đăng xuất
+```
+
+### 📦 Products
+```
+GET    /api/products               - Lấy danh sách sản phẩm
+GET    /api/products/:id           - Chi tiết sản phẩm
+POST   /api/products               - Tạo sản phẩm (Seller)
+GET    /api/products/top-value     - Top sản phẩm giá cao
+GET    /api/products/top-most-bidded - Top sản phẩm many bids
+```
+
+### 💰 Bidding
+```
+POST   /api/bids                   - Đặt giá
+GET    /api/bids/history/:productId - Lịch sử đấu giá
+GET    /api/bids/:productId/next-price - Giá đấu tiếp theo
+```
+
+### 💳 Payment
+```
+POST   /api/payments/create-payment-intent - Tạo thanh toán
+POST   /api/payments/confirm-payment      - Xác nhận thanh toán
+```
+
+### 👤 Users
+```
+GET    /api/users/profile          - Lấy hồ sơ
+PATCH  /api/users/profile          - Cập nhật hồ sơ
+POST   /api/users/reset-password   - Đặt lại mật khẩu
+```
+
+### 🏪 Seller
+```
+POST   /api/seller/request-upgrade - Yêu cầu nâng cấp
+GET    /api/seller/products        - Danh sách sản phẩm của bạn
+GET    /api/seller/products/ended  - Sản phẩm đã kết thúc
+```
+
+### ⚙️ Admin
+```
+GET    /api/admin/get-all-users    - Tất cả người dùng
+GET    /api/admin/total-income     - Tổng doanh thu
+GET    /api/admin/monthly-income   - Doanh thu tháng
+GET    /api/admin/total-orders     - Tổng đơn hàng
+DELETE /api/admin/delete-user/:id  - Xóa người dùng
+```
+
+📖 **Chi tiết API:** Xem [OpenAPI/Swagger](http://localhost:3000/api-docs)
+
+## 🔐 Authentication
+
+### JWT Token Flow
+```
+1. User login → Server gửi accessToken (15 phút) + refreshToken (7 ngày)
+2. Client lưu tokens
+3. Gửi accessToken trong header: Authorization: Bearer <token>
+4. Token hết hạn → Dùng refreshToken để lấy accessToken mới
+```
+
+### Google OAuth Flow
+```
+1. Frontend gửi Google ID Token
+2. Server verify token
+3. Nếu user tồn tại → Login
+4. Nếu chưa → Tạo user mới tự động
+```
+
+## 🔔 Real-time Features (Socket.io)
+
+### Bid Notifications
+```javascript
+// Khi có người đấu giá mới
+socket.emit('new_bid', {
+  productId: 123,
+  currentPrice: 500000,
+  bidderName: 'John',
+  timeLeft: 3600
+});
+```
+
+### Product Updates
+```javascript
+// Khi seller cập nhật sản phẩm
+socket.emit('product_updated', {
+  productId: 123,
+  status: 'active',
+  description: 'New description'
+});
+```
+
+## 📨 Email Service
+
+Hệ thống tự động gửi email cho:
+- ✉️ Xác nhận đăng ký
+- ✉️ Thông báo đấu giá mới
+- ✉️ Kết quả đấu giá
+- ✉️ Q&A replies
+- ✉️ Đặt lại mật khẩu
+
+## 📊 Monitoring & Logging
+
+### Prometheus Metrics
+- Truy cập: **http://localhost:9090**
+- Metrics: `http://localhost:3000/metrics`
+
+### Grafana Dashboard
+- Truy cập: **http://localhost:3000/monitoring**
+- Xem real-time metrics
+
+### Loki Logs
+- Centralized logging
+- Query logs: **http://localhost:3100**
+
+## 🚀 Deployment
+
+### Docker Support
+```bash
+# Build image
+docker build -t online-auction .
+
+# Run container
+docker run -p 3000:3000 --env-file .env online-auction
+```
+
+### Environment for Production
+```env
+NODE_ENV=production
+# Đổi secrets, database URL, v.v.
+```
+
+## 🐛 Troubleshooting
+
+### Database Connection Error
+```bash
+# Kiểm tra MySQL đang chạy
+mysql -u root -p
+
+# Verify credentials trong .env
+```
+
+### Image Upload Failed
+- Kiểm tra Cloudinary credentials
+- Xem guide: SETUP_IMAGE_UPLOAD.md
+
+### Google OAuth Error
+- Verify `GOOGLE_CLIENT_ID` đúng
+- Check redirect URL trong Google Console
+- Xem guide: GOOGLE_OAUTH_SETUP.md
+
+### Payment Integration
+- Xem guide: PAYMENT_INTEGRATION_GUIDE.md
+
+## 📚 Tài Liệu Thêm
+
+| Document | Mô Tả |
+|----------|-------|
+| SETUP_IMAGE_UPLOAD.md | Upload ảnh Cloudinary |
+| GOOGLE_OAUTH_SETUP.md | Cấu hình Google OAuth |
+| PAYMENT_INTEGRATION_GUIDE.md | Tích hợp Stripe |
+| FRONTEND_REALTIME_INTEGRATION.md | Socket.io integration |
+| GRAFANA_MONITORING_GUIDE.md | Monitoring setup |
+
+## 🤝 Contributing
+
+1. Fork repository
+2. Tạo branch feature (`git checkout -b feature/AmazingFeature`)
+3. Commit changes (`git commit -m 'Add AmazingFeature'`)
+4. Push to branch (`git push origin feature/AmazingFeature`)
+5. Open Pull Request
+
+
+## 👥 Team
+
+- **Backend Lead**: ngjang
+- **Database Architect**: khim
+- **DevOps**: ngcjang, khim
+
+**Last Updated**: December 2024  
+**Version**: 1.0.0
