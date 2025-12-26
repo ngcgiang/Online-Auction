@@ -681,7 +681,7 @@ class ProductService {
     }
   }
 
-  async getTopMostBiddedProducts(limit = 5) {
+  async   getTopMostBiddedProducts(limit = 5) {
     try {
         const products = await Product.findAll({
             attributes:[
