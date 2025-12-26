@@ -8,6 +8,6 @@ const app = express();
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-app.listen(3000, () => {
-  console.log('API Docs available at http://localhost:3000/api-docs');
+app.listen(4000, () => {
+  console.log('API Docs available at http://localhost:4000/api-docs');
 });
