@@ -132,6 +132,10 @@ npm run dev
 npm start
 ```
 
+# Xem API doc:
+node swagger.js
+Swagger sẽ chạy tại: http://localhost:4000/api-docs/#/
+
 Server sẽ chạy tại: **http://localhost:3000**
 
 ## 📁 Cấu Trúc Dự Án
