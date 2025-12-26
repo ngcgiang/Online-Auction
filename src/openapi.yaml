@@ -603,6 +603,105 @@ components:
           type: integer
           example: 13
 
+    # ==================== User/Seller/Admin Request Models ====================
+    ChangePasswordRequest:
+      type: object
+      required:
+        - oldPassword
+        - newPassword
+      properties:
+        oldPassword:
+          type: string
+          format: password
+          example: "OldPassword@123"
+        newPassword:
+          type: string
+          format: password
+          minLength: 8
+          example: "NewPassword@456"
+
+    UpdateUserInfoRequest:
+      type: object
+      properties:
+        full_name:
+          type: string
+          example: "Nguyen Van A Updated"
+        email:
+          type: string
+          format: email
+          example: "newemail@example.com"
+        address:
+          type: string
+          example: "789 Tran Hung Dao, Q5, TPHCM"
+        dob:
+          type: string
+          format: date
+          example: "1990-05-20"
+
+    RateUserRequest:
+      type: object
+      required:
+        - product_id
+        - rated_user_id
+        - score
+      properties:
+        product_id:
+          type: integer
+          example: 101
+        rated_user_id:
+          type: integer
+          example: 10
+          description: "ID của seller (người cần đánh giá)"
+        score:
+          type: integer
+          minimum: 1
+          maximum: 5
+          example: 5
+        comment:
+          type: string
+          maxLength: 500
+          example: "Seller tốt, giao hàng nhanh!"
+
+    UpdateRatingRequest:
+      type: object
+      properties:
+        score:
+          type: integer
+          minimum: 1
+          maximum: 5
+          example: 4
+        comment:
+          type: string
+          maxLength: 500
+          example: "Updated comment"
+
+    SystemConfig:
+      type: object
+      properties:
+        config_id:
+          type: integer
+          example: 1
+        commission_rate:
+          type: number
+          format: decimal
+          example: 0.05
+          description: "Hoa hồng từ mỗi giao dịch (5%)"
+        auto_renewal_hours:
+          type: integer
+          example: 5
+          description: "Số giờ cuối tự động gia hạn khi có bid"
+        max_products_per_seller:
+          type: integer
+          example: 50
+          description: "Số sản phẩm tối đa có thể tạo"
+        seller_permission_days:
+          type: integer
+          example: 7
+          description: "Số ngày quyền bán hạn"
+        created_at:
+          type: string
+          format: date-time
+
 paths:
   # ==================== AUTHENTICATION ====================
   /api/auth/register:
@@ -1645,3 +1744,1797 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Category'
+
+  # ==================== USERS ====================
+  /api/users/profile:
+    get:
+      tags:
+        - Users
+      summary: Lấy thông tin hồ sơ người dùng
+      description: Lấy toàn bộ thông tin cá nhân của người dùng đang đăng nhập
+      operationId: getUserProfile
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Thông tin hồ sơ người dùng
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "User profile fetched successfully"
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized - Token không hợp lệ hoặc hết hạn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/users/rating:
+    post:
+      tags:
+        - Rating
+      summary: Đánh giá người dùng
+      description: Người mua (winner) đánh giá người bán sau khi trận đấu giá kết thúc
+      operationId: rateUser
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RateUserRequest'
+      responses:
+        '200':
+          description: Đánh giá thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Rating'
+        '400':
+          description: Bad Request - Dữ liệu không hợp lệ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/users/rating/{rating_id}:
+    put:
+      tags:
+        - Rating
+      summary: Cập nhật đánh giá người dùng
+      description: Chỉnh sửa lại đánh giá đã được tạo trước đó
+      operationId: updateUserRating
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: rating_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID của đánh giá cần cập nhật
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRatingRequest'
+      responses:
+        '200':
+          description: Cập nhật đánh giá thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Rating'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/users/change-password:
+    patch:
+      tags:
+        - Users
+      summary: Thay đổi mật khẩu
+      description: Người dùng thay đổi mật khẩu bằng cách cung cấp mật khẩu cũ và mật khẩu mới
+      operationId: changePassword
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+      responses:
+        '200':
+          description: Mật khẩu đã được thay đổi thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+        '400':
+          description: Bad Request - Mật khẩu cũ không chính xác
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/users/update-info:
+    patch:
+      tags:
+        - Users
+      summary: Cập nhật thông tin người dùng
+      description: Cập nhật thông tin cá nhân như tên đầy đủ, địa chỉ, ngày sinh
+      operationId: updateUserInfo
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserInfoRequest'
+      responses:
+        '200':
+          description: Thông tin đã được cập nhật thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+        '400':
+          description: Bad Request - Dữ liệu không hợp lệ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/users/password-reset:
+    patch:
+      tags:
+        - Users
+      summary: Yêu cầu đặt lại mật khẩu
+      description: Người dùng quên mật khẩu, gửi yêu cầu để nhận OTP qua email
+      operationId: forgetPasswordRequest
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "user@example.com"
+      responses:
+        '200':
+          description: OTP đã được gửi đến email
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/users/new-password:
+    patch:
+      tags:
+        - Users
+      summary: Đặt lại mật khẩu
+      description: Người dùng nhập OTP và mật khẩu mới để đặt lại mật khẩu
+      operationId: resetPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - otpCode
+                - newPassword
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "user@example.com"
+                otpCode:
+                  type: string
+                  example: "123456"
+                newPassword:
+                  type: string
+                  format: password
+                  example: "NewPassword@123"
+      responses:
+        '200':
+          description: Mật khẩu đã được đặt lại thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '400':
+          description: Bad Request - OTP không hợp lệ hoặc hết hạn
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/users/bidded-product:
+    get:
+      tags:
+        - Users
+      summary: Lấy danh sách sản phẩm đã đặt giá
+      description: Lấy tất cả sản phẩm mà người dùng đã đặt giá
+      operationId: viewBiddedProduct
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Danh sách sản phẩm đã đặt giá
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/users/watchlist:
+    get:
+      tags:
+        - Watchlist
+      summary: Lấy danh sách theo dõi
+      description: Lấy danh sách sản phẩm mà người dùng đang theo dõi
+      operationId: viewWatchList
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Danh sách sản phẩm theo dõi
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/users/won-products:
+    get:
+      tags:
+        - Users
+      summary: Lấy danh sách sản phẩm đã thắng
+      description: Lấy tất cả sản phẩm mà người dùng đã trúng đấu giá (là winner)
+      operationId: viewWonProduct
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Danh sách sản phẩm đã thắng
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/users/ratings:
+    get:
+      tags:
+        - Rating
+      summary: Lấy tất cả đánh giá của người dùng
+      description: Lấy danh sách đánh giá mà người dùng đã nhận được (từ các người mua khác)
+      operationId: viewUserRatings
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Danh sách đánh giá của người dùng
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Rating'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/users/ratings/reviewed:
+    get:
+      tags:
+        - Rating
+      summary: Lấy đánh giá mà người dùng đã viết
+      description: Lấy danh sách tất cả các đánh giá mà người dùng đã viết cho các người bán
+      operationId: viewReviewedRatings
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Danh sách đánh giá đã viết
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Rating'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ==================== SELLER ====================
+  /api/seller/request-upgrade:
+    post:
+      tags:
+        - Seller
+      summary: Yêu cầu nâng cấp lên Seller
+      description: Người dùng gửi yêu cầu để nâng cấp tài khoản từ Bidder thành Seller
+      operationId: requestUpgrade
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Yêu cầu đã được gửi thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Upgrade request submitted successfully"
+                  data:
+                    type: object
+                    properties:
+                      user_id:
+                        type: integer
+                      upgrade_request:
+                        type: boolean
+        '400':
+          description: Bad Request - User đã là Seller hoặc đã có yêu cầu pending
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/seller/check-permission/{userId}:
+    get:
+      tags:
+        - Seller
+      summary: Kiểm tra quyền Seller
+      description: Kiểm tra xem Seller có quyền tạo sản phẩm mới không (có hiệu lực 7 ngày sau khi được phê duyệt)
+      operationId: checkPermission
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID của Seller cần kiểm tra
+      responses:
+        '200':
+          description: Trạng thái quyền Seller
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      user_id:
+                        type: integer
+                      hasPermission:
+                        type: boolean
+                      permissionExpire:
+                        type: string
+                        format: date-time
+                        nullable: true
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - User không phải Seller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/seller/products:
+    get:
+      tags:
+        - Seller
+      summary: Lấy danh sách sản phẩm đang hoạt động
+      description: Lấy tất cả sản phẩm đang hoạt động của Seller hiện tại
+      operationId: getActiveProducts
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Danh sách sản phẩm đang hoạt động
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  count:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - User không phải Seller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/seller/products/ended:
+    get:
+      tags:
+        - Seller
+      summary: Lấy danh sách sản phẩm đã kết thúc
+      description: Lấy tất cả sản phẩm đã kết thúc đấu giá với thông tin người thắng
+      operationId: getEndedProducts
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Danh sách sản phẩm đã kết thúc
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  count:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      allOf:
+                        - $ref: '#/components/schemas/Product'
+                        - type: object
+                          properties:
+                            winner:
+                              type: object
+                              properties:
+                                user_id:
+                                  type: integer
+                                full_name:
+                                  type: string
+                                email:
+                                  type: string
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - User không phải Seller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/seller/products/{productId}/bidders:
+    get:
+      tags:
+        - Seller
+      summary: Lấy danh sách những người đặt giá
+      description: Lấy danh sách những người dùng đã đặt giá trên sản phẩm của Seller
+      operationId: getBidderList
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID của sản phẩm
+      responses:
+        '200':
+          description: Danh sách những người đặt giá
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  count:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        user_id:
+                          type: integer
+                        full_name:
+                          type: string
+                        email:
+                          type: string
+                        rating_score:
+                          type: number
+                        latest_bid:
+                          type: number
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - User không phải Seller của sản phẩm này
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/seller/products/{productId}/refused-bidders:
+    get:
+      tags:
+        - Seller
+      summary: Lấy danh sách những người bị từ chối
+      description: Lấy danh sách những người dùng bị Seller từ chối cho sản phẩm cụ thể
+      operationId: getRefusedBidders
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID của sản phẩm
+      responses:
+        '200':
+          description: Danh sách những người bị từ chối
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  count:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        refuse_id:
+                          type: integer
+                        bidder_id:
+                          type: integer
+                        full_name:
+                          type: string
+                        email:
+                          type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ==================== ADMIN ====================
+  /api/admin/pending-requests:
+    get:
+      tags:
+        - Admin
+      summary: Lấy danh sách yêu cầu nâng cấp pending
+      description: Lấy tất cả yêu cầu nâng cấp từ Bidder lên Seller chưa được xử lý
+      operationId: getPendingRequests
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Danh sách yêu cầu pending
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  count:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        user_id:
+                          type: integer
+                        email:
+                          type: string
+                        full_name:
+                          type: string
+                        upgrade_request:
+                          type: boolean
+                        created_at:
+                          type: string
+                          format: date-time
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - User không phải Admin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/admin/approve-upgrade:
+    post:
+      tags:
+        - Admin
+      summary: Phê duyệt yêu cầu nâng cấp
+      description: Admin phê duyệt yêu cầu nâng cấp của một user thành Seller
+      operationId: approveUpgrade
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - userId
+              properties:
+                userId:
+                  type: integer
+                  example: 5
+      responses:
+        '200':
+          description: Yêu cầu đã được phê duyệt
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+        '400':
+          description: Bad Request - User ID không hợp lệ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - User không phải Admin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/admin/reject-upgrade:
+    post:
+      tags:
+        - Admin
+      summary: Từ chối yêu cầu nâng cấp
+      description: Admin từ chối yêu cầu nâng cấp của một user
+      operationId: rejectUpgrade
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - userId
+              properties:
+                userId:
+                  type: integer
+                  example: 5
+                reason:
+                  type: string
+                  nullable: true
+                  example: "Yêu cầu không hợp lệ"
+      responses:
+        '200':
+          description: Yêu cầu đã được từ chối
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - User không phải Admin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/admin/sellers:
+    get:
+      tags:
+        - Admin
+      summary: Lấy danh sách tất cả Sellers
+      description: Lấy danh sách tất cả người bán với trạng thái quyền hạn của họ
+      operationId: getAllSellers
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Danh sách Sellers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  count:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        user_id:
+                          type: integer
+                        email:
+                          type: string
+                        full_name:
+                          type: string
+                        rating_score:
+                          type: number
+                        upgrade_at:
+                          type: string
+                          format: date-time
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - User không phải Admin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/admin/new-category:
+    post:
+      tags:
+        - Admin
+      summary: Tạo danh mục mới
+      description: Admin tạo một danh mục sản phẩm mới (có thể là parent hoặc child category)
+      operationId: createNewCategory
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - category_name
+              properties:
+                category_name:
+                  type: string
+                  example: "Electronics"
+                parent_id:
+                  type: integer
+                  nullable: true
+                  example: null
+                  description: "Parent category ID (null nếu là category gốc)"
+      responses:
+        '201':
+          description: Danh mục đã được tạo thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Category'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - User không phải Admin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/admin/delete-category/{category_id}:
+    delete:
+      tags:
+        - Admin
+      summary: Xóa danh mục
+      description: Admin xóa một danh mục sản phẩm (kèm theo các child categories)
+      operationId: deleteCategory
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: category_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID của danh mục cần xóa
+      responses:
+        '200':
+          description: Danh mục đã được xóa thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - User không phải Admin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Category not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/admin/delete-user/{id}:
+    delete:
+      tags:
+        - Admin
+      summary: Xóa người dùng
+      description: Admin xóa một user khỏi hệ thống (bao gồm xóa các sản phẩm và đơn hàng liên quan)
+      operationId: deleteUser
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID của user cần xóa
+      responses:
+        '200':
+          description: User đã được xóa thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - User không phải Admin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/admin/get-all-users:
+    get:
+      tags:
+        - Admin
+      summary: Lấy danh sách tất cả người dùng
+      description: Admin lấy danh sách tất cả user trong hệ thống
+      operationId: getAllUsers
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Danh sách người dùng
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  count:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - User không phải Admin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/admin/delete-product/{id}:
+    delete:
+      tags:
+        - Admin
+      summary: Xóa sản phẩm
+      description: Admin xóa một sản phẩm khỏi hệ thống
+      operationId: deleteProduct
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID của sản phẩm cần xóa
+      responses:
+        '200':
+          description: Sản phẩm đã được xóa thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - User không phải Admin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/admin/total-income:
+    get:
+      tags:
+        - Admin
+      summary: Lấy tổng doanh thu
+      description: Admin lấy tổng doanh thu từ tất cả các giao dịch
+      operationId: getTotalIncome
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Tổng doanh thu
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      totalIncome:
+                        type: number
+                        format: decimal
+                        example: 500000000
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - User không phải Admin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/admin/new-users:
+    get:
+      tags:
+        - Admin
+      summary: Lấy danh sách user mới
+      description: Admin lấy danh sách những user được tạo trong ngày gần nhất
+      operationId: getNewUsers
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Danh sách user mới
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  count:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - User không phải Admin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/admin/total-orders:
+    get:
+      tags:
+        - Admin
+      summary: Lấy tổng số đơn hàng
+      description: Admin lấy tổng số lượng đơn hàng trong hệ thống
+      operationId: getTotalOrders
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Tổng số đơn hàng
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      totalOrders:
+                        type: integer
+                        example: 250
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - User không phải Admin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/admin/monthly-income:
+    get:
+      tags:
+        - Admin
+      summary: Lấy doanh thu hàng tháng
+      description: Admin lấy doanh thu chi tiết từng tháng
+      operationId: getMonthlyIncome
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Doanh thu hàng tháng
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        month:
+                          type: string
+                          example: "2024-12"
+                        income:
+                          type: number
+                          format: decimal
+                          example: 50000000
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - User không phải Admin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/admin/update-user-info:
+    patch:
+      tags:
+        - Admin
+      summary: Cập nhật thông tin user
+      description: Admin cập nhật thông tin cá nhân của một user
+      operationId: updateUserInfo
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                  example: 5
+                full_name:
+                  type: string
+                  example: "Nguyen Van A"
+                email:
+                  type: string
+                  format: email
+                  example: "user@example.com"
+                address:
+                  type: string
+                  example: "123 Le Loi, Q1, TPHCM"
+                dob:
+                  type: string
+                  format: date
+                  example: "1990-01-15"
+      responses:
+        '200':
+          description: Thông tin đã được cập nhật
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/User'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - User không phải Admin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/admin/config:
+    get:
+      tags:
+        - Admin
+      summary: Lấy cấu hình hệ thống
+      description: Admin lấy toàn bộ cấu hình của hệ thống (giá hoa hồng, thời gian gia hạn, v.v.)
+      operationId: getSystemConfig
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Cấu hình hệ thống
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/SystemConfig'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - User không phải Admin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags:
+        - Admin
+      summary: Tạo cấu hình hệ thống
+      description: Admin tạo cấu hình mới cho hệ thống
+      operationId: createSystemConfig
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SystemConfig'
+      responses:
+        '201':
+          description: Cấu hình đã được tạo thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/SystemConfig'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - User không phải Admin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    patch:
+      tags:
+        - Admin
+      summary: Cập nhật cấu hình hệ thống
+      description: Admin cập nhật cấu hình của hệ thống
+      operationId: updateSystemConfig
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SystemConfig'
+      responses:
+        '200':
+          description: Cấu hình đã được cập nhật thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/SystemConfig'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - User không phải Admin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
