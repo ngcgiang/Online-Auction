@@ -157,7 +157,7 @@ const forgetPasswordRequest = async(req,res)=>{
             });
         } else {
             const otp_code = Math.floor(100000 + Math.random() * 900000).toString();
-            await EmailService.sendEmail(email, otp_code)
+            await EmailService.sendVerificationEmail(email, otp_code)
             await AuthorizationService.saveOtp(otp_code, email)
             return res.status(200).json({
                 success: true,
