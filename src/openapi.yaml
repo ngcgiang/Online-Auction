@@ -702,6 +702,205 @@ components:
           type: string
           format: date-time
 
+    # ==================== Q&A Models ====================
+    QuestionAnswer:
+      type: object
+      properties:
+        qa_id:
+          type: integer
+          example: 1
+        product_id:
+          type: integer
+          example: 101
+        user_id:
+          type: integer
+          example: 25
+        parent_comment_id:
+          type: integer
+          nullable: true
+          example: null
+          description: "ID của comment cha (null nếu là comment root)"
+        content:
+          type: string
+          example: "Sản phẩm có bảo hành không?"
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-12-20T10:30:00Z"
+
+    AddCommentRequest:
+      type: object
+      required:
+        - product_id
+        - content
+      properties:
+        product_id:
+          type: integer
+          example: 101
+        parent_comment_id:
+          type: integer
+          nullable: true
+          example: null
+          description: "ID của comment cha (để trả lời comment khác)"
+        content:
+          type: string
+          maxLength: 1000
+          example: "Sản phẩm có bảo hành không?"
+
+    # ==================== Chat Models ====================
+    ChatRoom:
+      type: object
+      properties:
+        room_id:
+          type: string
+          example: "product_101_25_10"
+        product_id:
+          type: integer
+          example: 101
+        product_name:
+          type: string
+          example: "iPhone 15 Pro Max 256GB"
+        seller_id:
+          type: integer
+          example: 10
+        winner_id:
+          type: integer
+          example: 25
+        seller_name:
+          type: string
+          example: "Nguyen Van A"
+        winner_name:
+          type: string
+          example: "Tran Van B"
+        latest_message:
+          type: string
+          nullable: true
+          example: "Tôi sẽ gửi hàng ngày mai"
+        last_message_time:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2024-12-20T14:30:00Z"
+        unread_count:
+          type: integer
+          example: 2
+
+    ChatMessage:
+      type: object
+      properties:
+        message_id:
+          type: integer
+          example: 1
+        room_id:
+          type: string
+          example: "product_101_25_10"
+        product_id:
+          type: integer
+          example: 101
+        sender_id:
+          type: integer
+          example: 10
+        sender_name:
+          type: string
+          example: "Nguyen Van A"
+        receiver_id:
+          type: integer
+          example: 25
+        content:
+          type: string
+          example: "Sản phẩm này đã sẵn sàng gửi"
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-12-20T10:30:00Z"
+        is_read:
+          type: boolean
+          example: false
+
+    # ==================== Order Models ====================
+    CancelOrderRequest:
+      type: object
+      required:
+        - product_id
+      properties:
+        product_id:
+          type: integer
+          example: 101
+
+    ProcessPaymentRequest:
+      type: object
+      required:
+        - productId
+        - totalAmount
+        - paymentMethod
+        - shippingAddress
+      properties:
+        productId:
+          type: integer
+          example: 101
+        totalAmount:
+          type: number
+          format: decimal
+          example: 26500000
+          description: "Tổng số tiền thanh toán (VND)"
+        paymentMethod:
+          type: string
+          enum: [bank_transfer, credit_card, wallet]
+          example: "bank_transfer"
+        shippingAddress:
+          type: string
+          example: "456 Nguyen Hue, Q1, TPHCM"
+
+    UpdateDeliveryStatusRequest:
+      type: object
+      required:
+        - product_id
+      properties:
+        product_id:
+          type: integer
+          example: 101
+
+    OrderStatus:
+      type: object
+      properties:
+        order_id:
+          type: integer
+          example: 1
+        product_id:
+          type: integer
+          example: 101
+        product_name:
+          type: string
+          example: "iPhone 15 Pro Max 256GB"
+        seller_id:
+          type: integer
+          example: 10
+        winner_id:
+          type: integer
+          example: 25
+        total_amount:
+          type: number
+          format: decimal
+          example: 26500000
+        payment_method:
+          type: string
+          example: "bank_transfer"
+        shipping_address:
+          type: string
+          example: "456 Nguyen Hue, Q1, TPHCM"
+        delivery_status:
+          type: string
+          enum: [pending, shipped, delivered, cancelled]
+          example: "pending"
+        order_status:
+          type: string
+          enum: [unpaid, paid, cancelled]
+          example: "paid"
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-12-11T10:00:00Z"
+
 paths:
   # ==================== AUTHENTICATION ====================
   /api/auth/register:
@@ -1744,6 +1943,52 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Category'
+    post:
+      tags:
+        - Categories
+      summary: Tạo danh mục mới
+      description: Tạo category mới (yêu cầu role `admin`)
+      operationId: createCategory
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCategoryRequest'
+      responses:
+        '201':
+          description: Tạo category thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Category'
+        '400':
+          description: Dữ liệu không hợp lệ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Chưa đăng nhập
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Không có quyền tạo category
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   # ==================== USERS ====================
   /api/users/profile:
@@ -2154,6 +2399,106 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Product'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+        - Watchlist
+      summary: Thêm sản phẩm vào danh sách theo dõi
+      description: Thêm một sản phẩm vào watchlist của người dùng
+      operationId: addToWatchList
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - product_id
+              properties:
+                product_id:
+                  type: integer
+                  example: 101
+      responses:
+        '201':
+          description: Sản phẩm đã được thêm vào watchlist
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '400':
+          description: Bad Request - Sản phẩm đã có trong watchlist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - Watchlist
+      summary: Xóa sản phẩm khỏi danh sách theo dõi
+      description: Xóa một sản phẩm khỏi watchlist của người dùng
+      operationId: removeFromWatchList
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - product_id
+              properties:
+                product_id:
+                  type: integer
+                  example: 101
+      responses:
+        '200':
+          description: Sản phẩm đã được xóa khỏi watchlist
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '400':
+          description: Bad Request - Sản phẩm không có trong watchlist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '401':
           description: Unauthorized
           content:
@@ -3528,6 +3873,599 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
         '403':
           description: Forbidden - User không phải Admin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ==================== Q&A ====================
+  /api/qa/{product_id}:
+    get:
+      tags:
+        - Q&A
+      summary: Lấy danh sách câu hỏi & trả lời của sản phẩm
+      description: |
+        Lấy tất cả câu hỏi và trả lời liên quan đến sản phẩm cụ thể.
+        
+        **Đặc điểm:**
+        - Cây nhận xét (nested comments): parent_comment_id để trả lời
+        - Public endpoint - không cần authentication
+        - Sắp xếp theo thời gian tạo
+      operationId: getQAbyProduct
+      parameters:
+        - name: product_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID của sản phẩm
+      responses:
+        '200':
+          description: Danh sách câu hỏi và trả lời
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  count:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/QuestionAnswer'
+        '404':
+          description: Sản phẩm không tồn tại
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/qa:
+    post:
+      tags:
+        - Q&A
+      summary: Tạo câu hỏi hoặc trả lời
+      description: |
+        Tạo câu hỏi mới hoặc trả lời câu hỏi hiện có.
+        
+        **Chức năng:**
+        - User đặt câu hỏi hoặc trả lời (reply) câu hỏi
+        - Seller tự động nhận thông báo qua email
+        - Bidders nhận thông báo khi seller trả lời
+        - System publish event qua message queue
+      operationId: addComment
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddCommentRequest'
+      responses:
+        '201':
+          description: Câu hỏi/trả lời đã được tạo thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/QuestionAnswer'
+        '400':
+          description: Bad Request - Dữ liệu không hợp lệ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Cần đăng nhập
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Sản phẩm không tồn tại
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ==================== CHAT ====================
+  /api/chat/rooms:
+    get:
+      tags:
+        - Chat
+      summary: Lấy danh sách chat rooms
+      description: |
+        Lấy danh sách tất cả chat rooms của user hiện tại.
+        
+        **Chat Room:**
+        - Được tạo khi auction kết thúc (seller & winner)
+        - Format room_id: `product_{id}_seller_{id}_winner_{id}`
+        - Cho phép chat riêng tư giữa seller và winner
+        - Bao gồm thông tin sản phẩm, người tham gia, tin nhắn cuối cùng
+      operationId: getChatRooms
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Danh sách chat rooms
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Chat rooms retrieved successfully"
+                  count:
+                    type: integer
+                    example: 5
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ChatRoom'
+        '401':
+          description: Unauthorized - Cần đăng nhập
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/chat/{product_id}/history:
+    get:
+      tags:
+        - Chat
+      summary: Lấy lịch sử chat của sản phẩm
+      description: |
+        Lấy danh sách tin nhắn trong chat room của sản phẩm cụ thể.
+        
+        **Kiểm soát quyền truy cập:**
+        - Chỉ seller hoặc winner mới có quyền xem
+        - Trả về 403 nếu user không phải là 2 bên tham gia
+        
+        **Dữ liệu trả về:**
+        - product_name, userRole (seller/winner)
+        - Danh sách tin nhắn với sender info
+        - Giới hạn số lượng tin nhắn (mặc định 50)
+      operationId: getChatHistory
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: product_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID của sản phẩm/chat room
+        - name: limit
+          in: query
+          description: Số lượng tin nhắn (mặc định 50, max 100)
+          schema:
+            type: integer
+            default: 50
+            maximum: 100
+      responses:
+        '200':
+          description: Lịch sử chat
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Chat history retrieved successfully"
+                  product:
+                    type: object
+                    properties:
+                      product_id:
+                        type: integer
+                      product_name:
+                        type: string
+                  userRole:
+                    type: string
+                    enum: [seller, winner]
+                    example: "seller"
+                  count:
+                    type: integer
+                    example: 15
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ChatMessage'
+        '401':
+          description: Unauthorized - Cần đăng nhập
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Không có quyền xem chat của sản phẩm này
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Sản phẩm không tồn tại
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  # ==================== ORDERS ====================
+  /api/seller/orders/cancel:
+    post:
+      tags:
+        - Orders
+      summary: Hủy giao dịch (Seller)
+      description: |
+        Seller hủy giao dịch khi winner không thanh toán hoặc vi phạm điều khoản.
+        
+        **Chức năng:**
+        - Chỉ seller (owner) mới có quyền
+        - Đặt order_status = cancelled
+        - Có thể goi lại các bidders khác (nếu có auto-retry logic)
+        - Tạo audit log
+      operationId: cancelOrder
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CancelOrderRequest'
+      responses:
+        '200':
+          description: Giao dịch đã bị hủy thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Transaction cancelled successfully"
+                  data:
+                    type: object
+                    properties:
+                      product_id:
+                        type: integer
+                      order_status:
+                        type: string
+                        example: "cancelled"
+        '400':
+          description: Bad Request - Giao dịch không thể hủy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Cần đăng nhập
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Không phải seller của sản phẩm này
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Sản phẩm hoặc order không tồn tại
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/orders/paid:
+    post:
+      tags:
+        - Orders
+      summary: Xác nhận thanh toán (Winner)
+      description: |
+        Winner thanh toán cho winner product sau khi trúng đấu giá.
+        
+        **Quy trình:**
+        - Winner nhập thông tin thanh toán và địa chỉ giao hàng
+        - System lưu order với order_status = 'paid'
+        - Seller nhận thông báo
+        - Bắt đầu quá trình giao hàng
+        
+        **Dữ liệu thanh toán:**
+        - Lưu chứng minh thanh toán (imgEvidence)
+        - Hỗ trợ nhiều phương thức: bank_transfer, credit_card, wallet
+      operationId: processPayment
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProcessPaymentRequest'
+      responses:
+        '200':
+          description: Thanh toán đã được xử lý thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Payment processed successfully"
+                  data:
+                    $ref: '#/components/schemas/OrderStatus'
+        '400':
+          description: Bad Request - Dữ liệu thanh toán không hợp lệ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Cần đăng nhập
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Không phải winner hoặc đã thanh toán rồi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Sản phẩm không tồn tại
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/seller/orders/shipped:
+    put:
+      tags:
+        - Orders
+      summary: Cập nhật trạng thái giao hàng (Seller)
+      description: |
+        Seller xác nhận đã gửi hàng.
+        
+        **Chức năng:**
+        - Chỉ seller có quyền
+        - Cập nhật delivery_status = 'shipped'
+        - Winner nhận thông báo
+        - Bắt đầu theo dõi giao hàng
+      operationId: markOrderShipped
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDeliveryStatusRequest'
+      responses:
+        '200':
+          description: Trạng thái đã được cập nhật
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Order marked as shipped"
+                  data:
+                    $ref: '#/components/schemas/OrderStatus'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Không phải seller
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Order không tồn tại
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/orders/delivered:
+    put:
+      tags:
+        - Orders
+      summary: Xác nhận nhận hàng (Winner)
+      description: |
+        Winner xác nhận đã nhận hàng.
+        
+        **Chức năng:**
+        - Chỉ winner có quyền
+        - Cập nhật delivery_status = 'delivered'
+        - Completion trigger: có thể ngay lập tức yêu cầu rating
+        - Seller nhận xác nhận
+      operationId: markOrderDelivered
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDeliveryStatusRequest'
+      responses:
+        '200':
+          description: Xác nhận nhận hàng thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Order marked as delivered"
+                  data:
+                    $ref: '#/components/schemas/OrderStatus'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Không phải winner
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Order không tồn tại
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/orders/status/{productId}:
+    get:
+      tags:
+        - Orders
+      summary: Lấy trạng thái order
+      description: |
+        Lấy thông tin chi tiết trạng thái order của sản phẩm.
+        
+        **Dữ liệu trả về:**
+        - order_status: unpaid, paid, cancelled
+        - delivery_status: pending, shipped, delivered, cancelled
+        - Thông tin người mua, người bán, số tiền
+        - Thời gian tạo order
+      operationId: getOrderStatus
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID của sản phẩm
+      responses:
+        '200':
+          description: Thông tin order status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Order status retrieved successfully"
+                  data:
+                    $ref: '#/components/schemas/OrderStatus'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Order hoặc sản phẩm không tồn tại
           content:
             application/json:
               schema:
