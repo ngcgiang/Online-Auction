@@ -27,7 +27,7 @@ router.get('/total-sold', verifyAccessToken, checkRole(['seller']), getTotalSold
 router.get('/products/:productId/bidders', verifyAccessToken, checkRole(['seller']), getBidderList);
 
 // Get active products (seller dashboard)
-
+router.get('/products', verifyAccessToken, checkRole(['seller']), getActiveProducts);
 
 // Get ended products with winner info
 router.get('/products/ended', verifyAccessToken, checkRole(['seller']), getEndedProducts);

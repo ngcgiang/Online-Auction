@@ -672,6 +672,7 @@ class ProductService {
   async getTopLeastTimeLeftProducts(limit = 5) {
     try{
       const products = await Product.findAll({
+        where: { status: 'active' },
         order: [['end_time', 'ASC']],
         limit,
     });
