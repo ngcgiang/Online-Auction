@@ -1,4 +1,4 @@
-const { User, Category, Product, Order } = require('../models');
+const { User, Category, Product, Order, Bid } = require('../models');
 const { Op,fn,col } = require('sequelize');
 
 class AdminService {
@@ -562,8 +562,63 @@ async updateUserInfo(user_id, newInfo){
             throw error; // Throw the original error to see what's wrong
         }
     }
-    
-    
+async countUsersByRole(){
+    try{
+        const totalSellers = await User.count({
+            where: { role: 'seller' }
+        });
+
+        const totalBidders = await User.count({
+            where: { role: 'bidder' }
+        });
+        return {
+            total_sellers: totalSellers,
+            total_bidders: totalBidders,
+            message: 'Total bidders and sellers retrieved successfully'
+        };
+    }catch(error){
+        //console.log(error);
+        console.error("countUsersByRole error:", error); 
+        throw error;
+           
+}    
 }
+
+
+async countProductsByStatus(){
+    try{
+        const productStatusCounts = await Product.findAll({
+            attributes: [
+                'status',
+                [fn('COUNT', col('product_id')), 'count']
+            ],
+            group: ['status']
+        });
+        const statusCounts = {};
+        productStatusCounts.forEach(item => {
+            statusCounts[item.status] = parseInt(item.get('count'));
+        });
+        return {
+            product_status_counts: statusCounts,
+            message: 'Product counts by status retrieved successfully'
+        };
+    }catch(error){
+        throw error;
+    }
+}
+
+async countAllBids(){
+    try{
+        const totalBids = await Bid.count();
+        return {
+            total_bids: totalBids,
+            message: 'Total bids retrieved successfully'
+        };
+    }catch(error){
+        throw error;
+    }
+}
+}
+
 
 module.exports = new AdminService();

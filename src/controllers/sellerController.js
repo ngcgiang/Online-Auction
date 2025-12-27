@@ -210,6 +210,81 @@ const getEndedProducts = async (req, res, next) => {
   }
 };
 
+const getTotalSoldProducts = async (req, res, next) => {
+  try {
+    const sellerId = req.user?.user_id;
+    if (!sellerId) {
+      return res.status(401).json({
+        success: false,
+        message: 'Authentication required'
+      });
+    }
+    const totalSold = await SellerService.totalSoldProducts(sellerId);
+    return res.status(200).json({
+      success: true,
+      message: 'Total sold products retrieved successfully',
+      data: { totalSold }
+    });
+  } catch (error) {
+    console.error('Error getting total sold products:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'An error occurred while retrieving total sold products',
+      error: error.message
+    });
+  }
+};
+  const getTotalExpiredProducts = async (req, res, next) => {
+    try {
+      const sellerId = req.user?.user_id;
+      if (!sellerId) {
+        return res.status(401).json({
+          success: false,
+          message: 'Authentication required'
+        });
+      } 
+      const totalExpired = await SellerService.totalExpiredProducts(sellerId);
+      return res.status(200).json({
+        success: true,
+        message: 'Total expired products retrieved successfully',
+        data: { totalExpired }
+      });
+    } catch (error) {
+      console.error('Error getting total expired products:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'An error occurred while retrieving total expired products',
+        error: error.message
+      });
+    }
+};
+
+const getTotalIncome = async (req, res, next) => {
+    try {
+      const sellerId = req.user?.user_id;
+      if (!sellerId) {
+        return res.status(401).json({
+          success: false,
+          message: 'Authentication required'
+        });
+      }
+      const totalIncome = await SellerService.totalEarnings(sellerId);
+      return res.status(200).json({
+        success: true,
+        message: 'Total income retrieved successfully',
+        data: { totalIncome }
+      });
+    } catch (error) {
+      console.error('Error getting total income:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'An error occurred while retrieving total income',
+        error: error.message
+      });
+    }
+};
+
+
 
 module.exports = {
     requestUpgrade,
@@ -217,5 +292,8 @@ module.exports = {
     getBidderList,
     getActiveProducts,
     getEndedProducts,
-    getRefusedBidders
+    getRefusedBidders,
+    getTotalSoldProducts,
+    getTotalExpiredProducts,
+    getTotalIncome
 };

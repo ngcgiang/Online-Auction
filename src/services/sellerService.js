@@ -1,4 +1,4 @@
-const { Product, User, ProductImage, Rating, Bid, RefusedBidder, sequelize } = require('../models');
+const { Product, User, ProductImage, Rating, Bid, RefusedBidder, Order, sequelize } = require('../models');
 const { Op } = require('sequelize');
 
 class SellerService {
@@ -501,6 +501,64 @@ class SellerService {
       console.error('Error updating user rating score:', error);
     }
   }
+
+  async totalProducts(sellerId){
+    try {
+      const count = await Product.count({
+        where: { seller_id: sellerId }
+      });
+      return count;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async totalSoldProducts(sellerId){
+    try {
+      const count = await Product.count({
+        where: {
+          seller_id: sellerId,
+          status: 'sold'}
+        }
+      );
+      return count;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async totalExpiredProducts(sellerId){
+    try {
+      const count = await Product.count({
+        where: {
+          seller_id: sellerId,
+          status: 'expired'}
+        }
+      );
+      return count;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async totalEarnings(sellerId){
+    try {
+      const result = await Order.findAll({
+        where: { 
+          seller_id: sellerId,
+          order_status: 'paid' // Only sum completed orders
+        },
+        attributes: [
+          [sequelize.fn('SUM', sequelize.col('total_amount')), 'total_earnings']
+        ]
+      });
+      const totalEarnings = result[0].get('total_earnings') || 0;
+      return totalEarnings;
+    } catch (error) {
+      throw error;
+    }
+  }
+
 }
 
 module.exports = new SellerService();

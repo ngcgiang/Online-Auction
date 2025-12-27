@@ -486,6 +486,63 @@ const updateUserInfo = async (req, res) => {
     }
 }
 
+/**
+ * Count users by role (bidder, seller, admin, etc.)
+ */
+const countUserByRole = async (req, res) => {
+    try {
+        const result = await adminService.countUsersByRole();
+        return res.status(200).json({
+            success: true,
+            message: 'Count users by role successfully',
+            data: result
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: 'Failed to count users by role'
+        });
+    }
+};
+
+/**
+ * Count products by status (active, expired, sold, etc.)
+ */
+const countProductsByStatus = async (req, res) => {
+    try {
+        const result = await adminService.countProductsByStatus();
+        return res.status(200).json({
+            success: true,
+            message: 'Count products by status successfully',
+            data: result
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: 'Failed to count products by status'
+        });
+    }
+};
+
+/**
+ * Count all bids in the system
+ */
+const countAllBids = async (req, res) => {
+    try {
+        const result = await adminService.countAllBids();
+        return res.status(200).json({
+            success: true,
+            message: 'Count all bids successfully',
+            data: result
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: 'Failed to count all bids'
+        });
+    }
+};
+
 module.exports = {
     getPendingRequests,
     approveUpgrade,
@@ -500,5 +557,8 @@ module.exports = {
     getNewUsers,
     getMonthlyIncome,
     getTotalOrders,
-    updateUserInfo
+    updateUserInfo,
+    countUserByRole,
+    countProductsByStatus,
+    countAllBids
 };
