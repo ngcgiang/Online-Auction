@@ -79,6 +79,14 @@ class qaService {
         }
     }
 
+    getUserEmailById(userId) {
+        try{
+            return User.findByPk(userId).then(user => user ? user.email : null);
+        }catch(error){
+            console.error("getUserEmailById error:", error);
+            throw new Error('Failed to fetch user email by ID');
+        }
+    }
 }
 
 module.exports = new qaService();

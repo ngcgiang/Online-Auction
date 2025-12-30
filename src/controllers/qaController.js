@@ -3,6 +3,7 @@ const productService = require('../services/productService');
 const emailService = require('../services/emailService');
 const bidService = require('../services/bidService');
 const mqService = require('../services/mqService');
+const userService = require('../services/userService');
 
 const getQAbyProduct = async (req, res) => {
     try {
@@ -50,14 +51,30 @@ const addComment = async (req, res) => {
             });
 
         } else {
-            // The seller is commenting (replying) -> Notify all bidders
-            const emailList = await bidService.getBidddedUsersEmailsFromProduct(product_id);
+            // The seller is commenting (replying) -> Notify all bidders and the asker of the parent comment
+            let emailList = await bidService.getBidddedUsersEmailsFromProduct(product_id);
+
+            // Thêm email của người đã đặt câu hỏi (nếu có parent_comment_id)
+            if (parent_comment_id) {
+                const parentComment = await qaService.getCommentById(parent_comment_id);
+                if (parentComment && parentComment.user_id) {
+                    // Lấy email của người đặt câu hỏi
+                    const askerEmail = await qaService.getUserEmailById(parentComment.user_id);
+                    if (askerEmail) {
+                        // Đảm bảo không bị trùng email
+                        if (!emailList) emailList = [];
+                        if (!emailList.includes(askerEmail)) {
+                            emailList.push(askerEmail);
+                        }
+                    }
+                }
+            }
 
             if (emailList && emailList.length > 0) {    
                 const link = `${process.env.FRONTEND_URL}/product/${product_id}`;
                 const message = `Người bán đã trả lời câu hỏi về sản phẩm "${name}".`;
 
-                // Publish to message queue for each bidder
+                // Publish to message queue for each bidder and asker
                 await mqService.publishToQueue('email_queue', {
                     event: 'QA_NOTIFICATION',
                     data: {

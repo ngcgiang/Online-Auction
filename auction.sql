@@ -2,8 +2,8 @@
 -- AUCTION DATABASE SCHEMA
 -- ================================
 -- Create Database
-CREATE DATABASE IF NOT EXISTS auction_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE auction_db;
+CREATE DATABASE IF NOT EXISTS online_auction_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE online_auction_db;
 
 -- ================================
 -- TABLE DEFINITIONS
@@ -289,65 +289,122 @@ INSERT INTO categories (category_id, category_name, parent_id) VALUES
 -- Re-enable foreign key checks
 SET FOREIGN_KEY_CHECKS = 1;
 
-INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal) VALUES
-('iPhone 17 Pro Max 256GB', 10, 4, 36, 20000000, 22600000, 36000000, 200000, '2025-11-21 19:41:19', '2025-12-12 19:41:19', 'active', 1, 1),
-('iPhone 17 Pro Max 512GB', 10, 4, 18, 30000000, 32000000, 54000000, 200000, '2025-11-21 19:41:19', '2025-12-13 19:41:19', 'active', 1, 1),
-('iPhone 17 Pro Max 1TB', 10, 4, 20, 35000000, 37400000, 63000000, 200000, '2025-11-21 19:41:19', '2025-12-14 19:41:19', 'active', 1, 1),
-('iPhone 17 Pro Max 2TB', 10, 4, 12, 40000000, 42200000, 72000000, 200000, '2025-11-22 19:41:19', '2025-12-15 19:41:19', 'active', 1, 1),
-('Nokia 1280', 10, 4, 40, 500000, 900000, 900000, 50000, '2025-11-22 19:41:19', '2025-12-16 19:41:19', 'active', 1, 1),
-('Vertu Signature V Gold Diamond Alligator', 10, 4, 21, 3000000000, 3170000000, 5400000000, 10000000, '2025-11-22 19:41:19', '2025-12-17 19:41:19', 'active', 1, 1),
-('Nike Mercurial Vapor 15 Academy', 7, 6, 34, 1500000, 2900000, 2700000, 100000, '2025-11-23 19:41:19', '2025-12-18 19:41:19', 'active', 1, 1),
-('Nike Mercurial Vapor 15 Elite', 7, 6, 37, 5000000, 5600000, 9000000, 100000, '2025-11-23 19:41:19', '2025-12-19 19:41:19', 'active', 1, 1),
-('Nike Mercurial Vapor 16 Elite', 7, 6, 15, 2500000, 3600000, 4500000, 100000, '2025-11-23 19:41:19', '2025-12-20 19:41:19', 'active', 1, 1),
-('Nike Mercurial Vapor 16 Academy', 7, 6, 37, 7000000, 8200000, 12600000, 100000, '2025-11-23 19:41:19', '2025-12-21 19:41:19', 'active', 1, 1),
-('Wika Toni Kroos', 7, 6, 13, 200000, 460000, 360000, 20000, '2025-11-23 19:41:19', '2025-12-22 19:41:19', 'active', 1, 1),
-('Jersey Real Madrid sân nhà', 6, 5, 36, 3000000, 5000000, 5400000, 200000, '2025-11-23 19:41:19', '2025-12-23 19:41:19', 'active', 1, 1),
-('Jersey Real Madrid sân khách', 6, 5, 30, 3000000, 5200000, 5400000, 200000, '2025-11-23 19:41:19', '2025-12-24 19:41:19', 'active', 1, 1),
-('Jersey Mancherster United sân nhà', 6, 5, 17, 3000000, 5600000, 5400000, 200000, '2025-11-23 19:41:19', '2025-12-25 19:41:19', 'active', 1, 1),
-('Jersey Mancherster United sân khách', 6, 5, 22, 3000000, 6000000, 5400000, 200000, '2025-11-23 19:41:19', '2025-12-26 19:41:19', 'active', 1, 1),
-('Jersey Mancherster City sân khách', 6, 5, 19, 3000000, 5400000, 5400000, 200000, '2025-11-23 19:41:19', '2025-12-27 19:41:19', 'active', 1, 1),
-('Jersey Mancherster City sân nhà', 6, 5, 13, 3000000, 5000000, 5400000, 200000, '2025-11-23 19:41:19', '2025-12-28 19:41:19', 'active', 1, 1),
-('Jersey Bayern Munich sân khách', 6, 5, 30, 3000000, 6400000, 5400000, 200000, '2025-11-23 19:41:19', '2025-12-29 19:41:19', 'active', 1, 1),
-('Jersey Bayern Munich sân nhà', 6, 5, 23, 3000000, 5800000, 5400000, 200000, '2025-11-27 19:41:19', '2025-12-30 19:41:19', 'active', 1, 1),
-('Jersey PSG sân khách', 6, 5, 23, 3000000, 5200000, 5400000, 200000, '2025-11-27 19:41:19', '2025-12-31 19:41:19', 'active', 1, 1),
-('Jersey PSG sân nhà', 6, 5, 13, 3000000, 6000000, 5400000, 200000, '2025-11-27 19:41:19', '2026-01-01 19:41:19', 'active', 1, 1),
-('Rolex Land-Dweller', 8, 7, 16, 850000000, 1090000000, 1530000000, 20000000, '2025-11-27 19:41:19', '2026-01-02 19:41:19', 'active', 1, 1),
-('Rolex Sky-Dweller', 8, 7, 16, 1200000000, 1420000000, 2160000000, 20000000, '2025-11-27 19:41:19', '2026-01-03 19:41:19', 'active', 1, 1),
-('Curnon Kashmir Rise', 8, 7, 36, 2000000, 3650000, 3600000, 150000, '2025-11-27 19:41:19', '2026-01-04 19:41:19', 'active', 1, 1),
-('Curnon Kashmir Sharp', 8, 7, 30, 2200000, 4300000, 3960000, 150000, '2025-11-27 19:41:19', '2026-01-05 19:41:19', 'active', 1, 1),
-('Curnon Kashmir Calm', 8, 7, 12, 2400000, 5100000, 4320000, 150000, '2025-11-27 19:41:19', '2026-01-06 19:41:19', 'active', 1, 1),
-('Attack Shark X11', 9, 8, 18, 550000, 1100000, 990000, 50000, '2025-11-27 19:41:19', '2026-01-07 19:41:19', 'active', 1, 1),
-('Logitech G502 X Plus Lightspeed', 9, 8, 35, 5000000, 5500000, 9000000, 50000, '2025-11-27 19:41:19', '2026-01-08 19:41:19', 'active', 1, 1),
-('Logitech Lift Vertical', 9, 8, 15, 4500000, 4950000, 8100000, 50000, '2025-11-27 19:41:19', '2026-01-09 19:41:19', 'active', 1, 1),
-('Laptop ASUS ROG Flow Z13 ', 11, 8, 37, 50000000, 59000000, 90000000, 1000000, '2025-11-27 19:41:19', '2026-01-10 19:41:19', 'active', 1, 1),
-('Laptop ASUS ROG Zephyrus G14 ', 11, 8, 39, 60000000, 73000000, 108000000, 1000000, '2025-11-27 19:41:19', '2026-01-11 19:41:19', 'active', 1, 1),
-('Laptop Lenovo Legion Pro 5', 11, 8, 29, 45000000, 60000000, 81000000, 1000000, '2025-11-27 19:41:19', '2026-01-12 19:41:19', 'active', 1, 1),
-('Laptop Dell Alienware M16', 11, 8, 23, 65000000, 79000000, 117000000, 1000000, '2025-11-27 19:41:19', '2026-01-13 19:41:19', 'active', 1, 1),
-('MacBook Pro 14 M4 Pro', 11, 8, 17, 40000000, 52000000, 72000000, 1000000, '2025-11-27 19:41:19', '2026-01-14 19:41:19', 'active', 1, 1),
-('Bàn phím ASUS ROG Azoth Extreme', 12, 8, 23, 5000000, 17000000, 9000000, 1000000, '2025-11-27 19:41:19', '2026-01-15 19:41:19', 'active', 1, 1),
-('Bàn phím Machenike KT84-B84W', 12, 8, 35, 3000000, 4050000, 5400000, 150000, '2025-11-27 19:41:19', '2026-01-16 19:41:19', 'active', 1, 1),
-('Bàn phím Razer BlackWidow V4', 12, 8, 18, 3200000, 5150000, 5760000, 150000, '2025-11-27 19:41:19', '2026-01-17 19:41:19', 'active', 1, 1),
-('Apple AirPods Pro 2022', 13, 9, 26, 1000000, 3100000, 1800000, 150000, '2025-11-27 19:41:19', '2026-01-18 19:41:19', 'active', 1, 1),
-('Powerbeats Pro 2', 13, 9, 35, 2000000, 4100000, 3600000, 150000, '2025-11-27 19:41:19', '2026-01-19 19:41:19', 'active', 1, 1),
-('Edifier W820NB', 13, 9, 13, 1500000, 2850000, 2700000, 150000, '2025-11-27 19:41:19', '2026-01-20 19:41:19', 'active', 1, 1),
-('JBL Charge 6', 14, 9, 35, 3000000, 4800000, 5400000, 150000, '2025-11-27 19:41:19', '2026-01-21 19:41:19', 'active', 1, 1),
-('JBL Flip 6', 14, 9, 37, 3500000, 5450000, 6300000, 150000, '2025-11-27 19:41:19', '2026-01-22 19:41:19', 'active', 1, 1),
-('Marshall Acton III', 14, 9, 12, 7750000, 9250000, 13950000, 150000, '2025-11-27 19:41:19', '2026-01-23 19:41:19', 'active', 1, 1),
-('SR-MV2000', 16, 9, 15, 1350000, 2550000, 2430000, 150000, '2025-11-27 19:41:19', '2026-01-24 19:41:19', 'active', 1, 1),
-('SR-SmartMic Xmic Z4', 16, 9, 30, 1550000, 3650000, 2790000, 150000, '2025-11-27 19:41:19', '2026-01-25 19:41:19', 'active', 1, 1),
-('Alokio AL-VIP98', 15, 9, 21, 12000000, 13950000, 21600000, 150000, '2025-11-27 19:41:19', '2026-01-26 19:41:19', 'active', 1, 1),
-('Alokio AL-MX71', 15, 9, 14, 15000000, 16950000, 27000000, 150000, '2025-11-27 19:41:19', '2026-01-27 19:41:19', 'active', 1, 1),
-('HONDA WINNER X', 17, 10, 18, 50000000, 58000000, 90000000, 1000000, '2025-11-27 19:41:19', '2026-01-28 19:41:19', 'active', 1, 1),
-('YAMAHA Exciter 155 VVA', 17, 10, 12, 45000000, 60000000, 81000000, 1000000, '2025-11-27 19:41:19', '2026-01-29 19:41:19', 'active', 1, 1),
-('YAMAHA PG-1', 17, 10, 12, 35000000, 48000000, 63000000, 1000000, '2025-11-27 19:41:19', '2026-01-30 19:41:19', 'active', 1, 1),
-('VESPA SPRINT S 150', 17, 10, 27, 100000000, 122000000, 180000000, 2000000, '2025-11-27 19:41:19', '2026-01-31 19:41:19', 'active', 1, 1),
-('Lamborghini Aventador', 18, 11, 15, 60000000000, 102000000000, 108000000000, 3000000000, '2025-10-22 19:41:19', '2026-02-01 19:41:19', 'active', 0, 1),
-('Lamborghini Huracan', 18, 11, 14, 7500000000, 10700000000, 13500000000, 200000000, '2025-10-22 19:41:19', '2026-02-02 19:41:19', 'active', 0, 1),
-('Bugatti Chiron', 18, 11, 38, 70000000000, 100000000000, 126000000000, 3000000000, '2025-10-22 19:41:19', '2026-02-03 19:41:19', 'active', 0, 1),
-('Porsche 911 Carrera', 18, 11, 22, 7110000000, 8910000000, 12798000000, 200000000, '2025-10-21 19:41:19', '2026-02-04 19:41:19', 'active', 0, 1),
-('Porsche 718 Cayman', 18, 11, 28, 4000000000, 5800000000, 7200000000, 200000000, '2025-11-30 19:41:19', '2026-02-05 19:41:19', 'active', 0, 1),
-('Porsche Panamera GTS', 18, 11, 29, 10000000000, 37000000000, 18000000000, 3000000000, '2025-11-30 19:41:19', '2026-02-06 19:41:19', 'active', 0, 1),
-('Mercedes-Maybach S-Class', 18, 11, 32, 15000000000, 26000000000, 27000000000, 1000000000, '2025-11-29 19:41:19', '2026-02-07 19:41:19', 'active', 0, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('iPhone 17 Pro Max 256GB', 10, 4, NULL, 20000000, NULL, 50000000, 200000, '2025-11-21 19:41:19', '2025-12-12 19:41:19', 'expired', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('iPhone 17 Pro Max 512GB', 10, 4, NULL, 30000000, NULL, 75000000, 200000, '2025-11-21 19:41:19', '2025-12-13 19:41:19', 'expired', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('iPhone 17 Pro Max 1TB', 10, 4, NULL, 35000000, NULL, 87500000, 200000, '2025-11-21 19:41:19', '2025-12-14 19:41:19', 'expired', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('iPhone 17 Pro Max 2TB', 10, 4, NULL, 40000000, NULL, 100000000, 200000, '2025-11-22 19:41:19', '2025-12-15 19:41:19', 'expired', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('Nokia 1280', 10, 4, NULL, 500000, NULL, 1250000, 50000, '2025-11-22 19:41:19', '2025-12-16 19:41:19', 'expired', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('Vertu Signature V Gold Diamond Alligator', 10, 4, NULL, 3000000000, NULL, 7500000000, 10000000, '2025-11-22 19:41:19', '2025-12-17 19:41:19', 'expired', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('Nike Mercurial Vapor 15 Academy', 7, 4, NULL, 1500000, NULL, 3750000, 100000, '2025-11-23 19:41:19', '2025-12-18 19:41:19', 'expired', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('Nike Mercurial Vapor 15 Elite', 7, 4, 35, 5000000, 5300000, 12500000, 100000, '2025-11-24 19:41:19', '2025-12-19 19:41:19', 'sold', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('Nike Mercurial Vapor 16 Elite', 7, 5, 35, 2500000, 2800000, 6250000, 100000, '2025-11-25 19:41:19', '2025-12-20 19:41:19', 'sold', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('Nike Mercurial Vapor 16 Academy', 7, 5, 35, 7000000, 7300000, 17500000, 100000, '2025-11-26 19:41:19', '2025-12-21 19:41:19', 'sold', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('Wika Toni Kroos', 7, 5, 36, 200000, 260000, 500000, 20000, '2025-11-27 19:41:19', '2025-12-22 19:41:19', 'sold', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('Jersey Real Madrid sân nhà', 6, 5, 36, 3000000, 3600000, 7500000, 200000, '2025-11-28 19:41:19', '2025-12-23 19:41:19', 'sold', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('Jersey Real Madrid sân khách', 6, 5, 36, 3000000, 3600000, 7500000, 200000, '2025-11-29 19:41:19', '2025-12-24 19:41:19', 'sold', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('Jersey Mancherster United sân nhà', 6, 5, 35, 3000000, 3600000, 7500000, 200000, '2025-11-30 19:41:19', '2025-12-25 19:41:19', 'sold', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('Jersey Mancherster United sân khách', 6, 5, NULL, 3000000, NULL, 7500000, 200000, '2026-01-07 19:41:19', '2025-12-26 19:41:19', 'sold', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('Jersey Mancherster City sân khách', 6, 5, NULL, 3000000, NULL, 7500000, 200000, '2026-01-08 19:41:19', '2025-12-27 19:41:19', 'active', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('Jersey Mancherster City sân nhà', 6, 5, NULL, 3000000, NULL, 7500000, 200000, '2026-01-09 19:41:19', '2025-12-28 19:41:19', 'active', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('Jersey Bayern Munich sân khách', 6, 5, NULL, 3000000, NULL, 7500000, 200000, '2026-01-10 19:41:19', '2025-12-29 19:41:19', 'active', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('Jersey Bayern Munich sân nhà', 6, 5, NULL, 3000000, NULL, 7500000, 200000, '2026-01-11 19:41:19', '2025-12-30 19:41:19', 'active', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('Jersey PSG sân khách', 6, 5, NULL, 3000000, NULL, 7500000, 200000, '2026-01-12 19:41:19', '2025-12-31 19:41:19', 'active', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('Jersey PSG sân nhà', 6, 5, NULL, 3000000, NULL, 7500000, 200000, '2026-01-13 19:41:19', '2026-01-01 19:41:19', 'active', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('Rolex Land-Dweller', 8, 5, NULL, 850000000, NULL, 2125000000, 20000000, '2026-01-14 19:41:19', '2026-01-02 19:41:19', 'active', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('Rolex Sky-Dweller', 8, 5, NULL, 1200000000, NULL, 3000000000, 20000000, '2026-01-15 19:41:19', '2026-01-03 19:41:19', 'active', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('Curnon Kashmir Rise', 8, 5, NULL, 2000000, NULL, 5000000, 150000, '2026-01-16 19:41:19', '2026-01-04 19:41:19', 'active', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('Curnon Kashmir Sharp', 8, 6, NULL, 2200000, NULL, 5500000, 150000, '2026-01-17 19:41:19', '2026-01-05 19:41:19', 'active', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('Curnon Kashmir Calm', 8, 6, NULL, 2400000, NULL, 6000000, 150000, '2026-01-18 19:41:19', '2026-01-06 19:41:19', 'active', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('Attack Shark X11', 9, 6, NULL, 550000, NULL, 1375000, 50000, '2026-01-19 19:41:19', '2026-01-07 19:41:19', 'active', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('Logitech G502 X Plus Lightspeed', 9, 6, NULL, 5000000, NULL, 12500000, 50000, '2026-01-20 19:41:19', '2026-01-08 19:41:19', 'active', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('Logitech Lift Vertical', 9, 6, NULL, 4500000, NULL, 11250000, 50000, '2026-01-21 19:41:19', '2026-01-09 19:41:19', 'active', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('Laptop ASUS ROG Flow Z13 ', 11, 6, NULL, 50000000, NULL, 125000000, 1000000, '2026-01-22 19:41:19', '2026-01-10 19:41:19', 'active', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('Laptop ASUS ROG Zephyrus G14 ', 11, 6, NULL, 60000000, NULL, 150000000, 1000000, '2026-01-23 19:41:19', '2026-01-11 19:41:19', 'active', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('Laptop Lenovo Legion Pro 5', 11, 6, NULL, 45000000, NULL, 112500000, 1000000, '2026-01-24 19:41:19', '2026-01-12 19:41:19', 'active', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('Laptop Dell Alienware M16', 11, 6, NULL, 65000000, NULL, 162500000, 1000000, '2026-01-25 19:41:19', '2026-01-13 19:41:19', 'active', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('MacBook Pro 14 M4 Pro', 11, 6, NULL, 40000000, NULL, 100000000, 1000000, '2026-01-26 19:41:19', '2026-01-14 19:41:19', 'active', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('Bàn phím ASUS ROG Azoth Extreme', 12, 6, NULL, 5000000, NULL, 12500000, 1000000, '2026-01-27 19:41:19', '2026-01-15 19:41:19', 'active', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('Bàn phím Machenike KT84-B84W', 12, 6, NULL, 3000000, NULL, 7500000, 150000, '2026-01-28 19:41:19', '2026-01-16 19:41:19', 'active', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('Bàn phím Razer BlackWidow V4', 12, 6, NULL, 3200000, NULL, 8000000, 150000, '2026-01-29 19:41:19', '2026-01-17 19:41:19', 'active', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('Apple AirPods Pro 2022', 13, 6, NULL, 1000000, NULL, 2500000, 150000, '2026-01-30 19:41:19', '2026-01-18 19:41:19', 'active', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('Powerbeats Pro 2', 13, 6, NULL, 2000000, NULL, 5000000, 150000, '2026-01-31 19:41:19', '2026-01-19 19:41:19', 'active', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('Edifier W820NB', 13, 6, NULL, 1500000, NULL, 3750000, 150000, '2026-02-01 19:41:19', '2026-01-20 19:41:19', 'active', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('JBL Charge 6', 14, 6, NULL, 3000000, NULL, 7500000, 150000, '2026-02-02 19:41:19', '2026-01-21 19:41:19', 'active', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('JBL Flip 6', 14, 6, NULL, 3500000, NULL, 8750000, 150000, '2026-02-03 19:41:19', '2026-01-22 19:41:19', 'active', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('Marshall Acton III', 14, 6, NULL, 7750000, NULL, 19375000, 150000, '2026-02-04 19:41:19', '2026-01-23 19:41:19', 'active', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('SR-MV2000', 16, 6, NULL, 1350000, NULL, 3375000, 150000, '2026-02-05 19:41:19', '2026-01-24 19:41:19', 'active', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('SR-SmartMic Xmic Z4', 16, 6, NULL, 1550000, NULL, 3875000, 150000, '2026-02-06 19:41:19', '2026-01-25 19:41:19', 'active', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('Alokio AL-VIP98', 15, 6, NULL, 12000000, NULL, 30000000, 150000, '2026-02-07 19:41:19', '2026-01-26 19:41:19', 'active', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('Alokio AL-MX71', 15, 6, NULL, 15000000, NULL, 37500000, 150000, '2026-02-08 19:41:19', '2026-01-27 19:41:19', 'active', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('HONDA WINNER X', 17, 6, NULL, 50000000, NULL, 125000000, 1000000, '2026-02-09 19:41:19', '2026-01-28 19:41:19', 'active', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('YAMAHA Exciter 155 VVA', 17, 6, NULL, 45000000, NULL, 112500000, 1000000, '2026-02-10 19:41:19', '2026-01-29 19:41:19', 'active', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('YAMAHA PG-1', 17, 6, NULL, 35000000, NULL, 87500000, 1000000, '2026-02-11 19:41:19', '2026-01-30 19:41:19', 'active', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('VESPA SPRINT S 150', 17, 6, NULL, 100000000, NULL, 250000000, 2000000, '2026-02-12 19:41:19', '2026-01-31 19:41:19', 'active', 1, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('Lamborghini Aventador', 18, 6, 30, 60000000000, 61500000000, 150000000000, 300000000, '2026-02-13 19:41:19', '2026-02-01 19:41:19', 'active', 0, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('Lamborghini Huracan', 18, 6, 30, 7500000000, 8500000000, 18750000000, 200000000, '2026-02-14 19:41:19', '2026-02-02 19:41:19', 'active', 0, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('Bugatti Chiron', 18, 6, 30, 70000000000, 73000000000, 175000000000, 300000000, '2026-02-15 19:41:19', '2026-02-03 19:41:19', 'active', 0, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('Porsche 911 Carrera', 18, 6, 30, 7110000000, 7210000000, 17775000000, 20000000, '2026-02-16 19:41:19', '2026-02-04 19:41:19', 'active', 0, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('Porsche 718 Cayman', 18, 6, 30, 4000000000, 4100000000, 10000000000, 20000000, '2026-02-17 19:41:19', '2026-02-05 19:41:19', 'active', 0, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('Porsche Panamera GTS', 18, 6, 30, 10000000000, 11500000000, 25000000000, 300000000, '2026-02-18 19:41:19', '2026-02-06 19:41:19', 'active', 0, 1);
+INSERT INTO products (product_name, category_id, seller_id, winner_id, start_value, current_price, buy_now_value, price_step, start_time, end_time, status, permission, auto_renewal)
+VALUES ('Mercedes-Maybach S-Class', 18, 6, 30, 15000000000, 15500000000, 37500000000, 100000000, '2026-02-19 19:41:19', '2026-02-07 19:41:19', 'active', 0, 1);
 
 -- Verification query to check row count
 SELECT COUNT(*) as total_products FROM products;
@@ -356,361 +413,132 @@ SELECT COUNT(*) as total_products FROM products;
 -- Created: 2025-12-26
 
 -- Drop table if exists (optional - comment out if you want to preserve existing data)
-DROP TABLE IF EXISTS auction_bids;
 
 -- Create the auction_bids table
 
 -- Insert the auction bid data
-INSERT INTO bids (product_id, bidder_id,amount, bid_time, status) VALUES
-(1,25,20400000,'2025-11-25 07:38:16',1),
-(1,18,21000000,'2025-11-28 20:39:55',1),
-(1,25,21400000,'2025-12-02 07:30:08',1),
-(1,30,22000000,'2025-12-05 20:34:26',1),
-(1,36,22600000,'2025-12-09 08:12:49',1),
-(2,14,30400000,'2025-11-24 23:46:56',1),
-(2,40,30600000,'2025-11-28 02:50:47',1),
-(2,30,30800000,'2025-12-01 06:25:18',1),
-(2,26,31000000,'2025-12-04 08:29:29',1),
-(2,16,31600000,'2025-12-07 13:08:54',1),
-(2,18,32000000,'2025-12-10 16:00:39',1),
-(3,36,35200000,'2025-11-24 16:16:09',1),
-(3,35,35600000,'2025-11-27 13:44:36',1),
-(3,18,36000000,'2025-11-30 09:47:43',1),
-(3,19,36600000,'2025-12-03 07:36:52',1),
-(3,27,36800000,'2025-12-06 04:21:20',1),
-(3,23,37200000,'2025-12-09 02:34:04',1),
-(3,20,37400000,'2025-12-11 23:30:04',1),
-(4,24,40200000,'2025-11-25 16:01:53',1),
-(4,33,40400000,'2025-11-28 14:28:20',1),
-(4,22,40600000,'2025-12-01 09:44:42',1),
-(4,15,40800000,'2025-12-04 08:38:40',1),
-(4,32,41200000,'2025-12-07 05:10:15',1),
-(4,32,41800000,'2025-12-10 01:34:53',1),
-(4,12,42200000,'2025-12-12 22:10:29',1),
-(5,13,550000,'2025-11-26 05:23:00',1),
-(5,15,600000,'2025-11-29 15:17:22',1),
-(5,24,700000,'2025-12-03 02:51:57',1),
-(5,26,800000,'2025-12-06 12:25:30',1),
-(5,18,850000,'2025-12-09 22:59:59',1),
-(5,40,900000,'2025-12-13 10:10:00',1),
-(6,14,3020000000,'2025-11-25 22:19:42',1),
-(6,15,3050000000,'2025-11-29 02:06:56',1),
-(6,28,3070000000,'2025-12-02 04:43:50',1),
-(6,18,3100000000,'2025-12-05 08:00:39',1),
-(6,25,3110000000,'2025-12-08 11:14:20',1),
-(6,17,3140000000,'2025-12-11 13:41:04',1),
-(6,21,3170000000,'2025-12-14 16:12:15',1),
-(7,12,1700000,'2025-11-27 08:26:38',1),
-(7,13,2000000,'2025-11-30 22:07:56',1),
-(7,39,2200000,'2025-12-04 12:22:03',1),
-(7,27,2500000,'2025-12-08 02:25:45',1),
-(7,28,2800000,'2025-12-11 16:26:25',1),
-(7,34,2900000,'2025-12-15 05:46:15',1),
-(8,14,5100000,'2025-11-28 03:35:39',1),
-(8,30,5200000,'2025-12-02 12:24:43',1),
-(8,16,5300000,'2025-12-06 20:00:35',1),
-(8,37,5400000,'2025-12-11 03:30:24',1),
-(8,37,5600000,'2025-12-15 11:13:38',1),
-(9,27,2600000,'2025-11-27 04:40:54',1),
-(9,18,2700000,'2025-11-30 13:37:15',1),
-(9,38,2900000,'2025-12-03 22:13:33',1),
-(9,30,3100000,'2025-12-07 07:56:53',1),
-(9,34,3200000,'2025-12-10 16:23:16',1),
-(9,27,3400000,'2025-12-14 01:41:57',1),
-(9,15,3600000,'2025-12-17 10:02:01',1),
-(10,28,7100000,'2025-11-27 19:44:16',1),
-(10,19,7200000,'2025-12-01 20:01:14',1),
-(10,14,7500000,'2025-12-05 19:45:15',1),
-(10,17,7700000,'2025-12-09 19:02:48',1),
-(10,27,8000000,'2025-12-13 19:22:19',1),
-(10,37,8200000,'2025-12-17 19:05:59',1),
-(11,26,220000,'2025-11-27 23:25:27',1),
-(11,33,260000,'2025-12-02 02:53:37',1),
-(11,29,300000,'2025-12-06 05:15:27',1),
-(11,23,340000,'2025-12-10 10:22:21',1),
-(11,36,400000,'2025-12-14 12:48:40',1),
-(11,13,460000,'2025-12-18 15:52:56',1),
-(12,39,3200000,'2025-11-28 02:20:07',1),
-(12,30,3400000,'2025-12-02 08:24:50',1),
-(12,13,3600000,'2025-12-06 15:16:15',1),
-(12,27,4000000,'2025-12-10 22:48:22',1),
-(12,30,4400000,'2025-12-15 05:09:58',1),
-(12,36,5000000,'2025-12-19 12:38:02',1),
-(13,33,3600000,'2025-11-28 22:57:11',1),
-(13,32,4200000,'2025-12-04 04:27:52',1),
-(13,32,4600000,'2025-12-09 06:47:17',1),
-(13,14,5000000,'2025-12-14 11:19:49',1),
-(13,30,5200000,'2025-12-19 15:36:13',1),
-(14,34,3600000,'2025-11-28 10:03:06',1),
-(14,30,4200000,'2025-12-02 23:54:50',1),
-(14,20,4600000,'2025-12-07 12:19:34',1),
-(14,24,5200000,'2025-12-12 02:13:14',1),
-(14,14,5400000,'2025-12-16 16:55:45',1),
-(14,17,5600000,'2025-12-21 05:07:51',1),
-(15,12,3200000,'2025-11-27 23:11:03',1),
-(15,29,3800000,'2025-12-02 02:13:54',1),
-(15,22,4400000,'2025-12-06 05:28:28',1),
-(15,13,4800000,'2025-12-10 08:29:27',1),
-(15,15,5000000,'2025-12-14 11:18:28',1),
-(15,35,5600000,'2025-12-18 13:59:44',1),
-(15,22,6000000,'2025-12-22 17:29:51',1),
-(16,25,3600000,'2025-11-28 16:03:39',1),
-(16,34,4000000,'2025-12-03 13:04:52',1),
-(16,12,4400000,'2025-12-08 09:43:09',1),
-(16,12,4600000,'2025-12-13 05:16:31',1),
-(16,34,5200000,'2025-12-18 02:03:04',1),
-(16,19,5400000,'2025-12-22 23:30:37',1),
-(17,27,3200000,'2025-11-29 16:17:37',1),
-(17,26,3400000,'2025-12-05 11:49:51',1),
-(17,18,4000000,'2025-12-11 08:02:45',1),
-(17,25,4400000,'2025-12-17 03:48:09',1),
-(17,13,5000000,'2025-12-22 23:06:30',1),
-(18,37,3600000,'2025-11-28 23:08:57',1),
-(18,13,4200000,'2025-12-04 02:18:51',1),
-(18,12,4800000,'2025-12-09 06:22:28',1),
-(18,21,5400000,'2025-12-14 10:08:35',1),
-(18,22,5800000,'2025-12-19 12:12:44',1),
-(18,30,6400000,'2025-12-24 15:50:41',1),
-(19,17,3200000,'2025-12-02 12:57:55',1),
-(19,12,3800000,'2025-12-07 06:52:50',1),
-(19,14,4400000,'2025-12-11 23:11:35',1),
-(19,29,4800000,'2025-12-16 15:19:05',1),
-(19,34,5200000,'2025-12-21 10:24:03',1),
-(19,23,5800000,'2025-12-26 03:04:50',1),
-(20,16,3200000,'2025-12-03 10:58:48',1),
-(20,39,3800000,'2025-12-09 02:50:53',1),
-(20,12,4200000,'2025-12-14 19:08:18',1),
-(20,17,4800000,'2025-12-20 11:31:37',1),
-(20,23,5200000,'2025-12-26 03:42:19',1),
-(21,37,3400000,'2025-12-02 04:37:31',1),
-(21,28,3600000,'2025-12-06 14:39:31',1),
-(21,17,4000000,'2025-12-10 21:41:30',1),
-(21,39,4600000,'2025-12-15 08:33:29',1),
-(21,33,5200000,'2025-12-19 16:47:31',1),
-(21,29,5600000,'2025-12-24 01:27:31',1),
-(21,13,6000000,'2025-12-28 11:00:25',1),
-(22,37,910000000,'2025-12-03 18:53:03',1),
-(22,24,950000000,'2025-12-09 19:53:36',1),
-(22,40,1010000000,'2025-12-15 20:05:20',1),
-(22,38,1050000000,'2025-12-21 19:26:20',1),
-(22,16,1090000000,'2025-12-27 20:36:11',1),
-(23,21,1220000000,'2025-12-03 23:13:44',1),
-(23,16,1260000000,'2025-12-10 04:33:26',1),
-(23,24,1320000000,'2025-12-16 07:22:38',1),
-(23,29,1380000000,'2025-12-22 11:50:36',1),
-(23,16,1420000000,'2025-12-28 15:39:48',1),
-(24,15,2300000,'2025-12-03 05:48:16',1),
-(24,31,2450000,'2025-12-08 15:48:48',1),
-(24,14,2750000,'2025-12-14 03:26:22',1),
-(24,29,2900000,'2025-12-19 13:05:28',1),
-(24,35,3200000,'2025-12-24 22:28:06',1),
-(24,36,3650000,'2025-12-30 08:34:21',1),
-(25,27,2650000,'2025-12-02 16:30:49',1),
-(25,15,2950000,'2025-12-07 13:05:15',1),
-(25,39,3100000,'2025-12-12 11:14:55',1),
-(25,20,3250000,'2025-12-17 07:36:23',1),
-(25,20,3400000,'2025-12-22 04:22:41',1),
-(25,12,3850000,'2025-12-27 01:28:44',1),
-(25,30,4300000,'2025-12-31 22:08:39',1),
-(26,13,2550000,'2025-12-02 18:42:31',1),
-(26,22,3000000,'2025-12-07 20:25:31',1),
-(26,24,3300000,'2025-12-12 19:34:43',1),
-(26,26,3750000,'2025-12-17 19:01:00',1),
-(26,29,4200000,'2025-12-22 19:39:02',1),
-(26,34,4650000,'2025-12-27 19:37:20',1),
-(26,12,5100000,'2026-01-01 20:38:24',1),
-(27,24,600000,'2025-12-04 15:58:28',1),
-(27,35,750000,'2025-12-11 12:35:56',1),
-(27,19,900000,'2025-12-18 07:01:27',1),
-(27,23,1050000,'2025-12-25 03:15:08',1),
-(27,18,1100000,'2025-12-31 23:28:58',1),
-(28,20,5100000,'2025-12-03 19:18:53',1),
-(28,38,5150000,'2025-12-09 20:31:11',1),
-(28,15,5250000,'2025-12-15 19:23:32',1),
-(28,36,5300000,'2025-12-21 19:28:32',1),
-(28,14,5450000,'2025-12-27 18:43:23',1),
-(28,35,5500000,'2026-01-02 18:41:50',1),
-(29,37,4550000,'2025-12-03 22:13:05',1),
-(29,21,4600000,'2025-12-10 02:21:07',1),
-(29,30,4700000,'2025-12-16 05:10:14',1),
-(29,34,4750000,'2025-12-22 08:29:28',1),
-(29,26,4900000,'2025-12-28 13:11:00',1),
-(29,15,4950000,'2026-01-03 15:50:27',1),
-(30,22,51000000,'2025-12-04 03:24:22',1),
-(30,14,53000000,'2025-12-10 08:49:19',1),
-(30,28,55000000,'2025-12-16 16:02:10',1),
-(30,15,56000000,'2025-12-22 22:35:10',1),
-(30,12,57000000,'2025-12-29 06:26:57',1),
-(30,37,59000000,'2026-01-04 12:44:58',1),
-(31,12,61000000,'2025-12-03 10:01:42',1),
-(31,31,63000000,'2025-12-09 02:16:22',1),
-(31,22,66000000,'2025-12-14 16:48:48',1),
-(31,33,68000000,'2025-12-20 06:43:16',1),
-(31,29,70000000,'2025-12-25 22:52:10',1),
-(31,32,72000000,'2025-12-31 13:56:42',1),
-(31,39,73000000,'2026-01-06 05:15:33',1),
-(32,32,47000000,'2025-12-03 14:06:19',1),
-(32,22,50000000,'2025-12-09 07:24:40',1),
-(32,17,53000000,'2025-12-15 02:01:37',1),
-(32,20,54000000,'2025-12-20 19:33:22',1),
-(32,23,57000000,'2025-12-26 13:49:48',1),
-(32,12,59000000,'2026-01-01 07:36:47',1),
-(32,29,60000000,'2026-01-07 01:14:29',1),
-(33,32,68000000,'2025-12-03 16:46:34',1),
-(33,38,69000000,'2025-12-09 12:54:47',1),
-(33,24,71000000,'2025-12-15 10:44:24',1),
-(33,14,73000000,'2025-12-21 07:09:23',1),
-(33,34,75000000,'2025-12-27 04:43:04',1),
-(33,39,78000000,'2026-01-02 00:57:10',1),
-(33,23,79000000,'2026-01-07 23:40:01',1),
-(34,38,42000000,'2025-12-05 20:28:17',1),
-(34,18,44000000,'2025-12-13 19:49:48',1),
-(34,17,46000000,'2025-12-21 19:10:17',1),
-(34,26,49000000,'2025-12-29 19:41:56',1),
-(34,17,52000000,'2026-01-06 18:55:37',1),
-(35,26,7000000,'2025-12-04 19:34:19',1),
-(35,25,10000000,'2025-12-11 19:27:35',1),
-(35,15,12000000,'2025-12-18 19:08:09',1),
-(35,36,13000000,'2025-12-25 18:58:10',1),
-(35,39,15000000,'2026-01-01 19:38:01',1),
-(35,23,17000000,'2026-01-08 20:03:42',1),
-(36,22,3150000,'2025-12-06 02:51:50',1),
-(36,39,3450000,'2025-12-14 12:25:20',1),
-(36,12,3600000,'2025-12-22 18:46:02',1),
-(36,40,3750000,'2025-12-31 04:00:04',1),
-(36,35,4050000,'2026-01-08 10:56:31',1),
-(37,24,3500000,'2025-12-06 06:55:50',1),
-(37,30,3950000,'2025-12-14 19:00:45',1),
-(37,39,4400000,'2025-12-23 08:25:46',1),
-(37,35,4700000,'2025-12-31 19:52:14',1),
-(37,18,5150000,'2026-01-09 08:20:15',1),
-(38,28,1150000,'2025-12-04 06:52:54',1),
-(38,29,1450000,'2025-12-10 20:07:30',1),
-(38,26,1750000,'2025-12-17 06:52:47',1),
-(38,25,1900000,'2025-12-23 19:08:28',1),
-(38,23,2350000,'2025-12-30 07:03:40',1),
-(38,26,2800000,'2026-01-05 19:10:28',1),
-(38,26,3100000,'2026-01-12 08:30:49',1),
-(39,21,2450000,'2025-12-04 11:26:11',1),
-(39,35,2750000,'2025-12-11 01:42:20',1),
-(39,38,3200000,'2025-12-17 16:17:31',1),
-(39,14,3350000,'2025-12-24 07:52:18',1),
-(39,31,3650000,'2025-12-30 23:24:28',1),
-(39,23,3950000,'2026-01-06 14:33:46',1),
-(39,35,4100000,'2026-01-13 05:26:32',1),
-(40,19,1800000,'2025-12-06 18:54:19',1),
-(40,40,1950000,'2025-12-15 19:11:04',1),
-(40,24,2100000,'2025-12-24 19:43:03',1),
-(40,21,2400000,'2026-01-02 19:39:45',1),
-(40,13,2850000,'2026-01-11 20:39:56',1),
-(41,28,3300000,'2025-12-05 15:38:15',1),
-(41,35,3450000,'2025-12-13 13:09:09',1),
-(41,28,3600000,'2025-12-21 10:08:57',1),
-(41,18,4050000,'2025-12-29 06:16:29',1),
-(41,28,4350000,'2026-01-06 03:04:27',1),
-(41,35,4800000,'2026-01-13 22:22:01',1),
-(42,14,3950000,'2025-12-04 20:20:11',1),
-(42,36,4250000,'2025-12-11 18:57:35',1),
-(42,21,4400000,'2025-12-18 18:47:43',1),
-(42,25,4550000,'2025-12-25 19:09:25',1),
-(42,14,5000000,'2026-01-01 20:11:36',1),
-(42,24,5300000,'2026-01-08 19:18:48',1),
-(42,37,5450000,'2026-01-15 19:24:34',1),
-(43,35,7900000,'2025-12-07 08:38:53',1),
-(43,28,8350000,'2025-12-16 19:36:52',1),
-(43,34,8650000,'2025-12-26 08:31:48',1),
-(43,26,8950000,'2026-01-04 19:50:37',1),
-(43,12,9250000,'2026-01-14 07:17:35',1),
-(44,24,1500000,'2025-12-07 10:58:38',1),
-(44,21,1650000,'2025-12-17 03:55:51',1),
-(44,29,2100000,'2025-12-26 19:31:24',1),
-(44,19,2400000,'2026-01-05 12:21:58',1),
-(44,15,2550000,'2026-01-15 03:19:22',1),
-(45,32,1850000,'2025-12-05 04:12:30',1),
-(45,20,2300000,'2025-12-12 14:08:34',1),
-(45,29,2450000,'2025-12-19 23:35:24',1),
-(45,17,2750000,'2025-12-27 08:35:18',1),
-(45,34,2900000,'2026-01-03 17:32:00',1),
-(45,17,3200000,'2026-01-11 00:56:18',1),
-(45,30,3650000,'2026-01-18 10:24:52',1),
-(46,37,12150000,'2025-12-05 08:25:48',1),
-(46,21,12450000,'2025-12-12 20:01:43',1),
-(46,16,12750000,'2025-12-20 08:03:15',1),
-(46,30,13050000,'2025-12-27 19:09:02',1),
-(46,40,13350000,'2026-01-04 06:58:14',1),
-(46,16,13800000,'2026-01-11 19:18:18',1),
-(46,21,13950000,'2026-01-19 07:36:59',1),
-(47,38,15300000,'2025-12-06 12:59:55',1),
-(47,30,15600000,'2025-12-15 06:27:46',1),
-(47,26,16050000,'2025-12-23 22:22:11',1),
-(47,40,16500000,'2026-01-01 16:05:59',1),
-(47,27,16800000,'2026-01-10 10:09:45',1),
-(47,14,16950000,'2026-01-19 02:28:07',1),
-(48,35,51000000,'2025-12-08 03:29:16',1),
-(48,27,54000000,'2025-12-18 11:32:28',1),
-(48,17,56000000,'2025-12-28 19:22:10',1),
-(48,25,57000000,'2026-01-08 02:48:11',1),
-(48,18,58000000,'2026-01-18 12:24:11',1),
-(49,18,48000000,'2025-12-05 17:16:12',1),
-(49,25,51000000,'2025-12-13 13:55:42',1),
-(49,17,52000000,'2025-12-21 09:54:31',1),
-(49,33,54000000,'2025-12-29 08:01:54',1),
-(49,32,55000000,'2026-01-06 05:06:17',1),
-(49,30,57000000,'2026-01-14 00:47:40',1),
-(49,12,60000000,'2026-01-21 22:22:54',1),
-(50,38,38000000,'2025-12-05 19:33:50',1),
-(50,38,39000000,'2025-12-13 19:13:36',1),
-(50,17,40000000,'2025-12-21 19:46:17',1),
-(50,23,43000000,'2025-12-29 18:49:36',1),
-(50,21,45000000,'2026-01-06 19:17:44',1),
-(50,29,47000000,'2026-01-14 19:05:54',1),
-(50,12,48000000,'2026-01-22 20:26:01',1),
-(51,12,102000000,'2025-12-07 02:38:29',1),
-(51,37,108000000,'2025-12-16 10:20:19',1),
-(51,28,110000000,'2025-12-25 16:02:52',1),
-(51,12,116000000,'2026-01-03 22:32:14',1),
-(51,31,120000000,'2026-01-13 05:55:35',1),
-(51,27,122000000,'2026-01-22 13:32:06',1),
-(52,32,69000000000,'2025-11-06 09:22:08',1),
-(52,19,78000000000,'2025-11-20 23:34:22',1),
-(52,14,87000000000,'2025-12-05 13:20:12',1),
-(52,32,90000000000,'2025-12-20 02:26:36',1),
-(52,32,99000000000,'2026-01-03 16:44:23',1),
-(52,15,102000000000,'2026-01-18 06:38:24',1),
-(53,39,7900000000,'2025-11-04 16:15:26',1),
-(53,25,8300000000,'2025-11-17 13:39:43',1),
-(53,25,8700000000,'2025-11-30 10:24:55',1),
-(53,31,9100000000,'2025-12-13 08:11:42',1),
-(53,30,9700000000,'2025-12-26 04:36:27',1),
-(53,14,10100000000,'2026-01-08 00:55:10',1),
-(53,14,10700000000,'2026-01-20 23:12:12',1),
-(54,32,73000000000,'2025-11-09 03:47:11',1),
-(54,21,82000000000,'2025-11-26 11:27:56',1),
-(54,12,91000000000,'2025-12-13 20:21:43',1),
-(54,37,97000000000,'2025-12-31 03:02:49',1),
-(54,38,100000000000,'2026-01-17 12:04:38',1),
-(55,24,7710000000,'2025-11-08 12:00:44',1),
-(55,29,8110000000,'2025-11-26 03:35:59',1),
-(55,40,8310000000,'2025-12-13 18:52:06',1),
-(55,27,8710000000,'2025-12-31 10:49:20',1),
-(55,22,8910000000,'2026-01-18 02:47:47',1),
-(56,31,4200000000,'2025-12-12 00:11:28',1),
-(56,34,4800000000,'2025-12-23 03:27:12',1),
-(56,35,5000000000,'2026-01-03 07:08:02',1),
-(56,22,5600000000,'2026-01-14 11:01:54',1),
-(56,28,5800000000,'2026-01-25 15:46:02',1),
-(57,24,13000000000,'2025-12-09 06:47:10',1),
-(57,40,16000000000,'2025-12-17 19:30:17',1),
-(57,38,22000000000,'2025-12-26 08:17:17',1),
-(57,12,28000000000,'2026-01-03 19:23:07',1),
-(57,37,31000000000,'2026-01-12 08:34:51',1),
-(57,28,34000000000,'2026-01-20 19:31:47',1),
-(57,29,37000000000,'2026-01-29 07:30:29',1),
-(58,38,17000000000,'2025-12-11 12:07:59',1),
-(58,13,19000000000,'2025-12-23 04:06:15',1),
-(58,18,22000000000,'2026-01-03 20:17:27',1),
-(58,31,25000000000,'2026-01-15 12:26:33',1),
-(58,32,26000000000,'2026-01-27 04:11:54',1);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (8, 30, 5100000, '2025-11-24 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (8, 31, 5200000, '2025-11-25 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (8, 29, 5300000, '2025-11-26 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (9, 28, 2600000, '2025-11-24 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (9, 25, 2700000, '2025-11-25 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (9, 30, 2800000, '2025-11-26 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (10, 31, 7100000, '2025-11-24 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (10, 29, 7200000, '2025-11-25 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (10, 28, 7300000, '2025-11-26 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (11, 25, 220000, '2025-11-24 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (11, 30, 240000, '2025-11-25 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (11, 31, 260000, '2025-11-26 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (12, 29, 3200000, '2025-11-24 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (12, 28, 3400000, '2025-11-25 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (12, 25, 3600000, '2025-11-26 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (13, 30, 3200000, '2025-11-24 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (13, 31, 3400000, '2025-11-25 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (13, 29, 3600000, '2025-11-26 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (14, 28, 3200000, '2025-11-24 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (14, 25, 3400000, '2025-11-25 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (14, 30, 3600000, '2025-11-26 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (52, 31, 60300000000, '2025-11-24 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (52, 29, 60600000000, '2025-11-25 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (52, 28, 60900000000, '2025-11-26 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (52, 25, 61200000000, '2025-11-27 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (52, 30, 61500000000, '2025-11-28 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (53, 31, 7700000000, '2025-11-24 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (53, 29, 7900000000, '2025-11-25 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (53, 28, 8100000000, '2025-11-26 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (53, 25, 8300000000, '2025-11-27 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (53, 30, 8500000000, '2025-11-28 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (54, 31, 70300000000, '2025-11-28 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (54, 29, 70600000000, '2025-11-28 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (54, 28, 70900000000, '2025-11-28 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (54, 25, 71200000000, '2025-11-28 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (54, 30, 71500000000, '2025-11-29 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (54, 31, 71800000000, '2025-11-30 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (54, 29, 72100000000, '2025-12-01 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (54, 28, 72400000000, '2025-12-02 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (54, 25, 72700000000, '2025-12-03 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (54, 30, 73000000000, '2025-12-04 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (55, 31, 7130000000, '2025-12-05 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (55, 29, 7150000000, '2025-12-06 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (55, 28, 7170000000, '2025-12-07 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (55, 25, 7190000000, '2025-12-08 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (55, 30, 7210000000, '2025-12-09 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (56, 31, 4020000000, '2025-12-10 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (56, 29, 4040000000, '2025-12-11 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (56, 28, 4060000000, '2025-12-12 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (56, 25, 4080000000, '2025-12-13 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (56, 30, 4100000000, '2025-12-14 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (57, 31, 10300000000, '2025-12-15 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (57, 29, 10600000000, '2025-12-16 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (57, 28, 10900000000, '2025-12-17 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (57, 25, 11200000000, '2025-12-18 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (57, 30, 11500000000, '2025-12-19 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (58, 31, 15100000000, '2025-12-20 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (58, 29, 15200000000, '2025-12-21 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (58, 28, 15300000000, '2025-12-22 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (58, 25, 15400000000, '2025-12-23 19:41:19', 0);
+INSERT INTO bids (product_id, bidder_id, amount, bid_time, status)
+VALUES (58, 30, 15500000000, '2025-12-24 19:41:19', 0);
 
 -- Verification query to check row count
 
@@ -774,180 +602,351 @@ INSERT INTO productdescriptions (product_id, description, created_at) VALUES
 (57, 'Đỉnh của chóp', '2025-12-15 19:41:19'),
 (58, 'Đỉnh của chóp', '2025-12-15 19:41:19');
 
-
-INSERT INTO productimages (product_id, img_url) VALUES
-(1, 'https://i.postimg.cc/pX4QYbpn/28889798.jpg'),
-(1, 'https://i.postimg.cc/3JVjC5dm/96639-image001-16140026.jpg'),
-(1, 'https://i.postimg.cc/pX4QYbp9/iphone-17-pro-max-mau-xanh-dam.jpg'),
-(2, 'https://i.postimg.cc/pX4QYbpn/28889798.jpg'),
-(2, 'https://i.postimg.cc/3JVjC5dm/96639-image001-16140026.jpg'),
-(2, 'https://i.postimg.cc/pX4QYbp9/iphone-17-pro-max-mau-xanh-dam.jpg'),
-(3, 'https://i.postimg.cc/pX4QYbpn/28889798.jpg'),
-(3, 'https://i.postimg.cc/3JVjC5dm/96639-image001-16140026.jpg'),
-(3, 'https://i.postimg.cc/pX4QYbp9/iphone-17-pro-max-mau-xanh-dam.jpg'),
-(4, 'https://i.postimg.cc/Kvw7rSR1/dien-thoai-di-dong-Nokia-1280-dienmay-com-l.jpg'),
-(4, 'https://i.postimg.cc/DyHQdk8Z/dien-thoai-nokia-1280-2tekvn-net-2.jpg'),
-(4, 'https://i.postimg.cc/7Yd1M8fP/nokia-1280-clip-image001.jpg'),
-(5, 'https://i.postimg.cc/ncgKYbCL/vertu-signature-s-black-gold-ink-jade-black-calf-2-954543f6629c4541ae5b6fc0b98f7c62-grande.png'),
-(5, 'https://i.postimg.cc/28VFZ881/vertu-signature-v-black-gold-diamond-iron-black-alligator-jpeg.jpg'),
-(5, 'https://i.postimg.cc/qMScXVzv/vertu-signature-v-gold-diamond-alligator-a48804798b864022ad18a4f338ef9716-grande.png'),
-(6, 'https://i.postimg.cc/Fs7gLssz/Giay-Nike-Mercurial-Vapor-15-Academy-TF-Racer-Pink-DJ5633-601.jpg'),
-(6, 'https://i.postimg.cc/8PjB6PPj/images.jpg'),
-(6, 'https://i.postimg.cc/J4Gck44y/anh-sp-add-01-01-01-04-07173-2-526bc45cf92a41dd89211b8389572379-1024x1024.jpg'),
-(7, 'https://i.postimg.cc/VLdBCLLf/Giay-Nike-Mercurial-Vapor-15-Elite-FG-Pink-Foam-Black-DJ4978-601.jpg'),
-(7, 'https://i.postimg.cc/ncCYDccp/57.jpg'),
-(7, 'https://i.postimg.cc/KvRrMvvh/iii.webp'),
-(8, 'https://i.postimg.cc/9Frt7FFh/qii.avif'),
-(8, 'https://i.postimg.cc/YqhfWqq7/dldl.avif'),
-(8, 'https://i.postimg.cc/HsV4ysWq/hhhg.avif'),
-(9, 'https://i.postimg.cc/rFKCrFyZ/hmf.avif'),
-(9, 'https://i.postimg.cc/VLdBCLsV/lll.avif'),
-(9, 'https://i.postimg.cc/RVNQHVC8/vp.avif'),
-(10, 'https://i.postimg.cc/448QyhZk/giay-wika-toni-kroos-xanh.jpg'),
-(10, 'https://i.postimg.cc/tRrNJVb8/giay-wika-toni-kroos-xanh-2.jpg'),
-(10, 'https://i.postimg.cc/mZdykFRx/vn-11134207-7r98o-ln6wihz98xjs16-b452fd1d00e04dec86a087c51dd0917e.jpg'),
-(11, 'https://i.postimg.cc/bY69r2P9/mog.avif'),
-(11, 'https://i.postimg.cc/HWS9n7mS/rm1.avif'),
-(11, 'https://i.postimg.cc/DfCP0bhj/ao-djau-san-nha-authentic-real-madrid-24-25-trang-ix8095-hm6-2173f6f326c24436b66c7c5a6ee8e755-grande.png'),
-(12, 'https://i.postimg.cc/jq842JTZ/ee.avif'),
-(12, 'https://i.postimg.cc/v8PtT6yX/mmf.webp'),
-(12, 'https://i.postimg.cc/bY69r2P9/mog.avif'),
-(13, 'https://i.postimg.cc/h4C1v7n8/mmff.avif'),
-(13, 'https://i.postimg.cc/Vs7WvbwB/mu.avif'),
-(13, 'https://i.postimg.cc/59PSyFJC/manchester-united-24-25-home-kit-design-leaked-v0-uugu3vhy7t0d1.jpg'),
-(14, 'https://i.postimg.cc/x8Fv4BgC/mmd.avif'),
-(14, 'https://i.postimg.cc/1XYGjbM5/download.jpg'),
-(14, 'https://i.postimg.cc/3NbXcz9Y/fdsf.avif'),
-(15, 'https://i.postimg.cc/VvHqV2gT/sssss.webp'),
-(15, 'https://i.postimg.cc/hv3L5NMK/26-Nam.avif'),
-(15, 'https://i.postimg.cc/J0dN2SxF/asdasd.webp'),
-(16, 'https://i.postimg.cc/rsY1P7g8/asss.avif'),
-(16, 'https://i.postimg.cc/vTSrNCXF/sfs.avif'),
-(16, 'https://i.postimg.cc/5ykBRDp2/26-Replica-Manchester-City-Nam.avif'),
-(17, 'https://i.postimg.cc/2yXQKgGX/sss.avif'),
-(17, 'https://i.postimg.cc/8cnR0x44/opo.avif'),
-(17, 'https://i.postimg.cc/sx0YNbmN/rfs.avif'),
-(18, 'https://i.postimg.cc/T1PjQTVs/s-l1200.jpg'),
-(18, 'https://i.postimg.cc/qqZs5WwG/sdd.avif'),
-(18, 'https://i.postimg.cc/J0dN2Sxq/mg-4984-8c257ac8e5e44c7fb9e7d73dcf6e379f-1024x1024.jpg'),
-(19, 'https://i.postimg.cc/Bbv5NJTM/FN8781-101-1-1200x1200.webp'),
-(19, 'https://i.postimg.cc/HnL03TwZ/quan-ao-bong-da-psg-san-khach-25-26-mau-trang-hido-sport.webp'),
-(19, 'https://i.postimg.cc/prdQkPf1/Ao-psg-san-khach-2023-1.webp'),
-(20, 'https://i.postimg.cc/prdQkPf1/Ao-psg-san-khach-2023-1.webp'),
-(20, 'https://i.postimg.cc/Y0SN8t68/2-0af779211eca4e18b6d4bc9c5959bb25.png'),
-(20, 'https://i.postimg.cc/3Nwj93XB/Ao-bong-da-psg-san-nha-2526-1.png'),
-(21, 'https://i.postimg.cc/j2j6vRHh/m127334-0001.avif'),
-(21, 'https://i.postimg.cc/HnL03Tww/rg(29).jpg'),
-(21, 'https://i.postimg.cc/prdQkPfY/rolex-the-land-dweller-yuja-wang-ywang-potrait.webp'),
-(22, 'https://i.postimg.cc/GtpPzbFD/m336934-0005.avif'),
-(22, 'https://i.postimg.cc/SRKLVm6X/Rolex-Sky-Dweller-15.jpg'),
-(22, 'https://i.postimg.cc/QCMgSjQg/Rolex-Sky-Dweller-326934-Pic-6.jpg'),
-(23, 'https://i.postimg.cc/63cLd8vv/ANN-8626-e1708398277706.webp'),
-(23, 'https://i.postimg.cc/mDjNQPHz/kashmir-banner1-e1708398488851.webp'),
-(23, 'https://i.postimg.cc/k4sFx2b2/NDP5195-e1708398570382.webp'),
-(24, 'https://i.postimg.cc/xC5yKXzc/BR-Sharp-2345353.webp'),
-(24, 'https://i.postimg.cc/nz2YvXDh/Sharp-3.webp'),
-(24, 'https://i.postimg.cc/vBhLW4V1/Sharp-Tha-ng12351235.webp'),
-(25, 'https://i.postimg.cc/Jnxcbsk4/BT-Calm-1676855.webp'),
-(25, 'https://i.postimg.cc/26GF41Zk/Calm-246445343.webp'),
-(25, 'https://i.postimg.cc/XJLcwrCN/Curnonlst18273-copy-e1708576927927.webp'),
-(26, 'https://i.postimg.cc/B6pcxjKG/2-336c56a1-4add-4b45-ad5d-03b077d0e1cd.webp'),
-(26, 'https://i.postimg.cc/ydjXFDSt/3-1e67c7ce-c7a9-4048-ab0f-c0be06bc9cb1.webp'),
-(26, 'https://i.postimg.cc/tTkthsxy/3-5903f8ba-cd09-4b98-9443-1e2a658243d1.webp'),
-(27, 'https://i.postimg.cc/ZR4xB8CJ/chuot-gaming-khong-day-logitech-g502-x-plus-lightspeed-1.webp'),
-(27, 'https://i.postimg.cc/hjc1zLfc/chuot-gaming-khong-day-logitech-g502-x-plus-lightspeed-2.webp'),
-(27, 'https://i.postimg.cc/rmMN01Kc/chuot-gaming-khong-day-logitech-g502-x-plus-lightspeed-3.webp'),
-(28, 'https://i.postimg.cc/B64BLTXW/10-9-61.webp'),
-(28, 'https://i.postimg.cc/TwfJLVhz/11-6-33.webp'),
-(28, 'https://i.postimg.cc/sXs4QY1t/12-5-85.jpg'),
-(29, 'https://i.postimg.cc/ZR4xB80X/text-ng-n-14-9-90.webp'),
-(29, 'https://i.postimg.cc/pTRJhfy0/text-ng-n-16-6-214.webp'),
-(29, 'https://i.postimg.cc/Y9MzG6jD/text-ng-n-19-5-50.webp'),
-(30, 'https://i.postimg.cc/NMBk96LJ/text-ng-n-4-7-201.webp'),
-(30, 'https://i.postimg.cc/qR4xhsgx/text-ng-n-5-9-205.webp'),
-(30, 'https://i.postimg.cc/Sskf26jV/text-ng-n-7-4-160.webp'),
-(31, 'https://i.postimg.cc/NMBk96LJ/text-ng-n-4-7-201.webp'),
-(31, 'https://i.postimg.cc/qR4xhsgx/text-ng-n-5-9-205.webp'),
-(31, 'https://i.postimg.cc/Sskf26jV/text-ng-n-7-4-160.webp'),
-(32, 'https://i.postimg.cc/vBbtgrDL/text-ng-n-3-7-186.webp'),
-(32, 'https://i.postimg.cc/ydsygmWT/text-ng-n-4-7-234.webp'),
-(32, 'https://i.postimg.cc/63tf2rTV/text-ng-n-8-6-187.webp'),
-(33, 'https://i.postimg.cc/BvxCnYZp/laptop-dell-alienware-m16-3.webp'),
-(33, 'https://i.postimg.cc/nLv1hRVk/laptop-dell-alienware-m16-4.webp'),
-(33, 'https://i.postimg.cc/VNjFkGs7/laptop-dell-alienware-m162.webp'),
-(34, 'https://i.postimg.cc/LszV8C4k/macbook-pro-14-inch-m4-pro-or-max-chip-silver-pdp-image-position-2-7.webp'),
-(34, 'https://i.postimg.cc/MGyYpPZy/macbook-pro-16-inch-m4-pro-or-max-chip-silver-pdp-image-position-7-7.webp'),
-(34, 'https://i.postimg.cc/PqmM53fQ/text-ng-n-1-6-138-6.webp'),
-(35, 'https://i.postimg.cc/d089VHQC/ban-phim-gaming-asus-rog-azoth-extreme-den-1.webp'),
-(35, 'https://i.postimg.cc/MGyYpPZj/ban-phim-gaming-asus-rog-azoth-extreme-den-3-1.webp'),
-(35, 'https://i.postimg.cc/SKWGxTQs/ban-phim-gaming-asus-rog-azoth-extreme-den-4-1.webp'),
-(36, 'https://i.postimg.cc/g09DdFpx/Machenike-KT84-B84W-Smart-Screen-Tri-mode-White.webp'),
-(36, 'https://i.postimg.cc/9fGBQ8X7/white-1-f085dcafd386443dbbe5e6303ac8b74e-master.png'),
-(36, 'https://i.postimg.cc/k5xyg1MF/white-2-eda5e12d1dbb4b699c4dcb0b5e294f9a-master.png'),
-(37, 'https://i.postimg.cc/d0MBvPFD/2-f69a2d419371436083b3a5521ebec66c-master.jpg'),
-(37, 'https://i.postimg.cc/FKtZm5v9/z4571450737160-2334de0074ebbfea277f8780519c46ac-568141b69a044b55bd1bf078f86a27a6-master.jpg'),
-(37, 'https://i.postimg.cc/JhwqmV8L/z4571453724049-38fee4cd392684bac3f5f2c9f131aaf8-7156f22659e0426cb913402d7ca960ed-master.jpg'),
-(38, 'https://i.postimg.cc/QMLbsGDZ/airpods-pro-3-600x600-97609cf56e73499f94f3b6bdd605cf82-c8aecc3428ce451da1dea465b866e65a-master.png'),
-(38, 'https://i.postimg.cc/3wMB75h5/airpods-pro-matte-white-color-a6f3150ab0a04ec39fb47011f6be6207-9dc08709e3544471a705ed58669aacb3-mast.jpg'),
-(38, 'https://i.postimg.cc/1zxHPhSP/mwp22-c3552981274e43acaa2fa999645a1b18-a93e0fa0e0334e0e907bda97d5fd5c90-master.png'),
-(39, 'https://i.postimg.cc/fb4KZnNg/tai-nghe-bluetooth-powerbeat-pro-2025-12.webp'),
-(39, 'https://i.postimg.cc/LsdTRKpG/tai-nghe-bluetooth-powerbeat-pro-2025-3.webp'),
-(39, 'https://i.postimg.cc/JhwqmVL2/tai-nghe-bluetooth-powerbeat-pro-2025-7.webp'),
-(40, 'https://i.postimg.cc/g09DdFWS/edifier-w820nb-1.webp'),
-(40, 'https://i.postimg.cc/Dw4gtf9K/edifier-w820nb-6.webp'),
-(40, 'https://i.postimg.cc/nh9k6V6y/edifier-w820nb-7.webp'),
-(41, 'https://i.postimg.cc/13VHLRLL/jbl-charge-6-bl.webp'),
-(41, 'https://i.postimg.cc/RZJRjCjb/jbl-charge-6-bl-2.webp'),
-(41, 'https://i.postimg.cc/wjRVSxSG/jbl-charge-6-bl-3.webp'),
-(42, 'https://i.postimg.cc/qv6L9B9c/jbl-flip-6-10.webp'),
-(42, 'https://i.postimg.cc/bwSTKYK6/jbl-flip-6-11.webp'),
-(42, 'https://i.postimg.cc/SxYrwQwV/jbl-flip-6-12.webp'),
-(43, 'https://i.postimg.cc/T359Z2Zq/marshall-acton-iii-1.webp'),
-(43, 'https://i.postimg.cc/MpfDhZhB/marshall-acton-iii-2.webp'),
-(43, 'https://i.postimg.cc/t4n5LRLW/marshall-acton-iii-4.webp'),
-(44, 'https://i.postimg.cc/SxYrwQwM/microphone-co-day-saramonic-sr-mv2000-1.webp'),
-(44, 'https://i.postimg.cc/7YW9sJQM/microphone-co-day-saramonic-sr-mv2000-2.webp'),
-(44, 'https://i.postimg.cc/c4bh9t5B/microphone-co-day-saramonic-sr-mv2000-3.webp'),
-(45, 'https://i.postimg.cc/tCMkSnm6/microphone-co-day-saramonic-sr-smartmic-xmic-z4-1.webp'),
-(45, 'https://i.postimg.cc/yYbjQ3rg/microphone-co-day-saramonic-sr-smartmic-xmic-z4-2.webp'),
-(45, 'https://i.postimg.cc/pX6CG51K/microphone-co-day-saramonic-sr-smartmic-xmic-z4-4.webp'),
-(46, 'https://i.postimg.cc/vHNhqxS1/download-(1).jpg'),
-(46, 'https://i.postimg.cc/PrRy3vFP/download-(2).jpg'),
-(46, 'https://i.postimg.cc/L6bDCg06/images-(1).jpg'),
-(47, 'https://i.postimg.cc/8P04Kfn7/8531-loa-keo-alokio-al-mx71.png'),
-(47, 'https://i.postimg.cc/7YW9sJQH/download-(3).jpg'),
-(47, 'https://i.postimg.cc/TY4075Hx/download-(4).jpg'),
-(48, 'https://i.postimg.cc/Gh5K7TS1/download-(5).jpg'),
-(48, 'https://i.postimg.cc/jd5v44v2/download-(6).jpg'),
-(48, 'https://i.postimg.cc/SNsVffVq/download-(7).jpg'),
-(49, 'https://i.postimg.cc/bNJL99g4/download-(10).jpg'),
-(49, 'https://i.postimg.cc/tCTDNNDH/download-(8).jpg'),
-(49, 'https://i.postimg.cc/Yq98zz8K/download-(9).jpg'),
-(50, 'https://i.postimg.cc/xTCg335Z/download-(11).jpg'),
-(50, 'https://i.postimg.cc/CL1Jss7J/download-(12).jpg'),
-(50, 'https://i.postimg.cc/7Y6Xnn9m/download-(13).jpg'),
-(51, 'https://i.postimg.cc/sDXK44mm/download-(14).jpg'),
-(51, 'https://i.postimg.cc/wxF0NGXZ/download-(15).jpg'),
-(51, 'https://i.postimg.cc/44wBcS6F/download-(16).jpg'),
-(52, 'https://i.postimg.cc/59pnzRBK/download-(17).jpg'),
-(52, 'https://i.postimg.cc/3r9nGcXt/download-(18).jpg'),
-(52, 'https://i.postimg.cc/h4Mpm5LM/download-(19).jpg'),
-(53, 'https://i.postimg.cc/FFGDSByp/download-(20).jpg'),
-(53, 'https://i.postimg.cc/tRD26M35/download-(21).jpg'),
-(53, 'https://i.postimg.cc/kMwfSpQF/download-(22).jpg'),
-(54, 'https://i.postimg.cc/wxF0NGXy/download-(23).jpg'),
-(54, 'https://i.postimg.cc/wxF0NGXR/download-(24).jpg'),
-(54, 'https://i.postimg.cc/rygQ4P1d/download-(25).jpg'),
-(55, 'https://i.postimg.cc/qBQjK5sN/download-(26).jpg'),
-(55, 'https://i.postimg.cc/yxfjzD6s/download-(27).jpg'),
-(55, 'https://i.postimg.cc/2yHGf1jY/download-(28).jpg'),
-(56, 'https://i.postimg.cc/NFNDwKGQ/download-(29).jpg'),
-(56, 'https://i.postimg.cc/J0TxWs7m/download-(30).jpg'),
-(56, 'https://i.postimg.cc/rshjLDy6/download-(31).jpg'),
-(57, 'https://i.postimg.cc/NFNDwKGQ/download-(29).jpg'),
-(57, 'https://i.postimg.cc/J0TxWs7m/download-(30).jpg'),
-(57, 'https://i.postimg.cc/rshjLDy6/download-(31).jpg'),
-(58, 'https://i.postimg.cc/RhPdzWS1/download-(35).jpg'),
-(58, 'https://i.postimg.cc/2yHGf1kK/images-(2).jpg'),
-(58, 'https://i.postimg.cc/hvCsqXDY/images-(3).jpg');
-
+INSERT INTO productimages (product_id, img_url)
+VALUES (1, 'https://i.postimg.cc/pX4QYbpn/28889798.jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (1, 'https://i.postimg.cc/3JVjC5dm/96639-image001-16140026.jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (1, 'https://i.postimg.cc/pX4QYbp9/iphone-17-pro-max-mau-xanh-dam.jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (2, 'https://i.postimg.cc/pX4QYbpn/28889798.jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (2, 'https://i.postimg.cc/3JVjC5dm/96639-image001-16140026.jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (2, 'https://i.postimg.cc/pX4QYbp9/iphone-17-pro-max-mau-xanh-dam.jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (3, 'https://i.postimg.cc/pX4QYbpn/28889798.jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (3, 'https://i.postimg.cc/3JVjC5dm/96639-image001-16140026.jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (3, 'https://i.postimg.cc/pX4QYbp9/iphone-17-pro-max-mau-xanh-dam.jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (4, 'https://i.postimg.cc/pX4QYbpn/28889798.jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (4, 'https://i.postimg.cc/3JVjC5dm/96639-image001-16140026.jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (4, 'https://i.postimg.cc/pX4QYbp9/iphone-17-pro-max-mau-xanh-dam.jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (5, 'https://i.postimg.cc/Kvw7rSR1/dien-thoai-di-dong-Nokia-1280-dienmay-com-l.jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (5, 'https://i.postimg.cc/DyHQdk8Z/dien-thoai-nokia-1280-2tekvn-net-2.jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (5, 'https://i.postimg.cc/7Yd1M8fP/nokia-1280-clip-image001.jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (6, 'https://i.postimg.cc/ncgKYbCL/vertu-signature-s-black-gold-ink-jade-black-calf-2-954543f6629c4541ae5b6fc0b98f7c62-grande.png');
+INSERT INTO productimages (product_id, img_url)
+VALUES (6, 'https://i.postimg.cc/28VFZ881/vertu-signature-v-black-gold-diamond-iron-black-alligator-jpeg.jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (6, 'https://i.postimg.cc/qMScXVzv/vertu-signature-v-gold-diamond-alligator-a48804798b864022ad18a4f338ef9716-grande.png');
+INSERT INTO productimages (product_id, img_url)
+VALUES (7, 'https://i.postimg.cc/Fs7gLssz/Giay-Nike-Mercurial-Vapor-15-Academy-TF-Racer-Pink-DJ5633-601.jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (7, 'https://i.postimg.cc/8PjB6PPj/images.jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (7, 'https://i.postimg.cc/J4Gck44y/anh-sp-add-01-01-01-04-07173-2-526bc45cf92a41dd89211b8389572379-1024x1024.jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (8, 'https://i.postimg.cc/VLdBCLLf/Giay-Nike-Mercurial-Vapor-15-Elite-FG-Pink-Foam-Black-DJ4978-601.jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (8, 'https://i.postimg.cc/ncCYDccp/57.jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (8, 'https://i.postimg.cc/KvRrMvvh/iii.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (9, 'https://i.postimg.cc/9Frt7FFh/qii.avif');
+INSERT INTO productimages (product_id, img_url)
+VALUES (9, 'https://i.postimg.cc/YqhfWqq7/dldl.avif');
+INSERT INTO productimages (product_id, img_url)
+VALUES (9, 'https://i.postimg.cc/HsV4ysWq/hhhg.avif');
+INSERT INTO productimages (product_id, img_url)
+VALUES (10, 'https://i.postimg.cc/rFKCrFyZ/hmf.avif');
+INSERT INTO productimages (product_id, img_url)
+VALUES (10, 'https://i.postimg.cc/VLdBCLsV/lll.avif');
+INSERT INTO productimages (product_id, img_url)
+VALUES (10, 'https://i.postimg.cc/RVNQHVC8/vp.avif');
+INSERT INTO productimages (product_id, img_url)
+VALUES (11, 'https://i.postimg.cc/448QyhZk/giay-wika-toni-kroos-xanh.jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (11, 'https://i.postimg.cc/tRrNJVb8/giay-wika-toni-kroos-xanh-2.jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (11, 'https://i.postimg.cc/mZdykFRx/vn-11134207-7r98o-ln6wihz98xjs16-b452fd1d00e04dec86a087c51dd0917e.jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (12, 'https://i.postimg.cc/bY69r2P9/mog.avif');
+INSERT INTO productimages (product_id, img_url)
+VALUES (12, 'https://i.postimg.cc/HWS9n7mS/rm1.avif');
+INSERT INTO productimages (product_id, img_url)
+VALUES (12, 'https://i.postimg.cc/DfCP0bhj/ao-djau-san-nha-authentic-real-madrid-24-25-trang-ix8095-hm6-2173f6f326c24436b66c7c5a6ee8e755-grande.png');
+INSERT INTO productimages (product_id, img_url)
+VALUES (13, 'https://i.postimg.cc/jq842JTZ/ee.avif');
+INSERT INTO productimages (product_id, img_url)
+VALUES (13, 'https://i.postimg.cc/v8PtT6yX/mmf.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (13, 'https://i.postimg.cc/bY69r2P9/mog.avif');
+INSERT INTO productimages (product_id, img_url)
+VALUES (14, 'https://i.postimg.cc/h4C1v7n8/mmff.avif');
+INSERT INTO productimages (product_id, img_url)
+VALUES (14, 'https://i.postimg.cc/Vs7WvbwB/mu.avif');
+INSERT INTO productimages (product_id, img_url)
+VALUES (14, 'https://i.postimg.cc/59PSyFJC/manchester-united-24-25-home-kit-design-leaked-v0-uugu3vhy7t0d1.jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (15, 'https://i.postimg.cc/x8Fv4BgC/mmd.avif');
+INSERT INTO productimages (product_id, img_url)
+VALUES (15, 'https://i.postimg.cc/1XYGjbM5/download.jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (15, 'https://i.postimg.cc/3NbXcz9Y/fdsf.avif');
+INSERT INTO productimages (product_id, img_url)
+VALUES (16, 'https://i.postimg.cc/VvHqV2gT/sssss.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (16, 'https://i.postimg.cc/hv3L5NMK/26-Nam.avif');
+INSERT INTO productimages (product_id, img_url)
+VALUES (16, 'https://i.postimg.cc/J0dN2SxF/asdasd.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (17, 'https://i.postimg.cc/rsY1P7g8/asss.avif');
+INSERT INTO productimages (product_id, img_url)
+VALUES (17, 'https://i.postimg.cc/vTSrNCXF/sfs.avif');
+INSERT INTO productimages (product_id, img_url)
+VALUES (17, 'https://i.postimg.cc/5ykBRDp2/26-Replica-Manchester-City-Nam.avif');
+INSERT INTO productimages (product_id, img_url)
+VALUES (18, 'https://i.postimg.cc/2yXQKgGX/sss.avif');
+INSERT INTO productimages (product_id, img_url)
+VALUES (18, 'https://i.postimg.cc/8cnR0x44/opo.avif');
+INSERT INTO productimages (product_id, img_url)
+VALUES (18, 'https://i.postimg.cc/sx0YNbmN/rfs.avif');
+INSERT INTO productimages (product_id, img_url)
+VALUES (19, 'https://i.postimg.cc/T1PjQTVs/s-l1200.jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (19, 'https://i.postimg.cc/qqZs5WwG/sdd.avif');
+INSERT INTO productimages (product_id, img_url)
+VALUES (19, 'https://i.postimg.cc/J0dN2Sxq/mg-4984-8c257ac8e5e44c7fb9e7d73dcf6e379f-1024x1024.jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (20, 'https://i.postimg.cc/Bbv5NJTM/FN8781-101-1-1200x1200.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (20, 'https://i.postimg.cc/HnL03TwZ/quan-ao-bong-da-psg-san-khach-25-26-mau-trang-hido-sport.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (20, 'https://i.postimg.cc/prdQkPf1/Ao-psg-san-khach-2023-1.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (21, 'https://i.postimg.cc/prdQkPf1/Ao-psg-san-khach-2023-1.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (21, 'https://i.postimg.cc/Y0SN8t68/2-0af779211eca4e18b6d4bc9c5959bb25.png');
+INSERT INTO productimages (product_id, img_url)
+VALUES (21, 'https://i.postimg.cc/3Nwj93XB/Ao-bong-da-psg-san-nha-2526-1.png');
+INSERT INTO productimages (product_id, img_url)
+VALUES (22, 'https://i.postimg.cc/j2j6vRHh/m127334-0001.avif');
+INSERT INTO productimages (product_id, img_url)
+VALUES (22, 'https://i.postimg.cc/HnL03Tww/rg(29).jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (22, 'https://i.postimg.cc/prdQkPfY/rolex-the-land-dweller-yuja-wang-ywang-potrait.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (23, 'https://i.postimg.cc/GtpPzbFD/m336934-0005.avif');
+INSERT INTO productimages (product_id, img_url)
+VALUES (23, 'https://i.postimg.cc/SRKLVm6X/Rolex-Sky-Dweller-15.jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (23, 'https://i.postimg.cc/QCMgSjQg/Rolex-Sky-Dweller-326934-Pic-6.jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (24, 'https://i.postimg.cc/63cLd8vv/ANN-8626-e1708398277706.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (24, 'https://i.postimg.cc/mDjNQPHz/kashmir-banner1-e1708398488851.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (24, 'https://i.postimg.cc/k4sFx2b2/NDP5195-e1708398570382.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (25, 'https://i.postimg.cc/xC5yKXzc/BR-Sharp-2345353.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (25, 'https://i.postimg.cc/nz2YvXDh/Sharp-3.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (25, 'https://i.postimg.cc/vBhLW4V1/Sharp-Tha-ng12351235.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (26, 'https://i.postimg.cc/Jnxcbsk4/BT-Calm-1676855.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (26, 'https://i.postimg.cc/26GF41Zk/Calm-246445343.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (26, 'https://i.postimg.cc/XJLcwrCN/Curnonlst18273-copy-e1708576927927.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (27, 'https://i.postimg.cc/B6pcxjKG/2-336c56a1-4add-4b45-ad5d-03b077d0e1cd.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (27, 'https://i.postimg.cc/ydjXFDSt/3-1e67c7ce-c7a9-4048-ab0f-c0be06bc9cb1.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (27, 'https://i.postimg.cc/tTkthsxy/3-5903f8ba-cd09-4b98-9443-1e2a658243d1.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (28, 'https://i.postimg.cc/ZR4xB8CJ/chuot-gaming-khong-day-logitech-g502-x-plus-lightspeed-1.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (28, 'https://i.postimg.cc/hjc1zLfc/chuot-gaming-khong-day-logitech-g502-x-plus-lightspeed-2.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (28, 'https://i.postimg.cc/rmMN01Kc/chuot-gaming-khong-day-logitech-g502-x-plus-lightspeed-3.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (29, 'https://i.postimg.cc/B64BLTXW/10-9-61.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (29, 'https://i.postimg.cc/TwfJLVhz/11-6-33.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (29, 'https://i.postimg.cc/sXs4QY1t/12-5-85.jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (30, 'https://i.postimg.cc/NMBk96LJ/text-ng-n-4-7-201.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (30, 'https://i.postimg.cc/qR4xhsgx/text-ng-n-5-9-205.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (30, 'https://i.postimg.cc/Sskf26jV/text-ng-n-7-4-160.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (31, 'https://i.postimg.cc/NMBk96LJ/text-ng-n-4-7-201.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (31, 'https://i.postimg.cc/qR4xhsgx/text-ng-n-5-9-205.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (31, 'https://i.postimg.cc/Sskf26jV/text-ng-n-7-4-160.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (32, 'https://i.postimg.cc/vBbtgrDL/text-ng-n-3-7-186.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (32, 'https://i.postimg.cc/ydsygmWT/text-ng-n-4-7-234.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (32, 'https://i.postimg.cc/63tf2rTV/text-ng-n-8-6-187.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (33, 'https://i.postimg.cc/BvxCnYZp/laptop-dell-alienware-m16-3.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (33, 'https://i.postimg.cc/nLv1hRVk/laptop-dell-alienware-m16-4.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (33, 'https://i.postimg.cc/VNjFkGs7/laptop-dell-alienware-m162.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (34, 'https://i.postimg.cc/LszV8C4k/macbook-pro-14-inch-m4-pro-or-max-chip-silver-pdp-image-position-2-7.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (34, 'https://i.postimg.cc/MGyYpPZy/macbook-pro-16-inch-m4-pro-or-max-chip-silver-pdp-image-position-7-7.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (34, 'https://i.postimg.cc/PqmM53fQ/text-ng-n-1-6-138-6.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (35, 'https://i.postimg.cc/d089VHQC/ban-phim-gaming-asus-rog-azoth-extreme-den-1.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (35, 'https://i.postimg.cc/MGyYpPZj/ban-phim-gaming-asus-rog-azoth-extreme-den-3-1.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (35, 'https://i.postimg.cc/SKWGxTQs/ban-phim-gaming-asus-rog-azoth-extreme-den-4-1.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (36, 'https://i.postimg.cc/g09DdFpx/Machenike-KT84-B84W-Smart-Screen-Tri-mode-White.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (36, 'https://i.postimg.cc/9fGBQ8X7/white-1-f085dcafd386443dbbe5e6303ac8b74e-master.png');
+INSERT INTO productimages (product_id, img_url)
+VALUES (36, 'https://i.postimg.cc/k5xyg1MF/white-2-eda5e12d1dbb4b699c4dcb0b5e294f9a-master.png');
+INSERT INTO productimages (product_id, img_url)
+VALUES (37, 'https://i.postimg.cc/d0MBvPFD/2-f69a2d419371436083b3a5521ebec66c-master.jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (37, 'https://i.postimg.cc/FKtZm5v9/z4571450737160-2334de0074ebbfea277f8780519c46ac-568141b69a044b55bd1bf078f86a27a6-master.jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (37, 'https://i.postimg.cc/JhwqmV8L/z4571453724049-38fee4cd392684bac3f5f2c9f131aaf8-7156f22659e0426cb913402d7ca960ed-master.jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (38, 'https://i.postimg.cc/QMLbsGDZ/airpods-pro-3-600x600-97609cf56e73499f94f3b6bdd605cf82-c8aecc3428ce451da1dea465b866e65a-master.png');
+INSERT INTO productimages (product_id, img_url)
+VALUES (38, 'https://i.postimg.cc/3wMB75h5/airpods-pro-matte-white-color-a6f3150ab0a04ec39fb47011f6be6207-9dc08709e3544471a705ed58669aacb3-mast.jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (38, 'https://i.postimg.cc/1zxHPhSP/mwp22-c3552981274e43acaa2fa999645a1b18-a93e0fa0e0334e0e907bda97d5fd5c90-master.png');
+INSERT INTO productimages (product_id, img_url)
+VALUES (39, 'https://i.postimg.cc/fb4KZnNg/tai-nghe-bluetooth-powerbeat-pro-2025-12.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (39, 'https://i.postimg.cc/LsdTRKpG/tai-nghe-bluetooth-powerbeat-pro-2025-3.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (39, 'https://i.postimg.cc/JhwqmVL2/tai-nghe-bluetooth-powerbeat-pro-2025-7.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (40, 'https://i.postimg.cc/g09DdFWS/edifier-w820nb-1.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (40, 'https://i.postimg.cc/Dw4gtf9K/edifier-w820nb-6.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (40, 'https://i.postimg.cc/nh9k6V6y/edifier-w820nb-7.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (41, 'https://i.postimg.cc/13VHLRLL/jbl-charge-6-bl.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (41, 'https://i.postimg.cc/RZJRjCjb/jbl-charge-6-bl-2.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (41, 'https://i.postimg.cc/wjRVSxSG/jbl-charge-6-bl-3.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (42, 'https://i.postimg.cc/qv6L9B9c/jbl-flip-6-10.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (42, 'https://i.postimg.cc/bwSTKYK6/jbl-flip-6-11.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (42, 'https://i.postimg.cc/SxYrwQwV/jbl-flip-6-12.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (43, 'https://i.postimg.cc/T359Z2Zq/marshall-acton-iii-1.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (43, 'https://i.postimg.cc/MpfDhZhB/marshall-acton-iii-2.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (43, 'https://i.postimg.cc/t4n5LRLW/marshall-acton-iii-4.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (44, 'https://i.postimg.cc/SxYrwQwM/microphone-co-day-saramonic-sr-mv2000-1.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (44, 'https://i.postimg.cc/7YW9sJQM/microphone-co-day-saramonic-sr-mv2000-2.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (44, 'https://i.postimg.cc/c4bh9t5B/microphone-co-day-saramonic-sr-mv2000-3.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (45, 'https://i.postimg.cc/tCMkSnm6/microphone-co-day-saramonic-sr-smartmic-xmic-z4-1.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (45, 'https://i.postimg.cc/yYbjQ3rg/microphone-co-day-saramonic-sr-smartmic-xmic-z4-2.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (45, 'https://i.postimg.cc/pX6CG51K/microphone-co-day-saramonic-sr-smartmic-xmic-z4-4.webp');
+INSERT INTO productimages (product_id, img_url)
+VALUES (46, 'https://i.postimg.cc/vHNhqxS1/download-(1).jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (46, 'https://i.postimg.cc/PrRy3vFP/download-(2).jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (46, 'https://i.postimg.cc/L6bDCg06/images-(1).jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (47, 'https://i.postimg.cc/8P04Kfn7/8531-loa-keo-alokio-al-mx71.png');
+INSERT INTO productimages (product_id, img_url)
+VALUES (47, 'https://i.postimg.cc/7YW9sJQH/download-(3).jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (47, 'https://i.postimg.cc/TY4075Hx/download-(4).jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (48, 'https://i.postimg.cc/Gh5K7TS1/download-(5).jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (48, 'https://i.postimg.cc/jd5v44v2/download-(6).jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (48, 'https://i.postimg.cc/SNsVffVq/download-(7).jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (49, 'https://i.postimg.cc/bNJL99g4/download-(10).jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (49, 'https://i.postimg.cc/tCTDNNDH/download-(8).jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (49, 'https://i.postimg.cc/Yq98zz8K/download-(9).jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (50, 'https://i.postimg.cc/xTCg335Z/download-(11).jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (50, 'https://i.postimg.cc/CL1Jss7J/download-(12).jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (50, 'https://i.postimg.cc/7Y6Xnn9m/download-(13).jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (51, 'https://i.postimg.cc/sDXK44mm/download-(14).jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (51, 'https://i.postimg.cc/wxF0NGXZ/download-(15).jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (51, 'https://i.postimg.cc/44wBcS6F/download-(16).jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (52, 'https://i.postimg.cc/59pnzRBK/download-(17).jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (52, 'https://i.postimg.cc/3r9nGcXt/download-(18).jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (52, 'https://i.postimg.cc/h4Mpm5LM/download-(19).jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (53, 'https://i.postimg.cc/FFGDSByp/download-(20).jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (53, 'https://i.postimg.cc/tRD26M35/download-(21).jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (53, 'https://i.postimg.cc/kMwfSpQF/download-(22).jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (54, 'https://i.postimg.cc/wxF0NGXy/download-(23).jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (54, 'https://i.postimg.cc/wxF0NGXR/download-(24).jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (54, 'https://i.postimg.cc/rygQ4P1d/download-(25).jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (55, 'https://i.postimg.cc/qBQjK5sN/download-(26).jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (55, 'https://i.postimg.cc/yxfjzD6s/download-(27).jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (55, 'https://i.postimg.cc/2yHGf1jY/download-(28).jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (56, 'https://i.postimg.cc/NFNDwKGQ/download-(29).jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (56, 'https://i.postimg.cc/J0TxWs7m/download-(30).jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (56, 'https://i.postimg.cc/rshjLDy6/download-(31).jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (57, 'https://i.postimg.cc/NFNDwKGQ/download-(29).jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (57, 'https://i.postimg.cc/J0TxWs7m/download-(30).jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (57, 'https://i.postimg.cc/rshjLDy6/download-(31).jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (58, 'https://i.postimg.cc/RhPdzWS1/download-(35).jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (58, 'https://i.postimg.cc/2yHGf1kK/images-(2).jpg');
+INSERT INTO productimages (product_id, img_url)
+VALUES (58, 'https://i.postimg.cc/hvCsqXDY/images-(3).jpg');
