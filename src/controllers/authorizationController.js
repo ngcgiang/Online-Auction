@@ -1,9 +1,30 @@
-const AuthorizationService = require('../services/authorizationService');
+    const AuthorizationService = require('../services/authorizationService');
 const MQService = require('../services/mqService');
+const axios = require('axios');
 
 const registerUser = async (req, res) => {
     try {
         const userData = req.body;
+        const recaptchaToken = userData.recaptchaToken;
+        if (!recaptchaToken) {
+            return res.status(400).json({
+                success: false,
+                message: 'Missing reCAPTCHA token'
+            });
+        }
+
+        // Verify reCAPTCHA
+        const secret = process.env.RECAPTCHA_SECRET_KEY;
+        const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${secret}&response=${recaptchaToken}`;
+        const recaptchaRes = await axios.post(verifyUrl);
+
+        if (!recaptchaRes.data.success) {
+            return res.status(400).json({
+                success: false,
+                message: 'reCAPTCHA verification failed'
+            });
+        }
+
         const newUser = await AuthorizationService.createUser(userData);
         
         // Publish email task to RabbitMQ instead of sending directly
