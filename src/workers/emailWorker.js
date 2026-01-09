@@ -1,6 +1,6 @@
 const mqConfig = require('../config/mqConfig');
 const emailService = require('../services/emailService');
-const { User } = require('../models');
+const { User, Bid } = require('../models');
 
 /**
  * RabbitMQ Email Worker (Consumer)
@@ -104,6 +104,9 @@ class EmailWorker {
           await this.handleQA(payload.data);
           break;
 
+        case 'UPDATE_PRODUCT_DESCRIPTION':
+          await this.handleUpdateProductDescription(payload.data);
+          break;
         default:
           console.warn(`⚠️ Unknown event type: ${payload.event}`);
       }
@@ -209,11 +212,64 @@ class EmailWorker {
     }
   }
 
-  /**
-   * Handle AUCTION_ENDED_NO_BIDS event
-   * Notify seller that auction ended with no bids
-   * @param {Object} data - Event payload
-   */
+  async handleUpdateProductDescription(data) {
+    const { product_id, product_name, seller_id, updated_description } = data; 
+    console.log(`📝 Processing UPDATE_PRODUCT_DESCRIPTION event for product #${product_id}`);
+    
+    try {
+      // Fetch seller information
+      const seller = await User.findByPk(seller_id, { 
+        attributes: ['user_id', 'email', 'full_name'] 
+      });
+      if (!seller) {
+        throw new Error(`Seller not found: ${seller_id}`);
+      }
+
+      // Find all unique bidders who have placed bids on this product
+      const bids = await Bid.findAll({
+        where: { product_id: product_id },
+        attributes: ['bidder_id'],
+        raw: true
+      });
+
+      if (bids.length === 0) {
+        console.log(`  ℹ️ No bidders to notify for product #${product_id}`);
+        return;
+      }
+
+      // Get unique bidder IDs
+      const uniqueBidderIds = [...new Set(bids.map(bid => bid.bidder_id))];
+      console.log(`  📊 Found ${uniqueBidderIds.length} bidders to notify`);
+
+      // Fetch bidder emails
+      const bidders = await User.findAll({
+        where: { user_id: uniqueBidderIds },
+        attributes: ['user_id', 'email', 'full_name'],
+        raw: true
+      });
+
+      if (bidders.length === 0) {
+        console.log(`  ⚠️ Could not find bidder email addresses`);
+        return;
+      }
+
+      const bidderEmails = bidders.map(bidder => bidder.email);
+
+      // Send notification email to bidders about description update
+      await emailService.sendUpdateDescriptionEmail(
+        bidderEmails,
+        product_name,
+        product_id
+      );
+
+      console.log(`  ✅ Description update email sent to ${bidderEmails.length} bidders`);
+      console.log(`🎉 UPDATE_PRODUCT_DESCRIPTION event processed successfully for product #${product_id}`);
+
+    } catch (error) {
+      console.error(`❌ Error in handleUpdateProductDescription:`, error.message);
+      throw error;
+    }
+  }
   async handleAuctionEndedNoBids(data) {
     const { product_id, product_name, seller_id, end_time } = data;
     

@@ -355,6 +355,40 @@ const appendProductDescription = async (req, res, next) => {
       created_at: new Date()
     });
 
+    // Publish UPDATE_PRODUCT_DESCRIPTION event to RabbitMQ for email worker
+    try {
+      const mqConfig = require('../config/mqConfig');
+      const channel = await mqConfig.getChannel();
+      const queueName = 'email_queue';
+
+      // Ensure queue exists
+      await channel.assertQueue(queueName, { durable: true });
+
+      // Publish event message
+      const message = {
+        event: 'UPDATE_PRODUCT_DESCRIPTION',
+        data: {
+          product_id: parseInt(product_id),
+          product_name: product.product_name,
+          seller_id: currentUserId,
+          updated_description: sanitizedContent,
+          timestamp: new Date().toISOString()
+        }
+      };
+
+      channel.sendToQueue(
+        queueName,
+        Buffer.from(JSON.stringify(message)),
+        { persistent: true }
+      );
+
+      console.log(`📨 [Email Queue] UPDATE_PRODUCT_DESCRIPTION event published for product #${product_id}`);
+    } catch (mqError) {
+      console.error('⚠️ Failed to publish email event to RabbitMQ:', mqError.message);
+      // Don't fail the request, but log the warning
+      console.warn('Email notification may not be sent to bidders');
+    }
+
     return res.status(201).json({
       success: true,
       message: 'Product description updated successfully',
