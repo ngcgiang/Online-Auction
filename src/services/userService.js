@@ -144,7 +144,7 @@ class UserService {
                 include: [{
                     model: Product,
                     as: 'product',
-                    attributes: ['product_id', 'product_name', 'current_price', 'end_time', 'buy_now_value', 'status'],
+                    attributes: ['product_id', 'product_name', 'current_price', 'end_time', 'buy_now_value', 'status', 'winner_id'],
                     where: { status: 'active' },
                     include: [{
                         model: Category,

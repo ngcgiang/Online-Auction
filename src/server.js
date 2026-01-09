@@ -52,7 +52,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Apply global rate limiter to all routes
-app.use(globalLimiter);
+//app.use(globalLimiter);
 
 // Morgan logging with skip function to exclude /metrics endpoint
 app.use(morgan('combined', { 
@@ -61,25 +61,25 @@ app.use(morgan('combined', {
 }));
 
 // Prometheus metrics middleware (should be early in the chain)
-app.use(metricsMiddleware);
+//app.use(metricsMiddleware);
 
 // Serve static files from public directory
 app.use(express.static('public'));
 
 // Routes
-app.use('/api/auth', authLimiter, authRoutes);
-app.use('/api/watchlist', apiLimiter, watchlistRoutes);
-app.use('/api/products', apiLimiter, productRoutes);
-app.use('/api/categories', apiLimiter, categoryRoutes);
-app.use('/api/emails', apiLimiter, emailRoutes);
-app.use('/api/seller', apiLimiter, sellerRoutes);
-app.use('/api/admin', apiLimiter, adminRoutes);
-app.use('/api/users', apiLimiter, userRoutes);
-app.use('/api/orders', apiLimiter, orderRoutes);
-app.use('/api/qa', apiLimiter, qaRoutes);
-app.use('/api/chat', chatLimiter, chatRoutes);
-app.use('/api/bids', apiLimiter, bidRoutes);
-app.use('/api/payments', paymentLimiter, paymentRoutes);
+app.use('/api/auth', /*authLimiter*/ authRoutes);
+app.use('/api/watchlist', /*apiLimiter*/ watchlistRoutes);
+app.use('/api/products', /*apiLimiter*/ productRoutes);
+app.use('/api/categories', /*apiLimiter*/ categoryRoutes);
+app.use('/api/emails', /*apiLimiter*/ emailRoutes);
+app.use('/api/seller', /*apiLimiter*/ sellerRoutes);
+app.use('/api/admin', /*apiLimiter*/ adminRoutes);
+app.use('/api/users', /*apiLimiter*/userRoutes);
+app.use('/api/orders', /*apiLimiter*/ orderRoutes);
+app.use('/api/qa', /*apiLimiter*/ qaRoutes);
+app.use('/api/chat', /*chatLimiter*/ chatRoutes);
+app.use('/api/bids', /*apiLimiter*/ bidRoutes);
+app.use('/api/payments', /*paymentLimiter*/ paymentRoutes);
 
 // Basic route
 app.get('/', (req, res) => {

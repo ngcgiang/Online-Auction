@@ -543,6 +543,23 @@ const countAllBids = async (req, res) => {
     }
 };
 
+const resetUserPassword = async(req,res)=>{
+    try{
+        const {email,newPassword} = req.body;
+        await adminService.resetUserPassword(email,newPassword);
+        return res.status(200).json({
+            success: true,
+            message: "Reset user password successfully"
+        })
+    }catch(error){
+        console.error("error resetting user password:",error);
+        return res.status(500).json({
+            success: false,
+            message: "Failed to reset user password"
+        })
+    }
+}
+
 module.exports = {
     getPendingRequests,
     approveUpgrade,

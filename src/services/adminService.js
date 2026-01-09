@@ -618,6 +618,27 @@ async countAllBids(){
         throw error;
     }
 }
+
+async resetUserPassword(user_id, newPassword){
+    try{
+        const user = await User.findByPk(user_id);
+        if (!user) {
+            throw new Error('User not found');
+        }
+        const hashedPassword = await bcrypt.hash(newPassword,10);
+        user.password = hashedPassword;
+        await user.save();
+        return {
+            user_id: user.user_id,
+            email: user.email,
+            message: 'Password reset successfully'
+        };
+    }
+    catch(error){
+        console.error("resetUserPassword error:", error);
+        throw error;
+    }   
+}
 }
 
 
