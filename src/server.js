@@ -24,6 +24,13 @@ const logger = require('./utils/logger');
 const morgan = require('morgan');
 const metricsMiddleware = require('./middlewares/metricsMiddleware');
 const { register } = require('./utils/metrics');
+const {
+  globalLimiter,
+  authLimiter,
+  apiLimiter,
+  paymentLimiter,
+  chatLimiter,
+} = require('./middlewares/rateLimiter');
 
 const app = express();
 
@@ -44,6 +51,9 @@ realtimeBidService.setSocketIO(io);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Apply global rate limiter to all routes
+app.use(globalLimiter);
+
 // Morgan logging with skip function to exclude /metrics endpoint
 app.use(morgan('combined', { 
   stream: logger.stream,
@@ -57,19 +67,19 @@ app.use(metricsMiddleware);
 app.use(express.static('public'));
 
 // Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/watchlist', watchlistRoutes);
-app.use('/api/products', productRoutes);
-app.use('/api/categories', categoryRoutes);
-app.use('/api/emails', emailRoutes);
-app.use('/api/seller', sellerRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/orders', orderRoutes);
-app.use('/api/qa', qaRoutes);
-app.use('/api/chat', chatRoutes);
-app.use('/api/bids', bidRoutes);
-app.use('/api/payments', paymentRoutes);
+app.use('/api/auth', authLimiter, authRoutes);
+app.use('/api/watchlist', apiLimiter, watchlistRoutes);
+app.use('/api/products', apiLimiter, productRoutes);
+app.use('/api/categories', apiLimiter, categoryRoutes);
+app.use('/api/emails', apiLimiter, emailRoutes);
+app.use('/api/seller', apiLimiter, sellerRoutes);
+app.use('/api/admin', apiLimiter, adminRoutes);
+app.use('/api/users', apiLimiter, userRoutes);
+app.use('/api/orders', apiLimiter, orderRoutes);
+app.use('/api/qa', apiLimiter, qaRoutes);
+app.use('/api/chat', chatLimiter, chatRoutes);
+app.use('/api/bids', apiLimiter, bidRoutes);
+app.use('/api/payments', paymentLimiter, paymentRoutes);
 
 // Basic route
 app.get('/', (req, res) => {
