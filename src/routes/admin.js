@@ -24,6 +24,7 @@ const {
 } = require('../controllers/adminController');
 
 const { getAuctionConfig, createSystemConfig, updateSystemConfig } = require('../utils/configHelper');
+const {passwordValidator} = require("../middlewares/userValidator");
 
 // Get all pending upgrade requests
 router.get('/pending-requests', verifyAccessToken, checkRole(['admin']), getPendingRequests);
@@ -48,7 +49,7 @@ router.get('/new-users',verifyAccessToken,checkRole(['admin']),getNewUsers);
 router.get('/total-orders',verifyAccessToken,checkRole(['admin']),getTotalOrders);
 router.get('/monthly-income',verifyAccessToken,checkRole(['admin']),getMonthlyIncome);
 router.patch('/update-user-info/',verifyAccessToken,checkRole(['admin']),updateInfoValidator,updateUserInfo);
-router.patch('/reset-user-password/',verifyAccessToken,checkRole(['admin']),resetUserPassword);
+router.patch('/reset-user-password/',verifyAccessToken,checkRole(['admin']),passwordValidator,resetUserPassword);
 
 // Count users by role
 router.get('/count-user-by-role', verifyAccessToken, checkRole(['admin']), countUserByRole);
