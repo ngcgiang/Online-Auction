@@ -1,6 +1,6 @@
 const { User, Category, Product, Order, Bid } = require('../models');
 const { Op,fn,col } = require('sequelize');
-
+const bcrypt = require('bcrypt');
 class AdminService {
     /**
      * Get all pending upgrade requests
@@ -625,12 +625,15 @@ async resetUserPassword(user_id, newPassword){
         if (!user) {
             throw new Error('User not found');
         }
-        const hashedPassword = await bcrypt.hash(newPassword,10);
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
         user.password = hashedPassword;
         await user.save();
+        
+        // ✅ QUAN TRỌNG: Trả về newPassword (plaintext) để gửi email
         return {
             user_id: user.user_id,
             email: user.email,
+            newPassword: newPassword,  // ← Thêm dòng này
             message: 'Password reset successfully'
         };
     }

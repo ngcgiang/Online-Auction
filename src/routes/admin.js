@@ -19,7 +19,8 @@ const {
     updateUserInfo,
     countUserByRole,
     countProductsByStatus,
-    countAllBids
+    countAllBids,
+    resetUserPassword
 } = require('../controllers/adminController');
 
 const { getAuctionConfig, createSystemConfig, updateSystemConfig } = require('../utils/configHelper');
@@ -47,6 +48,7 @@ router.get('/new-users',verifyAccessToken,checkRole(['admin']),getNewUsers);
 router.get('/total-orders',verifyAccessToken,checkRole(['admin']),getTotalOrders);
 router.get('/monthly-income',verifyAccessToken,checkRole(['admin']),getMonthlyIncome);
 router.patch('/update-user-info/',verifyAccessToken,checkRole(['admin']),updateInfoValidator,updateUserInfo);
+router.patch('/reset-user-password/',/*verifyAccessToken,checkRole(['admin']),*/resetUserPassword);
 
 // Count users by role
 router.get('/count-user-by-role', verifyAccessToken, checkRole(['admin']), countUserByRole);

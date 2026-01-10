@@ -107,6 +107,10 @@ class EmailWorker {
         case 'UPDATE_PRODUCT_DESCRIPTION':
           await this.handleUpdateProductDescription(payload.data);
           break;
+
+        case 'ADMIN_RESET_USER_PASSWORD':
+          await this.handlePasswordResetByAdmin(payload.data);
+          break;
         default:
           console.warn(`⚠️ Unknown event type: ${payload.event}`);
       }
@@ -270,6 +274,7 @@ class EmailWorker {
       throw error;
     }
   }
+
   async handleAuctionEndedNoBids(data) {
     const { product_id, product_name, seller_id, end_time } = data;
     
@@ -430,6 +435,20 @@ class EmailWorker {
     console.log('  ℹ️ AUCTION_ENDED handler not implemented yet');
   }
 
+  async handlePasswordResetByAdmin(data) {
+    console.log(`🔐 Processing ADMIN_RESET_USER_PASSWORD event for email: ${data.email}`);
+    const { email, newPassword } = data;
+
+    try {
+      // Send password reset email
+      await emailService.sendPasswordResetByAdminEmail(email, newPassword);
+      console.log(`  ✅ Admin reset password email sent to: ${email}`);
+    } catch (error) {
+      console.error(`❌ Error in handlePasswordResetByAdmin:`, error.message);
+      throw error;
+    } 
+  }
+
   /**
    * Gracefully stop the worker
    */
@@ -447,6 +466,13 @@ class EmailWorker {
       process.exit(1);
     }
   }
+
+  /**
+   * Send admin reset password event to queue
+   * @param {string} email - User's email
+   * @param {string} tempPassword - Temporary password
+   */
+  
 }
 
 // Initialize and start worker

@@ -1,6 +1,7 @@
 const adminService = require('../services/adminService');
 const AdminService = require('../services/adminService');
 
+const mqService = require('../services/mqService');
 /**
  * Get all pending upgrade requests
  */
@@ -543,20 +544,40 @@ const countAllBids = async (req, res) => {
     }
 };
 
-const resetUserPassword = async(req,res)=>{
-    try{
-        const {email,newPassword} = req.body;
-        await adminService.resetUserPassword(email,newPassword);
+const resetUserPassword = async (req, res) => {
+    try {
+        const { userId, newPassword, email } = req.body;
+        if (!userId || !newPassword) {
+            return res.status(400).json({
+                success: false,
+                message: "User ID and newPassword are required"
+            });
+        }
+        // Gọi service để reset password, truyền newPassword
+        // Giả sử trả về { email, newPassword }
+        const result = await adminService.resetUserPassword(userId, newPassword);
+
+        // Publish event to queue via MQService
+        if (result && result.email && result.newPassword) {
+            await mqService.publishToQueue('email_queue', {
+                event: 'ADMIN_RESET_USER_PASSWORD',
+                data: {
+                    email: result.email,
+                    newPassword: result.newPassword
+                }
+            });
+        }
+
         return res.status(200).json({
             success: true,
-            message: "Reset user password successfully"
-        })
-    }catch(error){
-        console.error("error resetting user password:",error);
+            message: "Password reset successfully"
+        });
+    } catch (error) {
+        console.error("error resetting user password", error);
         return res.status(500).json({
             success: false,
             message: "Failed to reset user password"
-        })
+        });
     }
 }
 
@@ -577,5 +598,6 @@ module.exports = {
     updateUserInfo,
     countUserByRole,
     countProductsByStatus,
-    countAllBids
+    countAllBids,
+    resetUserPassword
 };

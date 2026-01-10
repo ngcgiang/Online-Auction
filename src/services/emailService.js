@@ -173,7 +173,7 @@ class emailService {
     async sendUpdateDescriptionEmail(toEmails, productName, product_id) {
         const transporter = this._createTransporter();
         const base_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
-        const productLink = `${base_URL}/products/${product_id}`;
+        const productLink = `${base_URL}/product/${product_id}`;
 
         const mailOptions = {
             from: process.env.EMAIL_USER,
