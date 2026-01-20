@@ -55,10 +55,10 @@ app.use(express.urlencoded({ extended: true }));
 //app.use(globalLimiter);
 
 // Morgan logging with skip function to exclude /metrics endpoint
-app.use(morgan('combined', { 
-  stream: logger.stream,
-  skip: (req, res) => req.path === '/metrics'
-}));
+// app.use(morgan('combined', { 
+//   stream: logger.stream,
+//   skip: (req, res) => req.path === '/metrics'
+// }));
 
 // Prometheus metrics middleware (should be early in the chain)
 //app.use(metricsMiddleware);
