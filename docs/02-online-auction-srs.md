@@ -7,7 +7,7 @@
 | Tên sản phẩm | Sàn đấu giá trực tuyến |
 | Loại tài liệu | Đặc tả yêu cầu phần mềm |
 | Phiên bản | 1.0 |
-| Trạng thái | Bản nháp |
+| Trạng thái | Bản chính |
 | Người phụ trách | Business Analyst |
 | Ngày lập | 2026-05-29 |
 
